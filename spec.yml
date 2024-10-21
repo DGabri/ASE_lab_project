@@ -1,0 +1,653 @@
+openapi: 3.0.0
+info:
+  title: Chess Heroes
+  version: 1.0.0
+  description: API for managing game elements including players, pieces, auctions, and admin actions.
+
+paths:
+  /piece:
+    get:
+      summary: Get info of a pieces list
+      description: Retrieve information about a list of pieces (Player, Admin, and System).
+      tags:
+        - Piece
+      parameters:
+        - name: piece_id
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+          explode: true
+          description: Comma-separated list of piece IDs.
+      security:
+        - playerAuth: []
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: List of pieces returned successfully
+    post:
+      summary: Add a new piece
+      description: Adds a new piece to the system (Admin only).
+      tags:
+        - Piece
+      security:
+        - adminAuth: []
+      responses:
+        '201':
+          description: Piece created successfully
+
+  /piece/{piece_id}:
+    put:
+      summary: Modify a piece info
+      description: Modify the information of a specific piece (Admin only).
+      tags:
+        - Piece
+      parameters:
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the piece.
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: Piece modified successfully
+
+  /piece/all:
+    get:
+      summary: Get info about all pieces in the game
+      description: Retrieve information about all the pieces (Player, Admin).
+      tags:
+        - Piece
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: All pieces returned successfully
+
+  /player/{player_id}:
+    get:
+      summary: Get player info
+      description: Get the information of a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player information returned successfully
+
+    put:
+      summary: Modify player info
+      description: Modify the information of a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player information modified successfully
+
+    delete:
+      summary: Delete a player
+      description: Remove a player from the system (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player deleted successfully
+
+  /player/collection/{player_id}:
+    get:
+      summary: Get player collection info
+      description: Get collection information of a specific player (Player*, Admin, System).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: Player collection returned successfully
+
+    put:
+      summary: Update player collection
+      description: Update the collection of a specific player (Admin, System).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: Player collection updated successfully
+
+  /player/auction/won/{player_id}:
+    get:
+      summary: Get player bid history
+      description: Retrieve the bid history of a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player bid history returned successfully
+
+  /player/auction/created/{player_id}:
+    get:
+      summary: Get player's created auctions history
+      description: Retrieve the history of auctions created by a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player's created auctions history returned successfully
+
+  /player/payment/history/{player_id}:
+    get:
+      summary: Get player's payment history
+      description: Retrieve the history of payments made with real money by a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Payment history returned successfully
+
+  /player/payment/{player_id}:
+    post:
+      summary: Add a new payment transaction
+      description: Add a new real-money payment transaction (System only).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - systemAuth: []
+      responses:
+        '201':
+          description: Payment transaction added successfully
+
+  /player/gold/{player_id}:
+    get:
+      summary: Get player's in-game currency
+      description: Retrieve the amount of in-game currency of a specific player (Player*, Admin, System).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: In-game currency returned successfully
+
+    put:
+      summary: Modify player's in-game currency
+      description: Modify the amount of in-game currency of a specific player (Admin, System).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: In-game currency updated successfully
+
+  /player/gold/history/{player_id}:
+    get:
+      summary: Get player's in-game currency transaction history
+      description: Retrieve the history of in-game currency transactions for a specific player (Player*, Admin).
+      tags:
+        - Player
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player.
+      security:
+        - playerSelfAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: In-game currency transaction history returned successfully
+
+  /player/all:
+    get:
+      summary: Get all players info
+      description: Retrieve information about all players in the system (Admin only).
+      tags:
+        - Player
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: All players information returned successfully
+
+  /auction:
+    post:
+      summary: Create a new auction
+      description: Create a new auction in the system (Player only).
+      tags:
+        - Auction
+      security:
+        - playerAuth: []
+      responses:
+        '201':
+          description: Auction created successfully
+          
+  /auction/{auction_id}:
+    get:
+      summary: Get auction info
+      description: Retrieve information about a specific auction (Player, Admin, System).
+      tags:
+        - Auction
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the auction.
+      security:
+        - playerAuth: []
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: Auction information returned successfully
+
+    put:
+      summary: Modify auction
+      description: Modify the details of a specific auction (Admin, System).
+      tags:
+        - Auction
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the auction.
+      security:
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: Auction updated successfully
+
+  /auction/history:
+    get:
+      summary: Get game auction history
+      description: Retrieve the history of past auctions in the game (Player, Admin).
+      tags:
+        - Auction
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Auction history returned successfully
+
+  /auction/running:
+    get:
+      summary: Get all running auctions
+      description: Retrieve all currently running auctions (Player, Admin, System).
+      tags:
+        - Auction
+      security:
+        - playerAuth: []
+        - adminAuth: []
+        - systemAuth: []
+      responses:
+        '200':
+          description: All running auctions returned successfully
+
+  /auction/running/{pieces_id}:
+    get:
+      summary: Get running auctions for a specific piece
+      description: Retrieve all running auctions for a specific piece (Player, Admin).
+      tags:
+        - Auction
+      parameters:
+        - name: pieces_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the piece.
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Running auctions for the piece returned successfully
+
+  /auction/bid/{auction_id}:
+    post:
+      summary: Make a bid for an auction
+      description: Submit a bid for a specific auction (Player only).
+      tags:
+        - Auction
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the auction.
+      security:
+        - playerAuth: []
+      responses:
+        '201':
+          description: Bid submitted successfully
+          
+  /banner:
+    post:
+      summary: Add a new banner
+      description: Adds a new banner to the system (Admin only).
+      tags:
+        - Banner
+      security:
+        - adminAuth: []
+      responses:
+        '201':
+          description: Banner created successfully
+          
+  /banner/{banner_id}:
+    get:
+      summary: Get pieces for a specific banner
+      description: Retrieve the pieces for a specific type of banner (Player, Admin).
+      tags:
+        - Banner
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the banner.
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Pieces for the banner returned successfully
+      
+    put:
+      summary: Modify pieces for a specific banner
+      description: Modify the pieces for a specific type of banner (Admin only).
+      tags:
+        - Banner
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the banner.
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: Banner updated successfully
+          
+    delete:
+      summary: Delete a banner
+      description: Remove a banner from the system (Admin only).
+      tags:
+        - Banner
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the banner.
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: Player deleted successfully
+        
+  /banner/pull/{banner_id}:
+    get:
+      summary: Pull pieces for a specific banner
+      description: Pull the pieces for a specific type of banner (Player only).
+      tags:
+        - Banner
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the banner.
+      security:
+        - playerAuth: []
+      responses:
+        '200':
+          description: Pieces for the banner returned successfully
+
+  /auth/register:
+    post:
+      summary: Register a new player or admin
+      description: Register a new player or admin into the system (Player, Admin).
+      tags:
+        - Auth
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '201':
+          description: User registered successfully
+
+  /auth/login:
+    post:
+      summary: Login
+      description: Authenticate a player or admin (Player, Admin).
+      tags:
+        - Auth
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Login successful
+
+  /auth/logout:
+    post:
+      summary: Logout
+      description: Logout a player or admin (Player, Admin).
+      tags:
+        - Auth
+      security:
+        - playerAuth: []
+        - adminAuth: []
+      responses:
+        '200':
+          description: Logout successful
+
+  /payment/buy:
+    post:
+      summary: Buy in-game currency
+      description: Purchase in-game currency using real money (Player only).
+      tags:
+        - Payment
+      security:
+        - playerAuth: []
+      responses:
+        '201':
+          description: In-game currency purchased successfully
+
+  /admin/{admin_id}:
+    get:
+      summary: Get admin info
+      description: Retrieve information about a specific admin (Admin only).
+      tags:
+        - Admin
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the admin.
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: Admin information returned successfully
+
+  /admin/log/history/{admin_id}:
+    get:
+      summary: Get admin action logs
+      description: Retrieve the logs of actions taken by a specific admin (Admin only).
+      tags:
+        - Admin
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the admin.
+      security:
+        - adminAuth: []
+      responses:
+        '200':
+          description: Admin action logs returned successfully
+
+  /admin/log/{admin_id}:
+    post:
+      summary: Insert an admin action
+      description: Record a new action performed by an admin (System only).
+      tags:
+        - Admin
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the admin.
+      security:
+        - systemAuth: []
+      responses:
+        '201':
+          description: Admin action logged successfully
+          
+components:
+  securitySchemes:
+    adminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    playerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    playerSelfAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    systemAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
