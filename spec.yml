@@ -8,7 +8,7 @@ paths:
   /piece:
     get:
       summary: Get info of a pieces list
-      description: Retrieve information about a list of pieces (Player, Admin, and System).
+      description: Retrieve information about a list of pieces.
       tags:
         - Piece
       parameters:
@@ -30,7 +30,7 @@ paths:
           description: List of pieces returned successfully
     post:
       summary: Add a new piece
-      description: Adds a new piece to the system (Admin only).
+      description: Adds a new piece to the system.
       tags:
         - Piece
       security:
@@ -42,7 +42,7 @@ paths:
   /piece/{piece_id}:
     put:
       summary: Modify a piece info
-      description: Modify the information of a specific piece (Admin only).
+      description: Modify the information of a specific piece.
       tags:
         - Piece
       parameters:
@@ -61,7 +61,7 @@ paths:
   /piece/all:
     get:
       summary: Get info about all pieces in the game
-      description: Retrieve information about all the pieces (Player, Admin).
+      description: Retrieve information about all the pieces.
       tags:
         - Piece
       security:
@@ -70,11 +70,23 @@ paths:
       responses:
         '200':
           description: All pieces returned successfully
+  
+  /player:
+    post:
+      summary: Create a new player account
+      description: Create the account of a player.
+      tags:
+        - Player
+      security:
+        - playerAuth: []
+      responses:
+        '201':
+          description: Player account created successfully
 
   /player/{player_id}:
     get:
       summary: Get player info
-      description: Get the information of a specific player (Player*, Admin).
+      description: Get the information of a specific player .
       tags:
         - Player
       parameters:
@@ -93,7 +105,7 @@ paths:
 
     put:
       summary: Modify player info
-      description: Modify the information of a specific player (Player*, Admin).
+      description: Modify the information of a specific player.
       tags:
         - Player
       parameters:
@@ -112,7 +124,7 @@ paths:
 
     delete:
       summary: Delete a player
-      description: Remove a player from the system (Player*, Admin).
+      description: Remove a player from the system.
       tags:
         - Player
       parameters:
@@ -132,7 +144,7 @@ paths:
   /player/collection/{player_id}:
     get:
       summary: Get player collection info
-      description: Get collection information of a specific player (Player*, Admin, System).
+      description: Get collection information of a specific player.
       tags:
         - Player
       parameters:
@@ -152,7 +164,7 @@ paths:
 
     put:
       summary: Update player collection
-      description: Update the collection of a specific player (Admin, System).
+      description: Update the collection of a specific player.
       tags:
         - Player
       parameters:
@@ -172,7 +184,7 @@ paths:
   /player/auction/won/{player_id}:
     get:
       summary: Get player bid history
-      description: Retrieve the bid history of a specific player (Player*, Admin).
+      description: Retrieve the bid history of a specific player.
       tags:
         - Player
       parameters:
@@ -192,7 +204,7 @@ paths:
   /player/auction/created/{player_id}:
     get:
       summary: Get player's created auctions history
-      description: Retrieve the history of auctions created by a specific player (Player*, Admin).
+      description: Retrieve the history of auctions created by a specific player.
       tags:
         - Player
       parameters:
@@ -212,7 +224,7 @@ paths:
   /player/payment/history/{player_id}:
     get:
       summary: Get player's payment history
-      description: Retrieve the history of payments made with real money by a specific player (Player*, Admin).
+      description: Retrieve the history of payments made with real money by a specific player.
       tags:
         - Player
       parameters:
@@ -232,7 +244,7 @@ paths:
   /player/payment/{player_id}:
     post:
       summary: Add a new payment transaction
-      description: Add a new real-money payment transaction (System only).
+      description: Add a new real-money payment transaction.
       tags:
         - Player
       parameters:
@@ -251,7 +263,7 @@ paths:
   /player/gold/{player_id}:
     get:
       summary: Get player's in-game currency
-      description: Retrieve the amount of in-game currency of a specific player (Player*, Admin, System).
+      description: Retrieve the amount of in-game currency of a specific player.
       tags:
         - Player
       parameters:
@@ -271,7 +283,7 @@ paths:
 
     put:
       summary: Modify player's in-game currency
-      description: Modify the amount of in-game currency of a specific player (Admin, System).
+      description: Modify the amount of in-game currency of a specific player.
       tags:
         - Player
       parameters:
@@ -291,7 +303,7 @@ paths:
   /player/gold/history/{player_id}:
     get:
       summary: Get player's in-game currency transaction history
-      description: Retrieve the history of in-game currency transactions for a specific player (Player*, Admin).
+      description: Retrieve the history of in-game currency transactions for a specific player.
       tags:
         - Player
       parameters:
@@ -311,7 +323,7 @@ paths:
   /player/all:
     get:
       summary: Get all players info
-      description: Retrieve information about all players in the system (Admin only).
+      description: Retrieve information about all players in the system.
       tags:
         - Player
       security:
@@ -323,7 +335,7 @@ paths:
   /auction:
     post:
       summary: Create a new auction
-      description: Create a new auction in the system (Player only).
+      description: Create a new auction in the system.
       tags:
         - Auction
       security:
@@ -335,7 +347,7 @@ paths:
   /auction/{auction_id}:
     get:
       summary: Get auction info
-      description: Retrieve information about a specific auction (Player, Admin, System).
+      description: Retrieve information about a specific auction.
       tags:
         - Auction
       parameters:
@@ -355,7 +367,7 @@ paths:
 
     put:
       summary: Modify auction
-      description: Modify the details of a specific auction (Admin, System).
+      description: Modify the details of a specific auction.
       tags:
         - Auction
       parameters:
@@ -375,7 +387,7 @@ paths:
   /auction/history:
     get:
       summary: Get game auction history
-      description: Retrieve the history of past auctions in the game (Player, Admin).
+      description: Retrieve the history of past auctions in the game.
       tags:
         - Auction
       security:
@@ -388,7 +400,7 @@ paths:
   /auction/running:
     get:
       summary: Get all running auctions
-      description: Retrieve all currently running auctions (Player, Admin, System).
+      description: Retrieve all currently running auctions.
       tags:
         - Auction
       security:
@@ -402,7 +414,7 @@ paths:
   /auction/running/{pieces_id}:
     get:
       summary: Get running auctions for a specific piece
-      description: Retrieve all running auctions for a specific piece (Player, Admin).
+      description: Retrieve all running auctions for a specific piece.
       tags:
         - Auction
       parameters:
@@ -422,7 +434,7 @@ paths:
   /auction/bid/{auction_id}:
     post:
       summary: Make a bid for an auction
-      description: Submit a bid for a specific auction (Player only).
+      description: Submit a bid for a specific auction.
       tags:
         - Auction
       parameters:
@@ -441,7 +453,7 @@ paths:
   /banner:
     post:
       summary: Add a new banner
-      description: Adds a new banner to the system (Admin only).
+      description: Adds a new banner to the system.
       tags:
         - Banner
       security:
@@ -453,7 +465,7 @@ paths:
   /banner/{banner_id}:
     get:
       summary: Get pieces for a specific banner
-      description: Retrieve the pieces for a specific type of banner (Player, Admin).
+      description: Retrieve the pieces for a specific type of banner.
       tags:
         - Banner
       parameters:
@@ -472,7 +484,7 @@ paths:
       
     put:
       summary: Modify pieces for a specific banner
-      description: Modify the pieces for a specific type of banner (Admin only).
+      description: Modify the pieces for a specific type of banner.
       tags:
         - Banner
       parameters:
@@ -490,7 +502,7 @@ paths:
           
     delete:
       summary: Delete a banner
-      description: Remove a banner from the system (Admin only).
+      description: Remove a banner from the system.
       tags:
         - Banner
       parameters:
@@ -509,7 +521,7 @@ paths:
   /banner/pull/{banner_id}:
     get:
       summary: Pull pieces for a specific banner
-      description: Pull the pieces for a specific type of banner (Player only).
+      description: Pull the pieces for a specific type of banner.
       tags:
         - Banner
       parameters:
@@ -528,7 +540,7 @@ paths:
   /auth/register:
     post:
       summary: Register a new player or admin
-      description: Register a new player or admin into the system (Player, Admin).
+      description: Register a new player or admin into the system.
       tags:
         - Auth
       security:
@@ -541,7 +553,7 @@ paths:
   /auth/login:
     post:
       summary: Login
-      description: Authenticate a player or admin (Player, Admin).
+      description: Authenticate a player or admin.
       tags:
         - Auth
       security:
@@ -554,7 +566,7 @@ paths:
   /auth/logout:
     post:
       summary: Logout
-      description: Logout a player or admin (Player, Admin).
+      description: Logout a player or admin.
       tags:
         - Auth
       security:
@@ -567,7 +579,7 @@ paths:
   /payment/buy:
     post:
       summary: Buy in-game currency
-      description: Purchase in-game currency using real money (Player only).
+      description: Purchase in-game currency using real money.
       tags:
         - Payment
       security:
@@ -575,11 +587,23 @@ paths:
       responses:
         '201':
           description: In-game currency purchased successfully
+  
+  /admin:
+    post:
+      summary: Create a new admin account
+      description: Create the account of an admin.
+      tags:
+        - Admin
+      security:
+        - adminAuth: []
+      responses:
+        '201':
+          description: Admin account created successfully
 
   /admin/{admin_id}:
     get:
       summary: Get admin info
-      description: Retrieve information about a specific admin (Admin only).
+      description: Retrieve information about a specific admin.
       tags:
         - Admin
       parameters:
@@ -598,7 +622,7 @@ paths:
   /admin/log/history/{admin_id}:
     get:
       summary: Get admin action logs
-      description: Retrieve the logs of actions taken by a specific admin (Admin only).
+      description: Retrieve the logs of actions taken by a specific admin.
       tags:
         - Admin
       parameters:
@@ -617,7 +641,7 @@ paths:
   /admin/log/{admin_id}:
     post:
       summary: Insert an admin action
-      description: Record a new action performed by an admin (System only).
+      description: Record a new action performed by an admin.
       tags:
         - Admin
       parameters:
