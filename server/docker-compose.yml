@@ -1,0 +1,29 @@
+services:
+  auth:
+    build: ./auth
+    ports:
+      - 5001:5000
+  player:
+    build: ./player
+    ports:
+      - 5002:5000
+  admin:
+    build: ./admin
+    ports:
+      - 5003:5000
+  payment:
+    build: ./payment
+    ports:
+      - 5004:5000
+  piece:
+    build: ./piece
+    ports:
+      - 5005:5000
+  banner:
+    build: ./banner
+    ports:
+      - 5006:5000
+  auction:
+    build: ./auction
+    ports:
+      - 5007:5000
