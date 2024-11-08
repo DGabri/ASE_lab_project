@@ -1,16 +1,12 @@
 {
     "db": {
-      "db_name": "users.db",
-      "init_scheme": "users_scheme.sql"
+      "db_name": "pieces.db",
+      "init_scheme": "scheme.sql"
     },
     "external_services": {
       "auth_service": {
         "url": "http://auth-service:5000",
         "timeout_seconds": 5
       }
-    },
-    "rewards": {
-        "tokens": 100,
-        "reset_time_hour": 0
     }
 }
