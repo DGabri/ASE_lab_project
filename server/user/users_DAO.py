@@ -3,11 +3,10 @@ import time
 
 class UsersDAO:
     def __init__(self, database):
-        self.connection = sqlite3.connect(database)
+        self.connection = sqlite3.connect(database, check_same_thread=False)
         self.cursor = self.connection.cursor()
     
-    def create_user_account(self, user_info):
-        
+    def get_user_account(self, user_info):
         try:
             now = int(time.time())
             
@@ -15,7 +14,7 @@ class UsersDAO:
             # account status set to active
             self.cursor.execute(f"""
                 INSERT INTO users (email,     username,                type, created_at, token_balance, account_status)
-                VALUES ({user_info["email"]}, {user_info["username"]}, 1,    {now},      0,              1)
+                VALUES ({user_info["email"]}, {user_info["username"]}, {user_info["user_type"]},    {now},      0,              1)
             """)
             
             self.connection.commit()
@@ -26,49 +25,132 @@ class UsersDAO:
         except sqlite3.Error:
             self.connection.rollback()
             return None
+        
+    def create_user_account(self, user_info):
+        """
+        returns a tuple: (user_id, error_message)
+        """
+        try:
+            # check if email is already used
+            self.cursor.execute("SELECT id FROM users WHERE email = ? ", (user_info["email"],))
+            
+            if self.cursor.fetchone():
+                return None, "Email already present"
+            
+            # check if username is already used
+            self.cursor.execute("SELECT id FROM users WHERE username = ? ", (user_info["username"],))
+            
+            if self.cursor.fetchone():
+                return None, "Username already present"
+            
+            now = int(time.time())
+            
+            # initial zero balance for tokens
+            # account status set to active
+            self.cursor.execute("INSERT INTO users (email, username, type, password_hash, created_at, token_balance, account_status) VALUES (?, ?, ?, ?, ?, ?, ?)", (user_info["email"], user_info["username"], user_info['user_type'], user_info["password_hash"], now, 0, 1))
+            
+            self.connection.commit()
+            return self.cursor.lastrowid, None
+        
+        # rollback errors for consistency
+        except sqlite3.Error as e:
+            print(f"DB error: {str(e)}")
+
+            self.connection.rollback()
+            return None, None
     
     def delete_user_account(self, user_id):
 
         try:
-                    
+            self.cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "User not found"
+            
             # delete user colelction
-            self.cursor.execute(f"DELETE FROM collection WHERE user_id = {user_id}")
+            self.cursor.execute("DELETE FROM collection WHERE user_id = ? ", (user_id,))
             
             # delete user transactions
-            self.cursor.execute(f"DELETE FROM transactions WHERE user_id = {user_id}")
+            self.cursor.execute("DELETE FROM transactions WHERE user_id = ? ", (user_id,))
             
             # delete user logs
-            self.cursor.execute(f"DELETE FROM logs WHERE user_id = {user_id}")
+            self.cursor.execute("DELETE FROM logs WHERE user_id = ? ", (user_id,))
             
             # delte user from users db
-            self.cursor.execute(f"DELETE FROM users WHERE id = {user_id}")
+            self.cursor.execute("DELETE FROM users WHERE id = ? ", (user_id,))
             
             self.connection.commit()
-            return True
+            return True, "User deleted correctly"
         
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            print(f"DB error: {str(e)}")
+
             self.connection.rollback()
-            return False
+            return False, e
+    
     
     def modify_user_account(self, new_user_info):
-        pass
+        try:
+            self.cursor.execute("SELECT id FROM users WHERE id = ?", (new_user_info["user_id"],))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "User not found"
+            
+            # update
+            self.cursor.execute("UPDATE users SET username = ? WHERE id = ?", (new_user_info["username"], new_user_info["user_id"]) )
+            
+            self.connection.commit()
+            result = self.cursor.fetchone()
+            
+            return True, "Username updated successfully"
+            
+        except Exception as e:
+            self.connection.rollback()
+            print(f"Error updating user: {str(e)}")
+            return False, "Internal server error"
     
     def get_user_gacha_collection(self, user_id):
 
         try:
-        
-            self.cursor.execute(f""" SELECT * FROM collection WHERE user_id = {user_id} """)
-            return [dict(row) for row in self.cursor.fetchall()]
+            # check if user exists
+            self.cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, [], "User does not exist"
+            
+            # get collection
+            self.cursor.execute(" SELECT * FROM collection WHERE user_id = ? ", (user_id,))
+            return True, [dict(row) for row in self.cursor.fetchall()], "Success"
         
         except sqlite3.Error:
-            return []
+            return False, [], "Error getting user collection"
     
     def update_token_balance(self, user_id, increment_amount, is_refill):
-
+        """
+        returns a tuple: (user_balance, error_message)
+        """
         try:
-           
+            self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return 0, "User not found"
+            
+            present_token_balance = float(result[0])
+            new_token_balance = present_token_balance + increment_amount
+            
+            if new_token_balance < 0:
+                return 0, "Negative balance"
+            
+            # prevent game cheat
+            if (is_refill and increment_amount > 500):
+                return 0, "Refill balance must be below 500 to prevent cheating"
+                
             # update
-            self.cursor.execute(f"""UPDATE users SET token_balance = token_balance + {increment_amount} WHERE id = {user_id} """)
+            self.cursor.execute("UPDATE users SET token_balance = ? WHERE id = ?", (new_token_balance, user_id) )
             
             # save transaction
             now = int(time.time())
@@ -85,19 +167,20 @@ class UsersDAO:
                 transaction_type = "Purchase"
                 
             
-            self.cursor.execute(f""" INSERT INTO transactions (user_id, amount, type, ts) VALUES ({user_id}, {increment_amount}, {transaction_type}, {now}) """)
+            self.cursor.execute("INSERT INTO transactions (user_id, amount, type, ts) VALUES (?,?,?,?)", (user_id, increment_amount, transaction_type, now))
             
             # Get new balance
-            self.cursor.execute(f""" SELECT token_balance FROM users WHERE id = {user_id} """)
+            self.cursor.execute("SELECT token_balance FROM users WHERE id = ? ", (user_id,))
             
             self.connection.commit()
             result = self.cursor.fetchone()
             
-            return result["token_balance"] if result else None
+            return new_token_balance, None
             
-        except sqlite3.Error:
+        except Exception as e:
             self.connection.rollback()
-            return None
+            print(f"Error updating {user_id} balance: {str(e)}")
+            return None, "Internal server error"
     
     ##########################################################################################################################################################################
     ## ADMIN FUNCTION
@@ -119,7 +202,7 @@ class UsersDAO:
     def admin_get_user_currency_tx(self, user_id):
         
         try:
-            self.cursor.execute(f""" SELECT * FROM transactions WHERE user_id = {user_id} ORDER BY ts DESC """)
+            self.cursor.execute(" SELECT * FROM transactions WHERE user_id = ? ORDER BY ts DESC ", (user_id))
             return [dict(row) for row in self.cursor.fetchall()]
         
         except sqlite3.Error:
@@ -128,24 +211,32 @@ class UsersDAO:
     def admin_get_user_market_hist(self, user_id):
         
         try:
-            self.cursor.execute(f""" SELECT * FROM transactions WHERE user_id = {user_id} AND type = "auction" ORDER BY ts DESC""")
+            self.cursor.execute("SELECT * FROM transactions WHERE user_id = ? AND type = 'auction' ORDER BY ts DESC", (user_id))
             return [dict(row) for row in self.cursor.fetchall()]
         
         except sqlite3.Error:
             return []
     
-    def admin_ban_user(self, user_id):
+    def admin_set_user_account_status(self, user_id, user_account_status):
         
         try:
-            self.cursor.execute(f""" UPDATE users SET account_status = 0 WHERE id = {user_id} """)
+            self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "User not found"
+            
+            self.cursor.execute(" UPDATE users SET account_status = ? WHERE id = ? ", (user_account_status, user_id))
             
             # log action
             now = int(time.time())
+            action = "User ban" if user_account_status == 0 else "User unban"
+            action_log = "banned" if user_account_status == 0 else "unbanned"
             
-            self.cursor.execute(f""" INSERT INTO logs (ts, user_id, action, message) VALUES ({now}, {user_id}, "user_ban", "User: {user_id} banned") """)
+            self.cursor.execute("INSERT INTO logs (ts, user_id, action, message) VALUES (?,?,?,?)", (now, user_id, action, f"User: {user_id} banned"))
             
             self.connection.commit()
-            return True
+            return True, f"User: {user_id} {action_log}"
         
         except sqlite3.Error:
             self.connection.rollback()
@@ -154,12 +245,12 @@ class UsersDAO:
     def log_action(self, user_id, action, message):
 
         try:
-            self.cursor.execute(f""" UPDATE users SET account_status = 0 WHERE id = {user_id} """)
+            self.cursor.execute(" UPDATE users SET account_status = 0 WHERE id = ?", (user_id))
             
             # log action
             now = int(time.time())
             
-            self.cursor.execute(f""" INSERT INTO logs (ts, user_id, action, message) VALUES ({now}, {user_id}, "user_ban", "User: {user_id} banned") """)
+            self.cursor.execute(" INSERT INTO logs (ts, user_id, action, message) VALUES (?, ?, ?, ?)", (now, user_id, action, message))
             
             self.connection.commit()
             return True
@@ -168,5 +259,21 @@ class UsersDAO:
             self.connection.rollback()
             return False
                 
+    def admin_get_last_5_min_logs(self):
+        
+        try:
+            five_minutes_ago = int(time.time()) - 60 * 5
+            self.cursor.execute(" SELECT * FROM logs WHERE ts >= ?", (five_minutes_ago,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "No logs in the last 5 minutes"
+        
+            return True, result
+        
+        except sqlite3.Error:
+            self.connection.rollback()
+            return False
+        
     def close(self):
         self.connection.close()

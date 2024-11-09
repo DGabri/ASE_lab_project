@@ -1,1 +1,5 @@
 Flask==3.0.0
+wtforms==3.2.1
+flask_wtf==1.2.2
+password_strength==0.0.3
+email_validator==2.2.0
