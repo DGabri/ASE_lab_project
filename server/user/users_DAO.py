@@ -19,7 +19,6 @@ class UsersDAO:
             
             self.connection.commit()
             return self.cursor.lastrowid
-            "rewards":
 
         # rollback errors for consistency
         except sqlite3.Error:
