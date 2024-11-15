@@ -22,3 +22,19 @@ CREATE TABLE IF NOT EXISTS bids (
     FOREIGN KEY (auction_id) REFERENCES auctions(auction_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+INSERT INTO auctions (piece_id, start_price, end_time) VALUES
+('1', 100, '2024-12-31T23:59:59'),
+('2', 150, '2024-12-31T23:59:59'),
+('3', 200, '2024-12-31T23:59:59');
+
+
+CREATE TABLE IF NOT EXISTS pieces (
+    piece_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL
+);
+
