@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, jsonify
-from pieces_DAO import PiecesDAO
+from DAOs.pieces_DAO import PiecesDAO
 from db_result import DBResultCode
-from piece import Piece
+from classes.piece import Piece
 import sqlite3
 import json
 
@@ -13,17 +13,20 @@ with open('config.json') as config_file:
 app = Flask(__name__)
 piece_dao = PiecesDAO(config['db']['name'], config['db']['scheme'])
 
-def piece_is_valid(piece):
-    if not 'name' in piece or not isinstance(piece['name'], str) or not piece['name']:
+def piece_is_valid(piece, to_check):
+    if to_check['name'] and (not 'name' in piece or not isinstance(piece['name'], str) or not piece['name']):
         return False
 
-    if not 'grade' in piece or not piece['grade'] in GRADES:
+    if to_check['grade'] and (not 'grade' in piece or not piece['grade'] in GRADES):
         return False
 
-    if not 'pic_url' in piece or not isinstance(piece['pic_url'], str) or not piece['pic_url']:
+    if to_check['pic'] and (not 'pic' in piece or not isinstance(piece['pic'], str) or not piece['pic']):
         return False
 
-    if not 'description' in piece or not isinstance(piece['description'], str) or not piece['description']:
+    if to_check['point'] and (not 'point' in piece or not isinstance(piece['point'], int) or piece['point'] <= 0 or piece['point'] > 10):
+        return False
+
+    if to_check['description'] and (not 'description' in piece or not isinstance(piece['description'], str) or not piece['description']):
         return False
 
     return True
@@ -33,7 +36,7 @@ def piece_is_valid(piece):
 def get_pieces():
     data = request.get_json()
 
-    if not 'pieces_id' in data or not all(isinstance(piece_id, int) for piece_id in data['pieces_id']):
+    if 'pieces_id' in data or not all(isinstance(piece_id, int) for piece_id in data['pieces_id']):
         return make_response(jsonify(message = "Attribute 'piece_id' not found or invalid"), 400)
 
     result = piece_dao.get_pieces_by_id(data['pieces_id'])
@@ -48,10 +51,16 @@ def get_pieces():
 def add_piece():
     piece = request.get_json()
 
-    if not piece_is_valid(piece):
+    if not piece_is_valid(piece, {
+        'name': True,
+        'grade': True,
+        'pic': True,
+        'point': True,
+        'description': True
+    }):
         return make_response(jsonify(message = "Attributes not found or invalid"), 400)
 
-    new_piece = Piece(None, piece['name'], piece['grade'], piece['pic_url'], piece['description'])
+    new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['point'], piece['description'])
     result = piece_dao.insert_piece(new_piece)
 
     if result.code == DBResultCode.OK:
@@ -64,11 +73,28 @@ def add_piece():
 def update_piece(piece_id):
     piece = request.get_json()
 
-    if not piece_is_valid(piece):
-        return make_response(jsonify(message = "Attributes not found or invalid"), 400)
+    if not piece_is_valid(piece,  {
+        'name': 'name' in piece,
+        'grade': 'grade' in piece,
+        'pic': 'pic' in piece,
+        'point': 'point' in piece,
+        'description': 'description' in piece
+    }):
+        return make_response(jsonify(message = "Attributes invalid"), 400)
 
-    updated_piece = Piece(piece_id, piece['name'], piece['grade'], piece['pic_url'], piece['description'])
-    result = piece_dao.update_piece(updated_piece)
+    piece = Piece(
+        piece_id,
+        piece['name'] if 'name' in piece else None,
+        piece['grade'] if 'grade' in piece else None,
+        piece['pic'] if 'pic' in piece else None,
+        piece['point'] if 'point' in piece else None,
+        piece['description'] if 'description' in piece else None
+    )
+
+    if not vars(piece):
+        return make_response(jsonify(message = "No attribute found"), 400)
+
+    result = piece_dao.update_piece(piece)
 
     if result.code == DBResultCode.OK:
         return make_response(jsonify(message = result.message), 200)
@@ -77,7 +103,7 @@ def update_piece(piece_id):
     else:
         return make_response(jsonify(message = result.message), 500)
 
-# Get all pieces in the database
+# Get all the pieces in the database
 @app.route('/piece/all', methods = ['GET'])
 def get_all_pieces():
     result = piece_dao.get_all_pieces()
@@ -88,4 +114,4 @@ def get_all_pieces():
         return make_response(jsonify(message = result.message), 200)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug = True)

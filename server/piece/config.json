@@ -1,6 +1,6 @@
 {
     "db": {
-      "name": "pieces.db",
-      "scheme": "pieces_scheme.sql"
+      "name": "db/pieces.db",
+      "scheme": "schemes/pieces_scheme.sql"
     }
 }
