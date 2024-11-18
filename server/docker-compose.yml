@@ -3,10 +3,10 @@ services:
     build: ./auth
     ports:
       - 5001:5000
-  user:
-    build: ./user
-    ports:
-      - 5002:5000
+  # user:
+    # build: ./user
+    # ports:
+      # - 5002:5000
   piece:
     build: ./piece
     ports:

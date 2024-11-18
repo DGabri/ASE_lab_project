@@ -15,7 +15,7 @@ class PiecesDAO:
         except sqlite3.Error as e:
             print(f"Cannot initialize pieces DAO: {e}")
     
-    def get_pieces_by_id(self, pieces_id):
+    def get_pieces(self, pieces_id):
         try:
             with self.connection:
                 self.cursor.execute(
@@ -23,7 +23,12 @@ class PiecesDAO:
                     (pieces_id,)
                 )
 
-            return DBResult(self.cursor.fetchall(), DBResultCode.OK, "")
+                row = self.cursor.fetchall()
+
+            if not row:
+                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
+
+            return DBResult(row, DBResultCode.OK, "")
         except sqlite3.Error as e:
             return DBResult(None, DBResultCode.ERROR, str(e))
     
@@ -31,8 +36,12 @@ class PiecesDAO:
         try:
             with self.connection:
                 self.cursor.execute('SELECT * FROM pieces')
+                row = self.cursor.fetchall()
 
-            return DBResult(self.cursor.fetchall(), DBResultCode.OK, "")
+            if not row:
+                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
+
+            return DBResult(row, DBResultCode.OK, "")
         except sqlite3.Error as e:
             return DBResult(None, DBResultCode.ERROR, str(e))
     
@@ -44,7 +53,7 @@ class PiecesDAO:
                     (piece.name, piece.grade, piece.pic, piece.point, piece.description)
                 )
 
-                [piece_id] = self.cursor.fetchone()
+                (piece_id,) = self.cursor.fetchone()
     
             return DBResult(piece_id, DBResultCode.OK, "")
         except sqlite3.Error as e:
@@ -65,10 +74,10 @@ class PiecesDAO:
                 self.cursor.execute('UPDATE pieces SET ' + ', '.join([f"{key} = ?"  for key in piece_keys]) + ' WHERE id = ? RETURNING id', piece_values + (piece['id'],))
                 row = self.cursor.fetchone()
 
-            if row:
-                return DBResult(True, DBResultCode.OK, "Piece updated")
-            else:
+            if not row:
                 return DBResult(True, DBResultCode.NOT_FOUND, "No piece founded")
+            
+            return DBResult(True, DBResultCode.OK, "Piece updated")
         except sqlite3.Error as e:
             return DBResult(False, DBResultCode.ERROR, str(e))
 

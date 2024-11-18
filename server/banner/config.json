@@ -1,6 +1,6 @@
 {
     "db": {
-      "name": "db/banner.db",
-      "scheme": "schemes/banner_scheme.sql"
+      "name": "db/banners.db",
+      "scheme": "schemes/banners_scheme.sql"
     }
 }
