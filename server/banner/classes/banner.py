@@ -10,20 +10,19 @@ class Banner:
         self.rates = rates
 
     def from_array(array):
-        id = array[0]
+        banner_id = array[0]
         name = array[1]
         cost = array[2]
         pic = array[3]
         pieces_num = array[4]
         rates = Rates.from_array(array[5])
-        return Banner(id, name, cost, pic, pieces_num, rates)
+        return Banner(banner_id, name, cost, pic, pieces_num, rates)
     
     def from_dict(dict):
         rates = Rates.from_dict(dict['rates'])
         return Banner(dict['id'], dict['name'], dict['cost'], dict['pic'], dict['pieces_num'], rates)
 
     def to_dict(self):
-
         return {
             'id': self.id,
             'name': self.name,

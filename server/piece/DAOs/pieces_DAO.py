@@ -1,5 +1,6 @@
 import sqlite3
 from db_result import DBResult, DBResultCode
+from classes.piece import Piece
 
 class PiecesDAO:
     def __init__(self, database, scheme):
@@ -23,12 +24,12 @@ class PiecesDAO:
                     (pieces_id,)
                 )
 
-                row = self.cursor.fetchall()
+                rows = self.cursor.fetchall()
 
-            if not row:
+            if not rows:
                 return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
 
-            return DBResult(row, DBResultCode.OK, "")
+            return DBResult([Piece.from_array(list(row)) for row in rows], DBResultCode.OK, "")
         except sqlite3.Error as e:
             return DBResult(None, DBResultCode.ERROR, str(e))
     
@@ -36,12 +37,12 @@ class PiecesDAO:
         try:
             with self.connection:
                 self.cursor.execute('SELECT * FROM pieces')
-                row = self.cursor.fetchall()
+                rows = self.cursor.fetchall()
 
-            if not row:
+            if not rows:
                 return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
 
-            return DBResult(row, DBResultCode.OK, "")
+            return DBResult([Piece.from_array(list(row)) for row in rows], DBResultCode.OK, "")
         except sqlite3.Error as e:
             return DBResult(None, DBResultCode.ERROR, str(e))
     

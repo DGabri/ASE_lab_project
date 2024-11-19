@@ -14,7 +14,6 @@ class Rates:
         return Rates(dict['common'], dict['rare'], dict['super_rare'])
 
     def to_dict(self):
-
         return {
             'common': self.common,
             'rare': self.rare,

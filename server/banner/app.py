@@ -94,7 +94,7 @@ def add_banner():
 def update_banner(banner_id):
     banner = request.get_json()
 
-    if not banner_id(banner,  {
+    if not banner_is_valid(banner,  {
         'name': 'name' in banner,
         'cost': 'cost' in banner,
         'pic': 'pic' in banner,
@@ -103,16 +103,18 @@ def update_banner(banner_id):
     }):
         return jsonify(message = "Attributes invalid"), 400
 
+    rates = Rates.from_dict(banner['rates']) if 'rates' in banner else None
+    
     banner = Banner(
         banner_id,
         banner['name'] if 'name' in banner else None,
-        banner['cost'] if 'v' in banner else None,
+        banner['cost'] if 'cost' in banner else None,
         banner['pic'] if 'pic' in banner else None,
         banner['pieces_num'] if 'pieces_num' in banner else None,
-        banner['rates'] if 'rates' in banner else None
+        rates
     )
 
-    if not vars(banner):
+    if not banner.to_dict():
         return jsonify(message = "No attribute found"), 400
 
     result = banners_dao.update_banner(banner)
@@ -160,17 +162,35 @@ def pull(banner_id):
 
         banner = Banner.from_dict(content.get_json()['banner'])
         response = requests.get("http://localhost:5003/piece/all")
+        pieces = response.json()['pieces']
         pieces_pulled = []
-        rand = random.randint(0, 1)
 
-        if rand <= banner.rates.common:
-            pass
-        elif rand <= banner.rates.rare:
-            pass
-        else:
-            pass
+        for i in range(banner.pieces_num):
+            pieces_pulled.append(pull_piece(banner, pieces))
 
-    return jsonify(message = "OK"), 200
+    return jsonify(pieces = pieces_pulled), 200
+
+def select_piece_by_grade(pieces, grade):
+    pieces_filtered = list(filter(lambda piece: piece['grade'] == grade, pieces))
+
+    if len(pieces_filtered) == 0:
+        return {}
+
+    rand = random.randint(0, len(pieces_filtered) - 1)
+    return pieces_filtered[rand]
+
+def pull_piece(banner, pieces):
+    rand = random.uniform(0, 1)
+    piece_selected = {}
+
+    if rand <= banner.rates.common:
+        piece_selected = select_piece_by_grade(pieces, 'C')
+    elif rand <= banner.rates.rare:
+        piece_selected = select_piece_by_grade(pieces, 'R')
+    else:
+        piece_selected = select_piece_by_grade(pieces, 'SR')
+
+    return piece_selected
 
 if __name__ == '__main__':
     app.run(debug = True)

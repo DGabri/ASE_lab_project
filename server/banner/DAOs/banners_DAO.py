@@ -48,14 +48,19 @@ class BannersDAO:
             return DBResult(None, DBResultCode.ERROR, str(e))
 
     def update_banner(self, banner):
-        banner = vars(banner)
+        banner = banner.to_dict()
         banner_keys = ()
         banner_values = ()
         
         for key, value in banner.items():
-            if value != None and key != 'id':
+            if key == 'rates':
+                for grade, rate in value.items():
+                    banner_keys += (grade + '_rate',)
+                    banner_values += (rate,)
+            elif value != None and key != 'id':
                 banner_keys += (key,)
                 banner_values += (value,)
+
 
         try:
             with self.connection:

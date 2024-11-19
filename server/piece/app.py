@@ -42,12 +42,12 @@ def get_pieces():
     result = pieces_dao.get_pieces(data['pieces_id'])
 
     if result.code == DBResultCode.NOT_FOUND:
-        return jsonify(message = str(result.message)), 404
+        return jsonify(message = result.message), 404
 
     if result.code == DBResultCode.ERROR:
-        return jsonify(message = str(result.message)), 500
+        return jsonify(message = result.message), 500
     
-    return jsonify(pieces = result.content), 200
+    return jsonify(pieces = [piece.to_dict() for piece in result.content]), 200
         
 
 # Add a new piece
@@ -95,7 +95,7 @@ def update_piece(piece_id):
         piece['description'] if 'description' in piece else None
     )
 
-    if not vars(piece):
+    if not piece.to_dict():
         return jsonify(message = "No attribute found"), 400
 
     result = pieces_dao.update_piece(piece)
@@ -114,9 +114,9 @@ def get_all_pieces():
     result = pieces_dao.get_all_pieces()
 
     if result.code == DBResultCode.ERROR:
-        return make_response(jsonify(message = result.message), 200)
+        return jsonify(message = result.message), 200
 
-    return jsonify(pieces = result.content), 200
+    return jsonify(pieces = [piece.to_dict() for piece in result.content]), 200
 
 if __name__ == '__main__':
     app.run(debug = True)
