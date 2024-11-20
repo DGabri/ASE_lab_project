@@ -50,8 +50,8 @@ class PiecesDAO:
         try:
             with self.connection:
                 self.cursor.execute(
-                    'INSERT INTO pieces (name, grade, pic, point, description) VALUES (?, ?, ?, ?, ?) RETURNING id',
-                    (piece.name, piece.grade, piece.pic, piece.point, piece.description)
+                    'INSERT INTO pieces (name, grade, pic, value, description) VALUES (?, ?, ?, ?, ?) RETURNING id',
+                    (piece.name, piece.grade, piece.pic, piece.value, piece.description)
                 )
 
                 (piece_id,) = self.cursor.fetchone()

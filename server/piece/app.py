@@ -1,4 +1,5 @@
 from flask import Flask, request, make_response, jsonify
+from flask_cors import CORS
 from DAOs.pieces_DAO import PiecesDAO
 from db_result import DBResultCode
 from classes.piece import Piece
@@ -11,6 +12,7 @@ with open('config.json') as config_file:
     config = json.load(config_file)
 
 app = Flask(__name__)
+CORS(app)
 pieces_dao = PiecesDAO(config['db']['name'], config['db']['scheme'])
 
 def piece_is_valid(piece, to_check):
@@ -23,7 +25,7 @@ def piece_is_valid(piece, to_check):
     if to_check['pic'] and (not 'pic' in piece or not isinstance(piece['pic'], str) or not piece['pic']):
         return False
 
-    if to_check['point'] and (not 'point' in piece or not isinstance(piece['point'], int) or piece['point'] <= 0 or piece['point'] > 10):
+    if to_check['value'] and (not 'value' in piece or not isinstance(piece['value'], int) or piece['value'] < 0 or piece['value'] > 10):
         return False
 
     if to_check['description'] and (not 'description' in piece or not isinstance(piece['description'], str) or not piece['description']):
@@ -59,12 +61,12 @@ def add_piece():
         'name': True,
         'grade': True,
         'pic': True,
-        'point': True,
+        'value': True,
         'description': True
     }):
         return jsonify(message = "Attributes not found or invalid"), 400
 
-    new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['point'], piece['description'])
+    new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['value'], piece['description'])
     result = pieces_dao.insert_piece(new_piece)
 
     if result.code == DBResultCode.ERROR:
@@ -81,7 +83,7 @@ def update_piece(piece_id):
         'name': 'name' in piece,
         'grade': 'grade' in piece,
         'pic': 'pic' in piece,
-        'point': 'point' in piece,
+        'value': 'value' in piece,
         'description': 'description' in piece
     }):
         return jsonify(message = "Attributes invalid"), 400
@@ -91,7 +93,7 @@ def update_piece(piece_id):
         piece['name'] if 'name' in piece else None,
         piece['grade'] if 'grade' in piece else None,
         piece['pic'] if 'pic' in piece else None,
-        piece['point'] if 'point' in piece else None,
+        piece['value'] if 'value' in piece else None,
         piece['description'] if 'description' in piece else None
     )
 

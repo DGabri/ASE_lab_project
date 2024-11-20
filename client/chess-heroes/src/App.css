@@ -17,3 +17,23 @@
         transform: translateY(85px);
     }
 }
+
+.half-transparent {
+    position: relative;
+}
+
+.half-transparent::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    background: rgba(255,255,255,0.5);
+}
+
+.clip-transparent {
+    -webkit-clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    opacity: 0.5;
+}

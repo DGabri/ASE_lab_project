@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS pieces (
     name TEXT NOT NULL,
     grade TEXT NOT NULL,
     pic TEXT NOT NULL,
-    point INTEGER NOT NULL,
+    value INTEGER NOT NULL,
     description TEXT NOT NULL
 );
