@@ -29,5 +29,5 @@ class Banner:
             'cost': self.cost,
             'pic': self.pic,
             'pieces_num': self.pieces_num,
-            'rates': self.rates.to_dict()
+            'rates': self.rates.to_dict() if self.rates else None
         }

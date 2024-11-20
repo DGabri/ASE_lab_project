@@ -13,7 +13,7 @@ import Col from 'react-bootstrap/Col'
 import './App.css'
 
 const App = () => (
-    <div data-bs-theme="dark" className="bg-dark-subtle">
+    <div data-bs-theme="dark" className="bg-dark-subtle" style={{minHeight: "100vh"}}>
         <Navbar className="bg-body-tertiary">
             <Container>
                 <Navbar.Brand>

@@ -1,4 +1,5 @@
 from flask import Flask, request, make_response, jsonify
+from flask_cors import CORS
 from DAOs.banners_DAO import BannersDAO
 from db_result import DBResultCode
 from classes.banner import Banner
@@ -12,6 +13,7 @@ with open('config.json') as config_file:
     config = json.load(config_file)
 
 app = Flask(__name__)
+CORS(app)
 banners_dao = BannersDAO(config['db']['name'], config['db']['scheme'])
 
 def rates_are_valid(rates):

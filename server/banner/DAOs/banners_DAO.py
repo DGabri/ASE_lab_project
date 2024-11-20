@@ -54,9 +54,10 @@ class BannersDAO:
         
         for key, value in banner.items():
             if key == 'rates':
-                for grade, rate in value.items():
-                    banner_keys += (grade + '_rate',)
-                    banner_values += (rate,)
+                if value:
+                    for grade, rate in value.items():
+                        banner_keys += (grade + '_rate',)
+                        banner_values += (rate,)
             elif value != None and key != 'id':
                 banner_keys += (key,)
                 banner_values += (value,)
