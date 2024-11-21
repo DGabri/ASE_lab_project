@@ -5,12 +5,12 @@ import Accordion from 'react-bootstrap/Accordion'
 import chessValueIcon from '../assets/chess-value-icon.svg'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import kingIconWhite from '../assets/king-icon-white.png'
-import queenIconWhite from '../assets/queen-icon-white.png'
-import knightIconWhite from '../assets/knight-icon-white.png'
-import rookIconWhite from '../assets/rook-icon-white.png'
-import bishopIconWhite from '../assets/bishop-icon-white.png'
-import pawnIconWhite from '../assets/pawn-icon-white.png'
+import kingWhite from '../assets/king-white.png'
+import queenWhite from '../assets/queen-white.png'
+import knightWhite from '../assets/knight-white.png'
+import rookWhite from '../assets/rook-white.png'
+import bishopWhite from '../assets/bishop-white.png'
+import pawnWhite from '../assets/pawn-white.png'
 
 const Pieces = () => {
     const [pieces, setPieces] = useState([])
@@ -22,17 +22,17 @@ const Pieces = () => {
     }
 
     const piecesImage = {
-        "king": kingIconWhite,
-        "queen": queenIconWhite,
-        "knight": knightIconWhite,
-        "rook": rookIconWhite,
-        "bishop": bishopIconWhite,
-        "pawn": pawnIconWhite,
+        "king": kingWhite,
+        "queen": queenWhite,
+        "knight": knightWhite,
+        "rook": rookWhite,
+        "bishop": bishopWhite,
+        "pawn": pawnWhite,
     }
 
     useEffect(() => {
         getAllPieces().then(res => {
-            setPieces(res.pieces)
+            setPieces(res)
         }).catch(error => console.error(error))
     }, [])
 

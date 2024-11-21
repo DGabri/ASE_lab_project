@@ -14,7 +14,7 @@ import './App.css'
 
 const App = () => (
     <div data-bs-theme="dark" className="bg-dark-subtle" style={{minHeight: "100vh"}}>
-        <Navbar className="bg-body-tertiary">
+        <Navbar className="bg-body-tertiary z-1">
             <Container>
                 <Navbar.Brand>
                     <Link to="/" className="text-decoration-none">
