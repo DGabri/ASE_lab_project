@@ -2,10 +2,10 @@ import threading
 import time
 import logging
 from datetime import datetime
+from flask import json
 from auction_service import AuctionService
 from auctions_DAO import AuctionDAO
 
-# Set up logging for the worker
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -20,9 +20,12 @@ class AuctionWorker:
         Args:
             check_interval (int): Time interval in seconds between checks for expired auctions.
         """
+        with open('config.json') as config_file:
+            config = json.load(config_file)
         self.check_interval = check_interval  # Interval for checking auctions (default: 60 seconds)
         self.running = False  # Worker state flag
-        self.auction_service = AuctionService(AuctionDAO())  # Initialize AuctionService with DAO
+        
+        self.auction_service = AuctionService(AuctionDAO(config['db']['name'], config['db']['scheme']))  # Initialize AuctionService with DAO
 
     def start(self):
         """Start the auction worker thread."""
@@ -42,7 +45,7 @@ class AuctionWorker:
             try:
                 logging.info("Checking for expired auctions...")
                 expired_auctions = self.auction_service.auction_dao.get_expired_auctions()
-
+                logging.info("%s",expired_auctions)
                 for auction in expired_auctions:
                     auction_id = auction['auction_id']
                     logging.info("Closing auction ID %s", auction_id)
