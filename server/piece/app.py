@@ -14,6 +14,7 @@ with open('config.json') as config_file:
 app = Flask(__name__)
 CORS(app)
 pieces_dao = PiecesDAO(config['db']['name'], config['db']['scheme'])
+app.config['WTF_CSRF_ENABLED'] = False
 
 def piece_is_valid(piece, to_check):
     if to_check['name'] and (not 'name' in piece or not isinstance(piece['name'], str) or not piece['name']):

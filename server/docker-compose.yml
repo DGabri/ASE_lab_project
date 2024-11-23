@@ -1,21 +1,72 @@
 services:
+  user_gateway:
+    build: ./user_gateway
+    ports:
+      - "3000:80"
+    networks:
+      - user_network
+    depends_on:
+      - auth
+      - user
+      #- piece
+      #- banner
+      #- auction
+
+  admin_gateway:
+    build: ./admin_gateway
+    ports:
+      - "3001:80"
+    networks:
+      - admin_network
+    depends_on:
+      - auth
+      - user
+      #- piece
+      #- banner
+      #- auction
+
   auth:
     build: ./auth
     ports:
-      - 5001:5000
-  # user:
-    # build: ./user
-    # ports:
-      # - 5002:5000
-  piece:
-    build: ./piece
+      - "3002:5000"
+    networks:
+      - admin_network
+      - user_network
+
+  user:
+    build: ./user
     ports:
-      - 5003:5000
-  banner:
-    build: ./banner
-    ports:
-      - 5004:5000
-  auction:
-    build: ./auction
-    ports:
-      - 5005:5000
+      - "5002:5000"
+    networks:
+      - admin_network
+      - user_network
+
+  #piece:
+  #  build: ./piece
+  #  ports:
+  #    - "5003:5000"
+  #  networks:
+  #    - admin_network
+  #    - user_network
+
+  #banner:
+  #  build: ./banner
+  #  ports:
+  #    - "5004:5000"
+  #  networks:
+  #    - admin_network
+  #    - user_network
+
+  #auction:
+  #  build: ./auction
+  #  ports:
+  #    - "5005:5000"
+  #  networks:
+  #    - admin_network
+  #    - user_network
+
+networks:
+  admin_network:
+    driver: bridge
+  user_network:
+    driver: bridge

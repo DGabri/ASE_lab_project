@@ -1,0 +1,6 @@
+{
+  "db": {
+    "db_name": "auth.db",
+    "init_scheme": "auth_scheme.sql"
+  }
+}

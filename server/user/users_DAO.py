@@ -8,15 +8,11 @@ class UsersDAO:
     
     def get_user_account(self, user_info):
         try:
-            now = int(time.time())
-            
             # initial zero balance for tokens
-            # account status set to active
-            self.cursor.execute(f"""
-                INSERT INTO users (email,     username,                type, created_at, token_balance, account_status)
-                VALUES ({user_info["email"]}, {user_info["username"]}, {user_info["user_type"]},    {now},      0,              1)
-            """)
-            
+            self.cursor.execute("""
+            INSERT INTO users (email, username, token_balance) VALUES (%s, %s, %s) """,
+            (user_info["email"], user_info["username"], 0))
+    
             self.connection.commit()
             return self.cursor.lastrowid
 
@@ -24,29 +20,17 @@ class UsersDAO:
         except sqlite3.Error:
             self.connection.rollback()
             return None
-        
+    
     def create_user_account(self, user_info):
         """
         returns a tuple: (user_id, error_message)
         """
-        try:
-            # check if email is already used
-            self.cursor.execute("SELECT id FROM users WHERE email = ? ", (user_info["email"],))
-            
-            if self.cursor.fetchone():
-                return None, "Email already present"
-            
-            # check if username is already used
-            self.cursor.execute("SELECT id FROM users WHERE username = ? ", (user_info["username"],))
-            
-            if self.cursor.fetchone():
-                return None, "Username already present"
-            
-            now = int(time.time())
-            
+        try:            
             # initial zero balance for tokens
             # account status set to active
-            self.cursor.execute("INSERT INTO users (email, username, type, password_hash, created_at, token_balance, account_status) VALUES (?, ?, ?, ?, ?, ?, ?)", (user_info["email"], user_info["username"], user_info['user_type'], user_info["password_hash"], now, 0, 1))
+            self.cursor.execute("""
+            INSERT INTO users (id, email, username, token_balance) VALUES (?, ?, ?, ?)""",
+            (user_info["user_id"], user_info["email"], user_info["username"], 0))
             
             self.connection.commit()
             return self.cursor.lastrowid, None
@@ -58,6 +42,7 @@ class UsersDAO:
             self.connection.rollback()
             return None, None
     
+    ## REMOVE, PUT IN AUTH
     def delete_user_account(self, user_id):
 
         try:
@@ -88,7 +73,7 @@ class UsersDAO:
             self.connection.rollback()
             return False, e
     
-    
+    ## ALSO CALL AUTH FOR CONSISTENCY
     def modify_user_account(self, new_user_info):
         try:
             self.cursor.execute("SELECT id FROM users WHERE id = ?", (new_user_info["user_id"],))

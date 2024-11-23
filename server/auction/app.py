@@ -9,7 +9,7 @@ from flask import Flask, json, request, jsonify
 import os
 from flask import request, jsonify
 app = Flask(__name__)
-
+app.config['WTF_CSRF_ENABLED'] = False
 with open('config.json') as config_file:
     config = json.load(config_file)
 

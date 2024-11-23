@@ -1,27 +1,23 @@
-from flask import Flask, request, jsonify, g
-from datetime import datetime, timedelta
+from flask import Flask, request, jsonify
 from users_DAO import UsersDAO
-from functools import wraps
-import requests
-import sqlite3
 import logging
 import json
-import time
-import os
 import bcrypt
 from wtforms.validators import Email, InputRequired, Length
 from wtforms import StringField
 from flask_wtf import FlaskForm
 from password_strength import PasswordPolicy
+from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
-app.config['WTF_CSRF_ENABLED'] = False # disable csrf for development
+app.config['WTF_CSRF_ENABLED'] = False
 
 logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 logger = logging.getLogger(__name__)
+
 #################################################################
 ## UTILITY FUNCTIONS ##
 password_requirements = PasswordPolicy.from_names(
@@ -79,46 +75,33 @@ db_connector = init_db(config)
 # Crete account
 @app.route('/create_user', methods=['POST'])
 def create_player_account():
-    
-    user_registration_form = UserRegistrationForm()
-    
-    if not user_registration_form.validate():
-        for field, field_err in user_registration_form.errors.items():
-            print(field, field_err)
+    try:
+        
+        data = request.get_json()
+        
+        user_info = {
+            'username': data['username'],
+            'email': data['email'],
+            'user_id': data['user_id']
+        }
+        
+        # create user in DB, get error message if any
+        user_id, err_msg = db_connector.create_user_account(user_info)
             
-    data = request.get_json()
-    
-    user_info = {
-        'username': data['username'],
-        'email': data['email'],
-        'password': data['password'],
-        'user_type': data['user_type'],
-    }
-    
-    # validate password requirements
-    valid_password = password_requirements.test(user_info["password"])
-    
-    if len(valid_password) > 0:
-        db_connector.log_action(user_id, "ERR_create_player", "Invalid pwd")
-        return jsonify({'error': 'Password must be at least 8 characters, contain an uppercase char and two numbers'}), 400    
-    
-    # generate password hash
-    salt = bcrypt.gensalt()
-    user_info["password_hash"] = bcrypt.hashpw(str(user_info["password"]).encode('utf-8'), salt).decode('utf-8')
-    
-    # create user in DB, get error message if any
-    user_id, err_msg = db_connector.create_user_account(user_info)
+        if err_msg:
+            db_connector.log_action(user_id, "ERR_create_player", err_msg)
+            return jsonify({'error': err_msg}), 400
+            
+        if user_id:
+            db_connector.log_action(user_id, "create_player", "created_user")
+            return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
         
-    if err_msg:
-        db_connector.log_action(user_id, "ERR_create_player", err_msg)
-        return jsonify({'error': err_msg}), 400
-        
-    if user_id:
-        db_connector.log_action(user_id, "create_player", "created_user")
-        return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
-    
-    db_connector.log_action(user_id, "ERR_create_player", "Error creating account")
-    return jsonify({'error': 'error creating account'}), 500
+        db_connector.log_action(user_id, "ERR_create_player", "Error creating account")
+        return jsonify({'error': 'error creating account'}), 500
+
+    except Exception as e:
+        app.logger.error(f'Error creating user: {str(e)}')
+        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
 
 # Delete account
 @app.route('/player/<int:player_id>', methods=['DELETE'])
@@ -337,7 +320,6 @@ def modify_gacha_info(gacha_id):
 def check_auction_market():
     """ AUCTION SERVICE QUERY """
     pass
-
 
 if __name__ == '__main__':
     app.run(debug=True)

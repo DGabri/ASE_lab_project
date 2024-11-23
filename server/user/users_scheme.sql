@@ -1,12 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    username TEXT NOT NULL,
-    type INTEGER NOT NULL,  -- 0 = admin 1 = player
-    password_hash TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    token_balance FLOAT,
-    account_status INTEGER  -- 0 = banned 1 = active
+    token_balance FLOAT
 );
 
 CREATE TABLE IF NOT EXISTS collection (

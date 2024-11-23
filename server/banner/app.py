@@ -15,7 +15,7 @@ with open('config.json') as config_file:
 app = Flask(__name__)
 CORS(app)
 banners_dao = BannersDAO(config['db']['name'], config['db']['scheme'])
-
+app.config['WTF_CSRF_ENABLED'] = False
 def rates_are_valid(rates):
     if not 'common' in rates or rates['common'] < 0 or rates['common'] > 1:
         return False

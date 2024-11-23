@@ -1,1 +1,10 @@
 Flask==3.0.0
+wtforms==3.2.1
+flask_wtf==1.2.2
+password_strength==0.0.3.post2
+email_validator==2.2.0
+Werkzeug==3.0.1
+PyJWT==2.8.0
+bcrypt==4.1.1
+typing-extensions==4.9.0
+requests==2.31.0
