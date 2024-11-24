@@ -8,3 +8,4 @@ PyJWT==2.8.0
 bcrypt==4.1.1
 typing-extensions==4.9.0
 requests==2.31.0
+cryptography==43.0.3

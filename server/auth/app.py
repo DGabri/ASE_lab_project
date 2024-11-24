@@ -1,6 +1,8 @@
 from wtforms.validators import Email, InputRequired, Length, NumberRange
+#from flask_jwt import JWT, jwt_required, current_identity
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
+from datetime import datetime, timedelta
 from wtforms import StringField
 from flask_wtf import FlaskForm
 from auth_DAO import AuthDAO
@@ -10,11 +12,20 @@ import datetime
 import logging
 import bcrypt
 import json
+import uuid
 import jwt
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['JWT_EXPIRATION_DAYS'] = 30
+app.config.update(
+    SECRET_KEY="Secret-key-chess-heroes",
+    JWT_SECRET_KEY="Secret-key-chess-heroes-2024",
+    ISSUER='chess-heroes',
+    AUDIENCE='chess-heroes-users',
+    ALGORITHM='HS256',
+    ACCESS_TOKEN_EXPIRE_MINUTES=60000,
+    REFRESH_TOKEN_EXPIRE_DAYS=300
+)
+
 app.config['WTF_CSRF_ENABLED'] = False
 
 # configure logging
@@ -70,7 +81,6 @@ VALID_USER_TYPES = {
 }
 ##########################################################
 # DB INITIALIZATION
-
 # load config
 def load_config():
     config_path = "./config.json"
@@ -100,7 +110,7 @@ def init_db(config_json):
     except Exception as e:
         logger.error(f"DB init failed: {str(e)}")
         raise
-    
+
 # read config
 config = load_config()
 
@@ -109,6 +119,57 @@ db_connector = init_db(config)
 
 
 ##########################################################
+
+def create_id_token(user_data):
+    """Create an OIDC-compliant ID token"""
+    now = datetime.datetime.now(datetime.UTC)
+    payload = {
+        "iss": app.config['ISSUER'],
+        "sub": str(user_data['user_id']),
+        "aud": app.config['AUDIENCE'],
+        "exp": now + datetime.timedelta(minutes=app.config['ID_TOKEN_EXPIRE_MINUTES']),
+        "iat": now,
+        "auth_time": now,
+        "nonce": str(uuid.uuid4()),
+        "preferred_username": user_data['username'],
+        "email": user_data['email'],
+        "role": VALID_USER_TYPES[user_data['user_type']]
+    }
+    return jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
+
+# given user data create jwt
+def generate_access_token(user_data):
+    """Create an OAuth2.0-compliant access token"""
+    now = datetime.datetime.now(datetime.UTC)
+    
+    payload = {
+        "iss": app.config['ISSUER'],
+        "sub": str(user_data['user_id']),
+        "aud": app.config['AUDIENCE'],
+        "exp": now + datetime.timedelta(minutes=app.config['ACCESS_TOKEN_EXPIRE_MINUTES']),
+        "iat": now,
+        "jti": str(uuid.uuid4()),
+        "user_type": int(user_data['user_type']),
+        "role": VALID_USER_TYPES[int(user_data['user_type'])]
+    }
+    return jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
+
+# refresj the token
+def generate_refresh_token(user_id):
+    """Generate a refresh token with expiration"""
+    now = datetime.datetime.now(datetime.UTC)
+    expires_at = now + datetime.timedelta(days=app.config['REFRESH_TOKEN_EXPIRE_DAYS'])
+    
+    payload = {
+        "iss": app.config['ISSUER'],
+        "sub": str(user_id),
+        "exp": expires_at,
+        "iat": now,
+        "jti": str(uuid.uuid4()),
+        "type": "refresh"
+    }
+    token = jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
+    return token, expires_at
 
 # extract current user from auth header
 def get_current_user():
@@ -128,31 +189,17 @@ def get_current_user():
     except:
         return None
     
-# given user data create jwt
-def generate_access_token(user_data):
-    token_payload = {
-        'user_id': user_data['user_id'],
-        'user_type': user_data['user_type'],
-        'username': user_data['username'],
-        'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=app.config['JWT_EXPIRATION_DAYS'])
-    }
-    
-    return jwt.encode(token_payload, app.config['SECRET_KEY'], algorithm='HS256')
-
-# refresj the token
-def generate_refresh_token(user_id):
-    new_expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
-    token = jwt.encode(
-        {'user_id': user_id, 'exp': new_expiration},
-        app.config['SECRET_KEY'],
-        algorithm='HS256'
-    )
-    return token, new_expiration
-
 # validate jwt
 def verify_token(token):
+    """Verify and decode a JWT token"""
     try:
-        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        payload = jwt.decode(
+            token,
+            app.config["JWT_SECRET_KEY"],
+            algorithms=[app.config['ALGORITHM']],
+            audience=app.config['AUDIENCE'],
+            issuer=app.config['ISSUER']
+        )
         return payload, None
     except jwt.ExpiredSignatureError:
         return None, "Token expired"
@@ -199,13 +246,21 @@ def register():
         
         data = request.get_json()
         
+        try:
+            user_type = int(data['user_type'])
+            if user_type not in VALID_USER_TYPES:
+                return jsonify({'error': 'Invalid user type'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'error': 'User type must be an integer'}), 400
+        
         user_info = {
             'username': data['username'],
             'email': data['email'],
             'password': data['password'],
-            'user_type': data['user_type'],
+            'user_type': user_type,
         }
-        
+        logger.info(user_info)
+
         # validate password requirements
         valid_password = password_requirements.test(user_info["password"])
         
@@ -214,11 +269,15 @@ def register():
             return jsonify({'error': 'Password must be at least 8 characters, contain an uppercase char and two numbers'}), 400    
         
         # generate password hash
+        password_bytes = user_info["password"].encode("utf-8")
         salt = bcrypt.gensalt()
-        user_info["password"] = bcrypt.hashpw(str(user_info["password"]).encode('utf-8'), salt).decode('utf-8')
+        user_info["password"] = bcrypt.hashpw(password_bytes, salt)
         
+        logger.info(password_bytes)
+        logger.info(user_info)
         # Create user in auth database
         user_id, err_msg = db_connector.create_user(user_info)
+        logger.info(user_id)
         
         if err_msg:
             return jsonify({'error': err_msg}), 400
@@ -229,9 +288,9 @@ def register():
             'email': data['email'],
             'user_id': user_id
         }
-        
+
         try:
-            res = requests.post("http://user_gateway:5000/user/create_user", json=user_data)
+            res = requests.post("http://user_gateway:3000/user/create_user", json=user_data)
             
             if res.status_code != 201:
                 # rollback user creation
@@ -243,6 +302,8 @@ def register():
 
         except:
             return jsonify({'msg': 'User registered successfully','user_id': user_id}), 400
+            
+        return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
         
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
@@ -252,6 +313,8 @@ def register():
 def login():
     try:
         data = request.get_json()
+        logger.info(f"Login attempt for username: {data.get('username')}")
+        
         if not data or 'username' not in data or 'password' not in data:
             return jsonify({'error': 'Missing credentials'}), 400
 
@@ -261,19 +324,42 @@ def login():
         )
         
         if error:
-            return jsonify({'error': error}), 401
+            logger.info(f"Authentication failed: {error}")
+            return jsonify({'error': "Wrong credentials"}), 401
+
+        logger.info(f"User authenticated successfully: {user_data}")
 
         # generate access and refresh tokens
-        access_token = generate_access_token(user_data)
-        refresh_token, expires_at = generate_refresh_token(user_data['user_id'])
-        
-        # save refresh token to db
-        db_connector.store_refresh_token(refresh_token, user_data['user_id'], expires_at)
+        try:
+            # Fixed: Add missing scope parameter
+            access_token = generate_access_token(user_data)
+            refresh_token, expires_at = generate_refresh_token(user_data['user_id'])
+            expires_at = datetime.datetime.now(datetime.UTC) + timedelta(days=app.config['REFRESH_TOKEN_EXPIRE_DAYS'])
 
-        return jsonify({'access_token': access_token, 'refresh_token': refresh_token, 'token_type': 'bearer', 'expires_in': app.config['JWT_EXPIRATION_DAYS']}), 200
+            # save refresh token to db
+            db_connector.store_refresh_token(refresh_token, user_data['user_id'], expires_at)
+
+            return jsonify({
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'token_type': 'bearer',
+                'expires_in': app.config['ACCESS_TOKEN_EXPIRE_MINUTES'],
+                'user': {
+                    'id': user_data['user_id'],
+                    'username': user_data['username'],
+                    'user_type': user_data['user_type'],
+                    'role': VALID_USER_TYPES[int(user_data['user_type'])]
+                }
+            }), 200
+
+        except Exception as token_error:
+            logger.error(f"Token generation error: {str(token_error)}", exc_info=True)
+            return jsonify({'error': 'Error generating tokens'}), 500
 
     except Exception as e:
+        logger.error(f"Login error: {str(e)}", exc_info=True)
         return jsonify({'error': 'Internal server error'}), 500
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -361,7 +447,7 @@ def authorize():
             return jsonify({'error': error}), 401
 
         route_key = f"{method}:{route}"
-        print(route_key)
+        logger.info(route_key)
         allowed_roles = ROUTE_PERMISSIONS.get(route_key)
         
         if not allowed_roles:
@@ -377,17 +463,6 @@ def authorize():
         logger.error(f'Token verification error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/health')
-def health_check():
-    try:
-        # Test database connection
-        db_connector.cursor.execute('SELECT 1')
-        return jsonify({'status': 'healthy', 'service': 'auth'})
-    
-    except Exception as e:
-        logger.error(f'Health check failed: {str(e)}')
-        
-        return jsonify({'status': 'unhealthy', 'service': 'auth', 'error': str(e)}), 503
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     username TEXT UNIQUE NOT NULL,
     hashed_password TEXT NOT NULL,
-    user_type TEXT NOT NULL, -- 0 = admin 1 = player
-    created_at TIMESTAMP,
+    user_type INTEGER NOT NULL, -- 0 = admin 1 = player
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     account_status INTEGER  -- 0 = banned 1 = active
 );
 

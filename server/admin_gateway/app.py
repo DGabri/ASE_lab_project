@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 import requests
 import logging
 
@@ -23,7 +23,7 @@ MICROSERVICES_URLS = {
 @app.route('/<microservice>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def user_gateway(microservice, path):
     if microservice not in MICROSERVICES_URLS:
-        return {"error": f"Service: '{microservice}' not found"}, 404
+        return jsonify({"error": f"Service: '{microservice}' not found"}), 404
 
     # create target url
     target_url = f"{MICROSERVICES_URLS[microservice]}/{path}"
@@ -44,7 +44,7 @@ def user_gateway(microservice, path):
         return Response(response.content, status=response.status_code, headers=dict(response.headers))
 
     except requests.exceptions.RequestException as e:
-        return {"error": "Service unavailable"}, 503
+        return jsonify({"error": "Service unavailable"}), 503
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
