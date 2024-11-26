@@ -6,6 +6,8 @@ COPY . .
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
+RUN pip-audit --fix
+RUN bandit -r .
 
 EXPOSE 5000
 

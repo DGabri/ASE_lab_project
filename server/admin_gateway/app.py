@@ -37,7 +37,8 @@ def user_gateway(microservice, path):
             data=request.get_data(),
             headers={key: value for key, value in request.headers if key != 'Host'},
             params=request.args,
-            allow_redirects=False
+            allow_redirects=False,
+            timeout=10
         )
 
         # forward response to caller
@@ -47,4 +48,4 @@ def user_gateway(microservice, path):
         return jsonify({"error": "Service unavailable"}), 503
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(port=80)

@@ -2,5 +2,12 @@
   "db": {
     "db_name": "auth.db",
     "init_scheme": "auth_scheme.sql"
-  }
+  },
+  "SECRET_KEY": "Secret-key-chess-heroes",
+  "JWT_SECRET_KEY": "Secret-key-chess-heroes-2024",
+  "ISSUER": "chess-heroes",
+  "AUDIENCE": "chess-heroes-users",
+  "ALGORITHM": "HS256",
+  "ACCESS_TOKEN_EXPIRE_MINUTES": 60000,
+  "REFRESH_TOKEN_EXPIRE_DAYS": 300
 }

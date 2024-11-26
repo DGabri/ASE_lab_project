@@ -15,17 +15,6 @@ import uuid
 import jwt
 
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY="Secret-key-chess-heroes",
-    JWT_SECRET_KEY="Secret-key-chess-heroes-2024",
-    ISSUER='chess-heroes',
-    AUDIENCE='chess-heroes-users',
-    ALGORITHM='HS256',
-    ACCESS_TOKEN_EXPIRE_MINUTES=60000,
-    REFRESH_TOKEN_EXPIRE_DAYS=300
-)
-
-app.config['WTF_CSRF_ENABLED'] = False
 
 # configure logging
 logging.basicConfig(
@@ -114,6 +103,18 @@ def init_db(config_json):
 
 # read config
 config = load_config()
+
+app.config.update(
+    SECRET_KEY=config["SECRET_KEY"],
+    JWT_SECRET_KEY=config["JWT_SECRET_KEY"],
+    ISSUER=config["ISSUER"],
+    AUDIENCE=config["AUDIENCE"],
+    ALGORITHM=config["ALGORITHM"],
+    ACCESS_TOKEN_EXPIRE_MINUTES=config["ACCESS_TOKEN_EXPIRE_MINUTES"],
+    REFRESH_TOKEN_EXPIRE_DAYS=config["REFRESH_TOKEN_EXPIRE_DAYS"]
+)
+
+app.config['WTF_CSRF_ENABLED'] = False
 
 # get db connection DAO
 db_connector = init_db(config)
@@ -291,7 +292,7 @@ def register():
         }
         logger.warning(f"User data for user service: {user_data}")
         try:
-            res = requests.post("http://user:5000/create_user", json=user_data)
+            res = requests.post("http://user:5000/create_user", json=user_data, timeout=10)
             
             if res.status_code != 201:
                 # rollback user creation
@@ -501,4 +502,4 @@ def authorize():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
