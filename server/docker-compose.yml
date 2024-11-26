@@ -41,21 +41,21 @@ services:
       - admin_network
       - user_network
 
-  #piece:
-  #  build: ./piece
-  #  ports:
-  #    - "5003:5000"
-  #  networks:
-  #    - admin_network
-  #    - user_network
+  piece:
+    build: ./piece
+    ports:
+      - "5003:5000"
+    networks:
+      - admin_network
+      - user_network
 
-  #banner:
-  #  build: ./banner
-  #  ports:
-  #    - "5004:5000"
-  #  networks:
-  #    - admin_network
-  #    - user_network
+  banner:
+    build: ./banner
+    ports:
+      - "5004:5000"
+    networks:
+      - admin_network
+      - user_network
 
   #auction:
   #  build: ./auction

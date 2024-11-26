@@ -7,27 +7,32 @@ class PiecesDAO:
         self.connection = sqlite3.connect(database, check_same_thread = False)
         self.cursor = self.connection.cursor()
 
-        with open(scheme, 'r') as sql_file:
-            sql_script = sql_file.read()
+        try:
+            with open(scheme, 'r') as sql_file:
+                sql_script = sql_file.read()
+        except FileNotFoundError:
+            print("File 'scheme' not found.")
+        except ValueError:
+            print("File 'scheme' not open.")
 
         try:
             with self.connection:
                 self.cursor.executescript(sql_script)
         except sqlite3.Error as e:
-            print(f"Cannot initialize pieces DAO: {e}")
+            print(f"Cannot initialize pieces DAO: {e}.")
     
     def get_pieces(self, pieces_id):
         try:
             with self.connection:
                 self.cursor.execute(
-                    'SELECT * FROM pieces WHERE id IN (%s)' % ','.join('?' * len(pieces_id)),
-                    (pieces_id,)
+                    'SELECT * FROM pieces WHERE id IN (%s)' % ','.join('?' * len(pieces_id)), # nosec
+                    pieces_id
                 )
 
                 rows = self.cursor.fetchall()
 
             if not rows:
-                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
+                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found.")
 
             return DBResult([Piece.from_array(list(row)) for row in rows], DBResultCode.OK, "")
         except sqlite3.Error as e:
@@ -40,7 +45,7 @@ class PiecesDAO:
                 rows = self.cursor.fetchall()
 
             if not rows:
-                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found")
+                return DBResult(None, DBResultCode.NOT_FOUND, "No pieces found.")
 
             return DBResult([Piece.from_array(list(row)) for row in rows], DBResultCode.OK, "")
         except sqlite3.Error as e:
@@ -61,7 +66,7 @@ class PiecesDAO:
             return DBResult(None, DBResultCode.ERROR, str(e))
 
     def update_piece(self, piece):
-        piece = vars(piece)
+        piece = piece.to_dict()
         piece_keys = ()
         piece_values = ()
         
@@ -72,13 +77,14 @@ class PiecesDAO:
 
         try:
             with self.connection:
-                self.cursor.execute('UPDATE pieces SET ' + ', '.join([f"{key} = ?"  for key in piece_keys]) + ' WHERE id = ? RETURNING id', piece_values + (piece['id'],))
+                # SQL injection checked
+                self.cursor.execute('UPDATE pieces SET ' + ', '.join([f"{key} = ?"  for key in piece_keys]) + ' WHERE id = ? RETURNING id', piece_values + (piece['id'],)) # nosec
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(True, DBResultCode.NOT_FOUND, "No piece founded")
+                return DBResult(True, DBResultCode.NOT_FOUND, "No piece found.")
             
-            return DBResult(True, DBResultCode.OK, "Piece updated")
+            return DBResult(True, DBResultCode.OK, "Piece updated.")
         except sqlite3.Error as e:
             return DBResult(False, DBResultCode.ERROR, str(e))
 

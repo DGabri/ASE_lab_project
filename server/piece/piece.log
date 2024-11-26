@@ -1,0 +1,356 @@
+2024-11-22 16:58:57,521 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://172.20.10.2:5003
+2024-11-22 16:58:57,521 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-22 16:59:05,059 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [22/Nov/2024 16:59:05] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 10:13:39,772 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 10:13:39,772 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 10:13:43,201 INFO app Thread-1 (process_request_thread) : A location is found. | location:
+2024-11-23 10:13:43,201 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 10:13:43] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 10:16:36,957 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 10:16:36,957 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 10:16:39,552 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 10:16:39] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 10:17:18,200 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 10:17:18,200 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 10:17:21,642 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 10:17:21] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 10:17:30,924 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 10:17:30] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 10:17:55,478 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 10:17:55,479 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 10:18:00,273 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 10:18:00] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 17:59:16,723 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 17:59:16,723 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 19:19:51,143 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:19:51] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:19:53,407 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:19:53] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:20:23,737 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 19:20:23,737 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 19:21:05,380 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:21:05] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:21:08,323 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:21:08] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:21:13,312 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:21:13] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:21:17,969 INFO werkzeug Thread-4 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:21:17] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:21:38,287 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 19:21:38,287 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 19:21:54,678 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:21:54] "[35m[1mGET /piece/all HTTP/1.1[0m" 500 -
+2024-11-23 19:22:25,367 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 19:22:25,367 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 19:22:28,579 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:22:28] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:22:31,467 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:22:31] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:28:47,805 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:28:47] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:28:48,764 INFO werkzeug Thread-4 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:28:48] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:29:11,240 INFO werkzeug Thread-5 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:29:11] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:43:46,827 INFO werkzeug Thread-6 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:43:46] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:43:48,770 INFO werkzeug Thread-7 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:43:48] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:46:44,197 INFO werkzeug Thread-8 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:46:44] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:46:45,724 INFO werkzeug Thread-9 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:46:45] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:46:51,793 INFO werkzeug Thread-10 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:46:51] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:46:54,342 INFO werkzeug Thread-11 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:46:54] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:46:59,536 INFO werkzeug Thread-12 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:46:59] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:47:00,942 INFO werkzeug Thread-13 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:47:00] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 19:47:51,976 INFO werkzeug Thread-14 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 19:47:51] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 22:30:41,944 INFO werkzeug Thread-15 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 22:30:41] "GET /piece/all HTTP/1.1" 200 -
+2024-11-23 23:00:25,749 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 23:00:25,749 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 23:00:43,929 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:00:43] "[31m[1mGET /piece HTTP/1.1[0m" 400 -
+2024-11-23 23:04:13,389 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 23:04:13,389 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 23:04:15,926 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:04:15] "[35m[1mGET /piece HTTP/1.1[0m" 500 -
+2024-11-23 23:06:00,746 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 23:06:00,746 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 23:06:03,742 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:06:03] "[35m[1mGET /piece HTTP/1.1[0m" 500 -
+2024-11-23 23:06:47,706 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 23:06:47,706 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 23:06:51,419 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:06:51] "[35m[1mGET /piece HTTP/1.1[0m" 500 -
+2024-11-23 23:07:37,028 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-23 23:07:37,028 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-23 23:07:39,619 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:07:39] "GET /piece HTTP/1.1" 200 -
+2024-11-23 23:37:45,055 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:37:45] "[33mPOST /piece/ HTTP/1.1[0m" 404 -
+2024-11-23 23:37:45,057 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [23/Nov/2024 23:37:45] "[33mPOST /piece/ HTTP/1.1[0m" 404 -
+2024-11-24 10:53:56,768 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-24 10:53:56,768 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-24 10:53:59,661 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:53:59] "GET /piece?id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 10:56:29,500 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-24 10:56:29,500 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-24 10:56:31,626 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:56:31] "[31m[1mGET /piece?id=1&id=2&id=3 HTTP/1.1[0m" 400 -
+2024-11-24 10:56:55,083 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-24 10:56:55,083 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-24 10:56:57,227 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:56:57] "GET /piece?id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 10:58:18,486 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://192.168.1.238:5003
+2024-11-24 10:58:18,486 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-24 10:58:20,824 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:20] "GET /piece?id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 10:58:24,953 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:24] "[31m[1mGET /piece?id=1&id=2&id=0 HTTP/1.1[0m" 400 -
+2024-11-24 10:58:28,205 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:28] "[31m[1mGET /piece?id=1&id=2&id=-1 HTTP/1.1[0m" 400 -
+2024-11-24 10:58:31,356 INFO werkzeug Thread-4 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:31] "GET /piece?id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 10:58:41,671 INFO werkzeug Thread-5 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:41] "GET /piece?id=1&id=2&id=1 HTTP/1.1" 200 -
+2024-11-24 10:58:54,849 INFO werkzeug Thread-6 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 10:58:54] "[31m[1mGET /piece HTTP/1.1[0m" 400 -
+2024-11-24 11:06:45,027 INFO werkzeug Thread-7 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:06:45] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 11:06:46,977 INFO werkzeug Thread-8 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:06:46] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 11:07:16,548 INFO werkzeug Thread-9 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:07:16] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 11:07:27,922 INFO werkzeug Thread-10 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:07:27] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 11:11:49,679 INFO werkzeug Thread-11 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:11:49] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:13:49,433 INFO werkzeug Thread-12 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:13:49] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:24:29,714 INFO werkzeug Thread-13 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:24:29] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:24:38,697 INFO werkzeug Thread-14 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:24:38] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:24:44,550 INFO werkzeug Thread-15 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:24:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:27:54,281 INFO werkzeug Thread-16 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:27:54] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:28:01,586 INFO werkzeug Thread-17 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:28:01] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:28:09,350 INFO werkzeug Thread-18 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:28:09] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:28:34,409 INFO werkzeug Thread-19 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:28:34] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:28:37,770 INFO werkzeug Thread-20 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:28:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:29:15,697 INFO werkzeug Thread-21 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:29:15] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:30:17,306 INFO werkzeug Thread-22 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:30:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:31:05,538 INFO werkzeug Thread-23 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:31:05] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:31:07,863 INFO werkzeug Thread-24 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:31:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:31:39,883 INFO werkzeug Thread-25 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:31:39] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:31:42,280 INFO werkzeug Thread-26 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:31:42] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:33:03,794 INFO werkzeug Thread-27 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:33:03] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:33:07,571 INFO werkzeug Thread-28 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:33:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:35:28,255 INFO werkzeug Thread-29 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:35:28] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:40:16,897 INFO werkzeug Thread-30 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:40:16] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:42:57,355 INFO werkzeug Thread-31 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:42:57] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:43:11,343 INFO werkzeug Thread-32 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:43:11] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:43:55,925 INFO werkzeug Thread-33 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:43:55] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:44:38,341 INFO werkzeug Thread-34 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:44:38] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:44:44,337 INFO werkzeug Thread-35 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:44:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:06,053 INFO werkzeug Thread-36 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:06] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:13,054 INFO werkzeug Thread-37 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:13] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:16,090 INFO werkzeug Thread-38 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:16] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:18,992 INFO werkzeug Thread-39 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:18] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:23,762 INFO werkzeug Thread-40 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:23] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:24,380 INFO werkzeug Thread-41 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:24] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:30,732 INFO werkzeug Thread-42 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:30] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:33,779 INFO werkzeug Thread-43 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:33] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:38,411 INFO werkzeug Thread-44 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:38] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:46,794 INFO werkzeug Thread-45 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:46] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:48,979 INFO werkzeug Thread-46 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:48] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:45:56,265 INFO werkzeug Thread-47 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:45:56] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:46:09,558 INFO werkzeug Thread-48 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:46:09] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:52:56,607 INFO werkzeug Thread-49 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:52:56] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:53:07,011 INFO werkzeug Thread-50 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:53:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:53:10,392 INFO werkzeug Thread-51 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:53:10] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:53:13,184 INFO werkzeug Thread-52 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:53:13] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:53:40,714 INFO werkzeug Thread-53 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:53:40] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:55:32,704 INFO werkzeug Thread-54 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:55:32] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:56:02,697 INFO werkzeug Thread-55 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:56:02] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:56:07,702 INFO werkzeug Thread-56 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:56:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:56:18,760 INFO werkzeug Thread-57 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:56:18] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:56:46,697 INFO werkzeug Thread-58 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:56:46] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:57:19,428 INFO werkzeug Thread-59 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:57:19] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:57:53,876 INFO werkzeug Thread-60 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:57:53] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:58:07,169 INFO werkzeug Thread-61 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:58:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 11:58:30,149 INFO werkzeug Thread-62 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 11:58:30] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:00:18,726 INFO werkzeug Thread-63 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:00:18] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:01:44,727 INFO werkzeug Thread-64 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:01:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:01:58,979 INFO werkzeug Thread-65 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:01:58] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:02:05,734 INFO werkzeug Thread-66 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:02:05] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:02:26,356 INFO werkzeug Thread-67 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:02:26] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:02:36,040 INFO werkzeug Thread-68 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:02:36] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:03:03,928 INFO werkzeug Thread-69 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:03:03] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:10:21,038 INFO werkzeug Thread-70 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:10:21] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:13:21,322 INFO werkzeug Thread-71 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:13:21] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:13:48,693 INFO werkzeug Thread-72 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:13:48] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:14:29,054 INFO werkzeug Thread-73 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:14:29] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:17:00,480 INFO werkzeug Thread-74 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:17:00] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:18:15,013 INFO werkzeug Thread-75 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:18:15] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:18:37,714 INFO werkzeug Thread-76 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:18:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:18:47,655 INFO werkzeug Thread-77 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:18:47] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:19:08,934 INFO werkzeug Thread-78 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:19:08] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:19:16,303 INFO werkzeug Thread-79 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:19:16] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:19:40,922 INFO werkzeug Thread-80 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:19:40] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:22,284 INFO werkzeug Thread-81 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:22] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:31,648 INFO werkzeug Thread-82 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:31] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:39,727 INFO werkzeug Thread-83 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:39] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:42,267 INFO werkzeug Thread-84 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:42] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:44,193 INFO werkzeug Thread-85 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:20:53,081 INFO werkzeug Thread-86 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:20:53] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:21:17,917 INFO werkzeug Thread-87 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:21:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:21:40,231 INFO werkzeug Thread-88 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:21:40] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:21:56,153 INFO werkzeug Thread-89 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:21:56] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:22:04,956 INFO werkzeug Thread-90 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:22:04] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:22:37,473 INFO werkzeug Thread-91 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:22:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:23:24,085 INFO werkzeug Thread-92 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:23:24] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:23:25,583 INFO werkzeug Thread-93 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:23:25] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:23:47,401 INFO werkzeug Thread-94 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:23:47] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:23:49,501 INFO werkzeug Thread-95 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:23:49] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:27:36,441 INFO werkzeug Thread-96 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:27:36] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:28:44,453 INFO werkzeug Thread-97 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:28:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:29:45,247 INFO werkzeug Thread-98 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:29:45] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:30:14,730 INFO werkzeug Thread-99 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:30:14] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:30:27,764 INFO werkzeug Thread-100 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:30:27] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:30:45,100 INFO werkzeug Thread-101 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:30:45] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:30:54,033 INFO werkzeug Thread-102 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:30:54] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:31:03,382 INFO werkzeug Thread-103 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:31:03] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:31:33,567 INFO werkzeug Thread-104 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:31:33] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:31:51,211 INFO werkzeug Thread-105 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:31:51] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:32:15,003 INFO werkzeug Thread-106 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:32:15] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:32:21,457 INFO werkzeug Thread-107 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:32:21] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:32:32,502 INFO werkzeug Thread-108 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:32:32] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:33:17,978 INFO werkzeug Thread-109 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:33:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:35:04,268 INFO werkzeug Thread-110 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:35:04] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:35:05,958 INFO werkzeug Thread-111 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:35:05] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:35:54,257 INFO werkzeug Thread-112 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:35:54] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:06,764 INFO werkzeug Thread-113 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:06] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:15,648 INFO werkzeug Thread-114 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:15] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:33,268 INFO werkzeug Thread-115 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:33] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:55,284 INFO werkzeug Thread-116 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:55] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:57,061 INFO werkzeug Thread-117 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:57] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:36:59,673 INFO werkzeug Thread-118 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:36:59] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:02,485 INFO werkzeug Thread-119 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:02] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:05,236 INFO werkzeug Thread-120 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:05] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:07,620 INFO werkzeug Thread-121 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:09,199 INFO werkzeug Thread-122 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:09] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:11,670 INFO werkzeug Thread-123 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:11] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:12,966 INFO werkzeug Thread-124 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:12] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:15,276 INFO werkzeug Thread-125 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:15] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:37:17,167 INFO werkzeug Thread-126 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:37:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:38:17,662 INFO werkzeug Thread-127 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:38:23,092 INFO werkzeug Thread-128 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:23] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:38:37,366 INFO werkzeug Thread-129 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:37] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:38:37,846 INFO werkzeug Thread-130 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:38:41,249 INFO werkzeug Thread-131 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:41] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:38:42,090 INFO werkzeug Thread-132 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:38:42] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:39:03,276 INFO werkzeug Thread-133 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:39:03] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:39:08,306 INFO werkzeug Thread-134 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:39:08] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:39:08,915 INFO werkzeug Thread-135 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:39:08] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:39:09,340 INFO werkzeug Thread-136 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:39:09] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:39:58,136 INFO werkzeug Thread-137 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:39:58] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:40:18,346 INFO werkzeug Thread-138 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:40:18] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:45:59,438 INFO werkzeug Thread-139 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:45:59] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:46:00,390 INFO werkzeug Thread-140 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:00] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:46:08,732 INFO werkzeug Thread-141 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:08] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:46:12,100 INFO werkzeug Thread-142 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:12] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:46:14,116 INFO werkzeug Thread-143 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:14] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:46:14,774 INFO werkzeug Thread-144 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:14] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:46:19,105 INFO werkzeug Thread-145 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:46:19] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:48:52,633 INFO werkzeug Thread-146 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:48:52] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:48:53,349 INFO werkzeug Thread-147 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:48:53] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:48:58,903 INFO werkzeug Thread-148 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:48:58] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:49:21,430 INFO werkzeug Thread-149 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:49:21] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:49:28,222 INFO werkzeug Thread-150 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:49:28] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 12:49:35,958 INFO werkzeug Thread-151 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:49:35] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:51:27,834 INFO werkzeug Thread-152 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:51:27] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:52:31,276 INFO werkzeug Thread-153 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:52:31] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:52:37,641 INFO werkzeug Thread-154 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:52:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:52:41,219 INFO werkzeug Thread-155 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:52:41] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:52:55,047 INFO werkzeug Thread-156 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:52:55] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:53:05,254 INFO werkzeug Thread-157 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:53:05] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:53:19,370 INFO werkzeug Thread-158 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:53:19] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:53:22,335 INFO werkzeug Thread-159 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:53:22] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:54:06,454 INFO werkzeug Thread-160 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:54:06] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 12:55:00,458 INFO werkzeug Thread-161 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 12:55:00] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:39:24,048 INFO werkzeug Thread-162 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:39:24] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:40:13,341 INFO werkzeug Thread-163 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:40:13] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:40:40,549 INFO werkzeug Thread-164 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:40:40] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:40:52,057 INFO werkzeug Thread-165 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:40:52] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:40:59,493 INFO werkzeug Thread-166 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:40:59] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:41:08,504 INFO werkzeug Thread-167 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:08] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:41:54,882 INFO werkzeug Thread-168 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:54] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:41:55,812 INFO werkzeug Thread-169 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:55] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:41:56,495 INFO werkzeug Thread-170 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:56] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:41:56,941 INFO werkzeug Thread-171 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:56] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:41:57,459 INFO werkzeug Thread-172 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:57] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:41:58,054 INFO werkzeug Thread-173 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:41:58] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:42:00,359 INFO werkzeug Thread-174 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:42:00] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:42:01,146 INFO werkzeug Thread-175 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:42:01] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:42:03,273 INFO werkzeug Thread-176 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:42:03] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 14:42:12,154 INFO werkzeug Thread-177 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:42:12] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:43:27,543 INFO werkzeug Thread-178 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:43:27] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:44:10,761 INFO werkzeug Thread-179 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:44:10] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:45:43,696 INFO werkzeug Thread-180 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:45:43] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:50:49,596 INFO werkzeug Thread-181 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:50:49] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:51:07,140 INFO werkzeug Thread-182 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:51:07] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:51:10,281 INFO werkzeug Thread-183 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:51:10] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:54:59,058 INFO werkzeug Thread-184 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:54:59] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 14:55:11,793 INFO werkzeug Thread-185 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 14:55:11] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 15:01:54,045 INFO werkzeug Thread-186 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:01:54] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 15:06:44,016 INFO werkzeug Thread-187 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:06:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 15:06:49,455 INFO werkzeug Thread-188 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:06:49] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 15:06:51,589 INFO werkzeug Thread-189 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:06:51] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-24 15:08:19,269 INFO werkzeug Thread-190 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:19] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:20,311 INFO werkzeug Thread-191 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:20] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:27,720 INFO werkzeug Thread-192 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:27] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:30,994 INFO werkzeug Thread-193 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:30] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:34,233 INFO werkzeug Thread-194 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:34] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:46,642 INFO werkzeug Thread-195 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:46] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:08:47,603 INFO werkzeug Thread-196 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:08:47] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:09:00,562 INFO werkzeug Thread-197 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:09:00] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:09:14,019 INFO werkzeug Thread-198 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:09:14] "GET /piece/all HTTP/1.1" 200 -
+2024-11-24 15:09:20,162 INFO werkzeug Thread-199 (process_request_thread) : 127.0.0.1 - - [24/Nov/2024 15:09:20] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 00:03:59,429 INFO werkzeug Thread-200 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:03:59] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 00:03:59,924 INFO werkzeug Thread-201 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:03:59] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 00:04:15,473 INFO werkzeug Thread-202 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:15] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 00:04:17,160 INFO werkzeug Thread-203 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:17] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 00:04:19,006 INFO werkzeug Thread-204 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:19] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 00:04:26,104 INFO werkzeug Thread-205 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:26] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 00:04:29,492 INFO werkzeug Thread-206 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:29] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 00:04:30,950 INFO werkzeug Thread-207 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 00:04:30] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 08:56:15,814 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://131.114.200.110:5003
+2024-11-25 08:56:15,815 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-25 08:57:43,148 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:57:43] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 08:57:47,067 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:57:47] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 08:58:44,732 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:58:44] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 08:59:12,391 INFO werkzeug Thread-4 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:12] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 08:59:19,856 INFO werkzeug Thread-5 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:19] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 08:59:34,153 INFO werkzeug Thread-6 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:34] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 08:59:35,621 INFO werkzeug Thread-7 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:35] "GET /piece/all HTTP/1.1" 200 -
+2024-11-25 08:59:37,936 INFO werkzeug Thread-8 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:37] "GET /piece?id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3&id=1&id=2&id=3 HTTP/1.1" 200 -
+2024-11-25 08:59:38,470 INFO werkzeug Thread-9 (process_request_thread) : 127.0.0.1 - - [25/Nov/2024 08:59:38] "GET /piece/all HTTP/1.1" 200 -
+2024-11-26 12:14:43,640 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://131.114.201.83:5003
+2024-11-26 12:14:43,640 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2024-11-26 12:14:46,231 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [26/Nov/2024 12:14:46] "GET /piece/all HTTP/1.1" 200 -

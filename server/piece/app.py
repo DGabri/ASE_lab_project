@@ -5,12 +5,19 @@ from db_result import DBResultCode
 from classes.piece import Piece
 import sqlite3
 import json
+import logging
 
 GRADES = ['C', 'R', 'SR']
 
-with open('config.json') as config_file:
-    config = json.load(config_file)
+try:
+    with open('config.json') as config_file:
+        config = json.load(config_file)
+except FileNotFoundError:
+    print("File 'config' not found.")
+except ValueError:
+    print("Decoding JSON 'config' file has failed.")
 
+logging.basicConfig(filename='piece.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 app = Flask(__name__)
 CORS(app)
 pieces_dao = PiecesDAO(config['db']['name'], config['db']['scheme'])
@@ -37,12 +44,12 @@ def piece_is_valid(piece, to_check):
 # Get a list of pieces
 @app.route('/piece', methods = ['GET'])
 def get_pieces():
-    data = request.get_json()
+    pieces_id = request.args.getlist('id')
 
-    if 'pieces_id' in data or not all(isinstance(piece_id, int) for piece_id in data['pieces_id']):
+    if len(pieces_id) == 0 or not all(int(piece_id) > 0 for piece_id in pieces_id):
         return jsonify(message = "Attribute 'piece_id' not found or invalid"), 400
 
-    result = pieces_dao.get_pieces(data['pieces_id'])
+    result = pieces_dao.get_pieces(pieces_id)
 
     if result.code == DBResultCode.NOT_FOUND:
         return jsonify(message = result.message), 404
@@ -117,9 +124,9 @@ def get_all_pieces():
     result = pieces_dao.get_all_pieces()
 
     if result.code == DBResultCode.ERROR:
-        return jsonify(message = result.message), 200
+        return jsonify(message = result.message), 500
 
     return jsonify(pieces = [piece.to_dict() for piece in result.content]), 200
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = False)

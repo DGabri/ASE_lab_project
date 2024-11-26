@@ -17,7 +17,7 @@ const init_state = {
   rotated: "",
   rotating: ""
 };
-export default function GiftBoxAnimation({ pieces, closePullScreen }) {
+export default function GiftBoxAnimation({ pieces, closePull }) {
   const [state, setState] = useReducer(
     (state, new_state) => ({
       ...state,
@@ -62,7 +62,7 @@ export default function GiftBoxAnimation({ pieces, closePullScreen }) {
             setState({ move: moving })
         }
         else {
-            closePullScreen()
+            closePull()
         }
     }
 

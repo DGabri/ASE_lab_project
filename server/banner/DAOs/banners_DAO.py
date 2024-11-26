@@ -7,8 +7,13 @@ class BannersDAO:
         self.connection = sqlite3.connect(database, check_same_thread = False)
         self.cursor = self.connection.cursor()
 
-        with open(scheme, 'r') as sql_file:
-            sql_script = sql_file.read()
+        try:
+            with open(scheme, 'r') as sql_file:
+                sql_script = sql_file.read()
+        except FileNotFoundError:
+            print("File 'scheme' not found.")
+        except ValueError:
+            print("File 'scheme' not open.")
 
         try:
             with self.connection:
@@ -62,10 +67,10 @@ class BannersDAO:
                 banner_keys += (key,)
                 banner_values += (value,)
 
-
         try:
             with self.connection:
-                self.cursor.execute('UPDATE banners SET ' + ', '.join([f"{key} = ?"  for key in banner_keys]) + ' WHERE id = ? RETURNING id', banner_values + (banner['id'],))
+                # SQL injection checked
+                self.cursor.execute('UPDATE banners SET ' + ', '.join([f"{key} = ?" for key in banner_keys]) + ' WHERE id = ? RETURNING id', banner_values + (banner['id'],)) # nosec
                 row = self.cursor.fetchone()
 
             if not row:

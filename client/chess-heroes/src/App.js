@@ -47,7 +47,7 @@ const App = () => (
                     </Navbar.Text>
                     <Navbar.Text>
                         <Link to="/account" className="text-decoration-none">
-                            <h5 className="m-0">Accounts</h5>
+                            <h5 className="m-0">Account</h5>
                         </Link>
                     </Navbar.Text>
                     <Navbar.Text>

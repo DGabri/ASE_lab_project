@@ -9,13 +9,19 @@ import json
 import requests
 import random
 
-with open('config.json') as config_file:
-    config = json.load(config_file)
+try:
+    with open('config.json') as config_file:
+        config = json.load(config_file)
+except FileNotFoundError:
+    print("File 'config' not found.")
+except ValueError:
+    print("Decoding JSON 'config' file has failed.")
 
 app = Flask(__name__)
 CORS(app)
 banners_dao = BannersDAO(config['db']['name'], config['db']['scheme'])
 app.config['WTF_CSRF_ENABLED'] = False
+
 def rates_are_valid(rates):
     if not 'common' in rates or rates['common'] < 0 or rates['common'] > 1:
         return False
@@ -86,7 +92,6 @@ def add_banner():
 
     if result.code == DBResultCode.ERROR:
         return jsonify(message = result.message), 500
-
 
     return jsonify(banner_id = result.content), 201
     
@@ -163,7 +168,7 @@ def pull(banner_id):
             return content, code
 
         banner = Banner.from_dict(content.get_json()['banner'])
-        response = requests.get("http://localhost:5003/piece/all")
+        response = requests.get("http://localhost:5003/piece/all", timeout=5)
         pieces = response.json()['pieces']
         pieces_pulled = []
 
@@ -178,11 +183,11 @@ def select_piece_by_grade(pieces, grade):
     if len(pieces_filtered) == 0:
         return {}
 
-    rand = random.randint(0, len(pieces_filtered) - 1)
+    rand = random.randint(0, len(pieces_filtered) - 1) # nosec
     return pieces_filtered[rand]
 
 def pull_piece(banner, pieces):
-    rand = random.uniform(0, 1)
+    rand = random.uniform(0, 1) # nosec
     piece_selected = {}
 
     if rand <= banner.rates.common:
@@ -195,4 +200,4 @@ def pull_piece(banner, pieces):
     return piece_selected
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = False)
