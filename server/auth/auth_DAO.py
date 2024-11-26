@@ -1,6 +1,7 @@
 import sqlite3
 import bcrypt
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,49 @@ class AuthDAO:
         
         except Exception as e:
             return None, str(e)
+    def modify_user_account(self, new_user_info):
+        try:
+            self.cursor.execute("SELECT id FROM users WHERE id = ?", (new_user_info["user_id"],))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "User not found"
+            
+            # update
+            self.cursor.execute("UPDATE users SET username = ? WHERE id = ?", (new_user_info["username"], new_user_info["user_id"]) )
+            
+            self.connection.commit()
+            result = self.cursor.fetchone()
+            
+            return True, "Username updated successfully"
+            
+        except Exception as e:
+            self.connection.rollback()
+            print(f"Error updating user: {str(e)}")
+            return False, "Internal server error"
+        
+    def delete_user(self, user_id):
+        """Delete a user and their associated refresh tokens by ID"""
+        try:
+            # delete tokens
+            self.cursor.execute("DELETE FROM refresh_tokens WHERE user_id = ?", (user_id,))
+            
+            # delete user
+            self.cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            
+            
+            if self.cursor.rowcount == 0:
+                self.connection.rollback()
+                return False, "User not found"
+            
+            logger.info(f"Successfully deleted user with ID: {user_id}")
+            return True, None
 
+        except Exception as e:
+
+            logger.error(f"Error deleting user {user_id}: {str(e)}", exc_info=True)
+            return False, f"Error deleting user: {str(e)}"
+    
     def revoke_user_refresh_token(self, user_id):
         try:
             self.cursor.execute("DELETE FROM refresh_tokens WHERE user_id = ?", (user_id,))
@@ -122,3 +165,22 @@ class AuthDAO:
             return None, "User not found"
         except Exception as e:
             return None, str(e)
+        
+    def admin_set_user_account_status(self, user_id, user_account_status):
+        
+        try:
+            self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, "User not found"
+            
+            self.cursor.execute(" UPDATE users SET account_status = ? WHERE id = ? ", (user_account_status, user_id))
+            
+            action_log = "banned" if user_account_status == 0 else "unbanned"
+            
+            return True, f"User: {user_id} {action_log}"
+        
+        except sqlite3.Error:
+            self.connection.rollback()
+            return False

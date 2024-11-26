@@ -1,4 +1,5 @@
-from wtforms.validators import Email, InputRequired, Length, NumberRange
+from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
+from wtforms import StringField, IntegerField
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
@@ -40,10 +41,10 @@ class UserRegistrationForm(FlaskForm):
         Length(min=1, max=15, message="Username len must be between 1 and 15 chars long")])
     email = StringField(validators=[Email(message="Email is invalid"), InputRequired(message="Email required")])
     password = StringField('password', [InputRequired(message="Password is required")])
-    user_type = StringField('user_type', [
-        InputRequired(message="User type required"),
-        NumberRange(min=0, max=1, message="User type must be 1 (player) or 2 (admin)")
-])
+    user_type = IntegerField('user_type', validators=[
+            DataRequired(message="User type required"),
+            NumberRange(min=0, max=1, message="User type must be 0 (admin) or 1 (player)"),
+        ])
 
 # routes permission mapping
 ROUTE_PERMISSIONS = {
@@ -101,6 +102,80 @@ def init_db(config_json):
         logger.error(f"DB init failed: {str(e)}")
         raise
 
+def init_admin(config):  
+    try:
+        # check if admin already exists
+        db_connector.cursor.execute(
+            "SELECT COUNT(*) FROM users WHERE user_type = 0"
+        )
+        admin_count = db_connector.cursor.fetchone()[0]
+        
+        if admin_count > 0:
+            logger.info("Admin user already exists, skipping initialization")
+            return
+        
+        # read admin credentials from config
+        admin_info = config["admin_credentials"]
+        
+        # admin registration form
+        admin_data = {
+            'username': admin_info['username'],
+            'email': admin_info['email'],
+            'password': admin_info['password'],
+            'user_type': admin_info['user_type']
+        }
+        
+        # Generate password hash
+        password_bytes = admin_data['password'].encode('utf-8')
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password_bytes, salt)
+        
+        # Prepare user info for database
+        user_info = {
+            'username': admin_data['username'],
+            'email': admin_data['email'],
+            'password': hashed_password,
+            'user_type': admin_data['user_type']
+        }
+        
+        # create user in auth database
+        user_id, err_msg = db_connector.create_user(user_info)
+        
+        if err_msg:
+            logger.error(f"Failed to create admin user: {err_msg}")
+            return
+            
+        # call user service to add admin
+        user_data = {
+            'username': admin_data['username'],
+            'email': admin_data['email'],
+            'user_id': user_id
+        }
+        
+        try:
+            res = requests.post(
+                "http://user:5000/create_user",
+                json=user_data,
+                timeout=10
+            )
+            
+            if res.status_code != 201:
+                logger.error("Failed to sync admin with user service")
+                db_connector.delete_user(user_id)
+                return
+                
+            logger.info("Default admin user created successfully")
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"User service connection failed: {str(e)}")
+            db_connector.delete_user(user_id)
+            
+    except Exception as e:
+        logger.error(f"Error creating admin user: {str(e)}")
+        if 'user_id' in locals():
+            db_connector.delete_user(user_id)
+
+
 # read config
 config = load_config()
 
@@ -118,8 +193,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 # get db connection DAO
 db_connector = init_db(config)
-
-
+init_admin(config)
 ##########################################################
 
 def create_id_token(user_data):
@@ -277,7 +351,7 @@ def register():
         
         logger.warning(f"Password bytes: {password_bytes}")
         logger.warning(f"User_info: {user_info}")
-        # Create user in auth database
+        # create user in auth database
         user_id, err_msg = db_connector.create_user(user_info)
         logger.warning(f"User id: {user_id}")
         
@@ -430,6 +504,32 @@ def refresh():
     except Exception as e:
         logger.error(f'Token refresh error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
+    
+@app.route('/delete_user/<int:player_id>', methods=['DELETE'])
+def delete(user_id):
+    try:
+        refresh_token = request.json.get('refresh_token')
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token required'}), 400
+
+        # have to be authenticated to delete user
+        user_id = db_connector.verify_refresh_token(refresh_token)
+        
+        if not user_id:
+            return jsonify({'error': 'Invalid or expired refresh token'}), 401
+
+        # delete user from auth db
+        rsp, err = db_connector.delete_user(user_id["user_id"])
+        
+        if err:
+            return jsonify({'error': 'error deleting user'}), 404
+
+        
+        return jsonify({'rsp': "user deleted successfully"}), 200
+
+    except Exception as e:
+        logger.error(f'Token refresh error: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
 
 ##
 def normalize_route(route):
@@ -499,6 +599,59 @@ def authorize():
     except Exception as e:
         logger.error(f'Token verification error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/user/modify', methods=['PUT'])
+def modify_user():
+    try:
+        data = request.get_json()
+        
+        if not data or 'user_id' not in data or 'username' not in data:
+            return jsonify({'error': 'username and user_id required'}), 400
+            
+        new_user_info = {
+            'user_id': data['user_id'],
+            'username': data['username']
+        }
+        
+        # update db
+        res, msg = db_connector.modify_user_account(new_user_info)
+        
+        if res:
+            return jsonify({'rsp': msg}), 200
+        else:
+            return jsonify({'error': msg}), 400
+            
+    except Exception as e:
+        logger.error(f"Error modifying user: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+    
+# Ban player account
+@app.route('/admin/user/ban/<int:user_id>', methods=['PUT'])
+def ban_user(user_id):
+
+    # pass 0 to ban user
+    res, msg = db_connector.admin_set_user_account_status(user_id, 0)
+    
+    if res:
+        db_connector.log_action(user_id, "ban_user", "Ban successful")
+        return jsonify({'rsp': msg}), 200
+    
+    db_connector.log_action(user_id, "ERR_ban_user", "Ban unsuccessful")
+    return jsonify({'error': msg}), 400 
+
+# Extra unban user
+@app.route('/admin/user/unban/<int:user_id>', methods=['PUT'])
+def unban_user(user_id):
+
+    # pass 1 to unban user
+    res, msg = db_connector.admin_set_user_account_status(user_id, 1)
+    
+    if res:
+        db_connector.log_action(user_id, "unban_user", "Unban successful")
+        return jsonify({'rsp': msg}), 200
+    
+    db_connector.log_action(user_id, "unban_user", "Unban unsuccessful")
+    return jsonify({'error': msg}), 400 
 
 
 if __name__ == '__main__':

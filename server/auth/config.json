@@ -3,6 +3,12 @@
     "db_name": "auth.db",
     "init_scheme": "auth_scheme.sql"
   },
+  "admin_credentials": {
+    "username": "admin",
+    "password": "ChessHeroes2024@",
+    "email": "admin1@chess_heroes.com",
+    "user_type": 0
+  },
   "SECRET_KEY": "Secret-key-chess-heroes",
   "JWT_SECRET_KEY": "Secret-key-chess-heroes-2024",
   "ISSUER": "chess-heroes",

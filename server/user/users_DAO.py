@@ -12,22 +12,8 @@ class UsersDAO:
     def __init__(self, database):
         self.connection = sqlite3.connect(database, check_same_thread=False)
         self.cursor = self.connection.cursor()
-        
-    def get_user_account(self, user_info):
-        try:
-            # initial zero balance for tokens
-            self.cursor.execute("""
-            INSERT INTO users (email, username, token_balance) VALUES (%s, %s, %s) """,
-            (user_info["email"], user_info["username"], 0))
     
-            self.connection.commit()
-            return self.cursor.lastrowid 
-
-        # rollback errors for consistency
-        except sqlite3.Error:
-            self.connection.rollback()
-            return None
-    
+    # function to create a user account    
     def create_user_account(self, user_info):
         """
         returns a tuple: (user_id, error_message)
@@ -66,9 +52,11 @@ class UsersDAO:
             logging.error(f"Unexpected error creating user: {str(e)}")
             return None, "Internal server error"
     
-    ## REMOVE, PUT IN AUTH
+    # delete user, also called auth
     def delete_user_account(self, user_id):
-
+        """
+        returns a tuple: (success_boolean, error_message)
+        """
         try:
             self.cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
             result = self.cursor.fetchone()
@@ -97,7 +85,7 @@ class UsersDAO:
             self.connection.rollback()
             return False, e
     
-    ## ALSO CALL AUTH FOR CONSISTENCY
+    # modify username
     def modify_user_account(self, new_user_info):
         try:
             self.cursor.execute("SELECT id FROM users WHERE id = ?", (new_user_info["user_id"],))
@@ -202,62 +190,53 @@ class UsersDAO:
     ## ADMIN FUNCTION
      
     def admin_get_all_users(self):
-        
         try:
-            
             self.cursor.execute("SELECT * FROM users")
-            return [dict(row) for row in self.cursor.fetchall()]
+            return [dict(row) for row in self.cursor.fetchall()], None
         
         except sqlite3.Error:
-            return []
+            return [], "error retrieving players"
+        
+    def admin_get_user(self, user_id):
+        try:
+            self.cursor.execute("SELECT * FROM users where id = ?", (user_id))
+            return [dict(row) for row in self.cursor.fetchall()], None
+        
+        except sqlite3.Error:
+            return [], "error retrieving player"
     
-    # RIVEDERE
-    def admin_modify_user(self, user_id, updates):
-        pass
+    def admin_modify_user(self, user_id, new_username):
+        try:
+            user_data = {
+                "user_id": user_id,
+                "username": new_username
+            }
+            
+            success, message = self.modify_user_account(user_data)
+            return success, message
+            
+        except Exception as e:
+            return False, "Failed to modify user"
         
     def admin_get_user_currency_tx(self, user_id):
         
         try:
             self.cursor.execute(" SELECT * FROM transactions WHERE user_id = ? ORDER BY ts DESC ", (user_id))
-            return [dict(row) for row in self.cursor.fetchall()]
+            return [dict(row) for row in self.cursor.fetchall()], False
         
         except sqlite3.Error:
-            return []
+            return [], "Error retrieving transactions"
     
     def admin_get_user_market_hist(self, user_id):
         
         try:
             self.cursor.execute("SELECT * FROM transactions WHERE user_id = ? AND type = 'auction' ORDER BY ts DESC", (user_id))
-            return [dict(row) for row in self.cursor.fetchall()]
+            return [dict(row) for row in self.cursor.fetchall()], None
         
         except sqlite3.Error:
-            return []
+            return [], "Error retrieving transactions"
     
-    def admin_set_user_account_status(self, user_id, user_account_status):
-        
-        try:
-            self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
-            result = self.cursor.fetchone()
-            
-            if not result:
-                return False, "User not found"
-            
-            self.cursor.execute(" UPDATE users SET account_status = ? WHERE id = ? ", (user_account_status, user_id))
-            
-            # log action
-            now = int(time.time())
-            action = "User ban" if user_account_status == 0 else "User unban"
-            action_log = "banned" if user_account_status == 0 else "unbanned"
-            
-            self.cursor.execute("INSERT INTO logs (ts, user_id, action, message) VALUES (?,?,?,?)", (now, user_id, action, f"User: {user_id} banned"))
-            
-            self.connection.commit()
-            return True, f"User: {user_id} {action_log}"
-        
-        except sqlite3.Error:
-            self.connection.rollback()
-            return False
-
+    # log action to the database
     def log_action(self, user_id, action, message):
 
         try:
@@ -274,22 +253,117 @@ class UsersDAO:
         except sqlite3.Error:
             self.connection.rollback()
             return False
-                
-    def admin_get_last_5_min_logs(self):
-        
+    
+    # get latest logs
+    def admin_get_latest_logs(self):
         try:
-            five_minutes_ago = int(time.time()) - 60 * 5
-            self.cursor.execute(" SELECT * FROM logs WHERE ts >= ?", (five_minutes_ago,))
+            # get logs up to 1 hour ago
+            one_hour_ago_ts = int(time.time()) - 60 * 60
+            self.cursor.execute(" SELECT * FROM logs WHERE ts >= ?", (one_hour_ago_ts,))
             result = self.cursor.fetchone()
             
             if not result:
-                return False, "No logs in the last 5 minutes"
+                return [], "No logs in the last 5 minutes"
         
-            return True, result
+            return result, False
         
         except sqlite3.Error:
             self.connection.rollback()
-            return False
+            return [], "Error retrieving logs"
+
+    def handle_auction_win(self, winner_id, gacha_id, bid_amount, seller_id=None):
+        """
+        Handle auction win: transfer gacha to winner, deduct bid amount, pay seller
         
+        Args:
+            winner_id (int): ID of the winning bidder
+            gacha_id (int): ID of the gacha being auctioned
+            bid_amount (float): Final winning bid amount
+            seller_id (int, optional): ID of the seller (None for system auctions)
+        
+        Returns:
+            tuple: (success, error_message)
+        """
+        try:          
+            # add gacha to winner collection
+            now = int(time.time())
+            self.cursor.execute("""
+                INSERT INTO collection (user_id, gacha_id, added_at) VALUES (?, ?, ?)
+            """, (winner_id, gacha_id, now))
+            
+            # remove coin from winner
+            winner_balance, err = self.update_token_balance(winner_id, -bid_amount, False)
+            if err:
+
+                return False, f"Failed to update winner balance: {err}"
+                
+            # add token to player if the auction is not a system auction
+            if seller_id:
+                seller_balance, err = self.update_token_balance(seller_id, bid_amount, False)
+                
+                if err:
+                    return False, f"Failed to update seller balance: {err}"
+            
+            return True, None
+            
+        except sqlite3.Error as e:
+            return False, "Database error handling auction win"
+
+    def handle_auction_loss(self, bidder_id, bid_amount):
+        """
+        Refund bid token amount to losing bidder
+            
+        Args:
+            bidder_id (int): ID of the losing bidder
+            bid_amount (float): Bid amount to refund
+        """
+        try:
+            # refund bid amount to loser
+            new_balance, err = self.update_token_balance(bidder_id, bid_amount, False)
+            
+            if err:
+                return False, f"Failed to refund bid: {err}"
+                
+            return True, None
+            
+        except sqlite3.Error as e:
+            logging.error(f"Database error in handle_auction_loss: {str(e)}")
+            return False, "Database error"
+
+    def process_auction_outcome(self, auction_data):
+        """
+        handle auction win and loss
+        
+        auction_data: dict containing:
+            winner_id: ID of winning bidder
+            gacha_id: ID of auctioned gacha
+            winning_bid: Final winning bid amount
+            seller_id: ID of seller (optional)
+            losing_bids: List of tuples (bidder_id, bid_amount) for losing bids
+    
+        """
+        try:
+            # handle winner
+            success, error = self.handle_auction_win(
+                auction_data['winner_id'],
+                auction_data['gacha_id'],
+                auction_data['winning_bid'],
+                auction_data.get('seller_id')  # optional, could not be defined
+            )
+            
+            if not success:
+                return False, f"Failed to process winner: {error}"
+                
+            # manage all losing bids
+            for bidder_id, bid_amount in auction_data['losing_bids']:
+                success, error = self.handle_auction_loss(bidder_id, bid_amount)
+                if not success:
+                    logging.error(f"Failed to process refund for bidder {bidder_id}: {error}")
+                    
+            return True, None
+            
+        except Exception as e:
+            return False, "Internal error processing auction"
+    
     def close(self):
         self.connection.close()

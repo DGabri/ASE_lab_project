@@ -1,13 +1,12 @@
-from flask import Flask, request, jsonify
-from users_DAO import UsersDAO
-import logging
-import json
-import bcrypt
 from wtforms.validators import Email, InputRequired, Length
+from password_strength import PasswordPolicy
+from flask import Flask, request, jsonify
 from wtforms import StringField
 from flask_wtf import FlaskForm
-from password_strength import PasswordPolicy
-from werkzeug.exceptions import HTTPException
+from users_DAO import UsersDAO
+import requests
+import logging
+import json
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
@@ -138,23 +137,51 @@ def delete_player(player_id):
 # Modify account (only username)
 @app.route('/player/<int:player_id>', methods=['PUT'])
 def update_player(player_id):
-    data = request.get_json()
-    
-    new_user_info = {
-        'user_id': player_id,
-        'username': data.get('username')
-    }
-    
-    print(new_user_info)
-    res, msg = db_connector.modify_user_account(new_user_info)
-    
-    if res:
-        db_connector.log_action(player_id, "modify_user", msg)
-        return jsonify({'rsp': msg}), 200
-    
-    db_connector.log_action(player_id, "ERR_modify_user", msg)
-    return jsonify({'error': msg}), 400
+    try:
+        data = request.get_json()
+        
+        if not data.get('username'):
+            return jsonify({'error': 'Username is required'}), 400
+        
+        new_user_info = {
+            'user_id': player_id,
+            'username': data.get('username')
+        }
+        
+        # update db
+        res, msg = db_connector.modify_user_account(new_user_info)
+        
+        if res:
+            db_connector.log_action(player_id, "modify_user", msg)
+            
+            # update auth service
+            try:
+                auth_response = requests.put("http://auth:5000/user/modify",
+                    json={
+                        'user_id': player_id,
+                        'username': data.get('username')
+                    },
+                    timeout=10
+                )
+                
+                if auth_response.status_code == 200:
+                    return jsonify({'message': msg}), 200
+                else:
 
+                    db_connector.log_action(player_id, "ERR_modify_user", f"Auth service update failed: {auth_response.text}")
+                    return jsonify({'error': 'Failed to update authentication service'}), 500
+                    
+            except requests.exceptions.RequestException as e:
+                db_connector.log_action(player_id, "ERR_modify_user", f"Auth service connection error: {str(e)}")
+                return jsonify({'error': 'Failed to connect to authentication service'}), 500
+        
+        # If local update failed
+        db_connector.log_action(player_id, "ERR_modify_user", msg)
+        return jsonify({'error': msg}), 400
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 # See collection
 @app.route('/player/collection/<int:player_id>', methods=['GET'])
 def get_player_collection(player_id):
@@ -167,23 +194,6 @@ def get_player_collection(player_id):
     
     db_connector.log_action(player_id, "ERR_get_collection", "Error retrieving collection for user")
     return jsonify({'error': msg}), 400
-
-# See info of a gacha in my collection
-def get_collection_gacha_info(gacha_id):
-    #db_connector.log_action(player_id, "ERR_get_collection", "Error retrieving collection for user")
-    pass
-
-# See system gacha collection
-def get_system_gachas():
-    """ Request to pieces service """
-    #db_connector.log_action(player_id, "ERR_get_collection", "Error retrieving collection for user")
-    pass
-
-# See system gacha collection
-def get_system_gacha_info(gacha_id):
-    """ Request to pieces service """
-    #db_connector.log_action(player_id, "ERR_get_collection", "Error retrieving collection for user")
-    pass
 
 # Refill gold
 @app.route('/player/gold/<int:player_id>', methods=['PUT'])
@@ -229,103 +239,108 @@ def update_player_gold(player_id):
     db_connector.log_action(player_id, "refill_gold", f"Updated balance: {new_balance}")
     return jsonify({'message': 'Successfully updated player gold', 'player_id': player_id, 'new_balance': new_balance}), 200
 
+@app.route('/auction/complete', methods=['POST'])
+def complete_auction():
+    """Handle complete auction outcome including winner and losers"""
+    try:
+        data = request.get_json()
+        required_fields = ['winner_id', 'gacha_id', 'winning_bid', 'losing_bids']
+        
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        success, error = db_connector.process_auction_outcome(data)
+        
+        if success:
+            db_connector.log_action(data['winner_id'],"auction_complete",f"Won auction gacha {data['gacha_id']}")
+            return jsonify({'message': 'Auction completed successfully','winner_id': data['winner_id'], 'gacha_id': data['gacha_id']}), 200
+        else:
+            return jsonify({'error': error}), 400
+            
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 500
+
+        
 #######################
 
 ##  ADMIN ENDPOINTS  ##
-# Check all user profiles
-# Modify a specific user
-# Check a player currency transaction
-# Check player market history
-# Check all gacha collection
-# Modify gacha collection
-# Modify a gacha info
 
 # Check syslog of last 5 minutes
-def check_system_logs():
-    pass
+@app.route('/admin/logs', methods=['GET'])
+def get_logs():
+    # get logs from db
+    logs, err = db_connector.admin_get_latest_logs()
+        
+    if err:
+        return jsonify({'err': err}), 500
+        
+    return jsonify({'rsp': logs}), 200
 
-# Ban player account
-@app.route('/admin/user/ban/<int:user_id>', methods=['PUT'])
-def ban_user(user_id):
-
-    # pass 0 to ban user
-    res, msg = db_connector.admin_set_user_account_status(user_id, 0)
-    
-    if res:
-        db_connector.log_action(user_id, "ban_user", "Ban successful")
-        return jsonify({'rsp': msg}), 200
-    
-    db_connector.log_action(user_id, "ERR_ban_user", "Ban unsuccessful")
-    return jsonify({'error': msg}), 400 
-
-# Extra unban user
-@app.route('/admin/user/unban/<int:user_id>', methods=['PUT'])
-def unban_user(user_id):
-
-    # pass 1 to unban user
-    res, msg = db_connector.admin_set_user_account_status(user_id, 1)
-    
-    if res:
-        db_connector.log_action(user_id, "unban_user", "Unban successful")
-        return jsonify({'rsp': msg}), 200
-    
-    db_connector.log_action(user_id, "unban_user", "Unban unsuccessful")
-    return jsonify({'error': msg}), 400 
-#######################
-
-# Admin Routes
 @app.route('/player/all', methods=['GET'])
 def get_all_players():
 
-    res, players = db_connector.admin_get_all_users()
-
-    return jsonify({'rsp': players}), 200
+    players, err = db_connector.admin_get_all_users()
+    
+    if not err:
+        return jsonify({'players': players}), 200
+    
+    return jsonify({'err': err}), 400
 
 
 @app.route('/player/<int:player_id>', methods=['GET'])
 def get_player(player_id):
-    res, user = db_connector.admin_get_user(player_id)
-
+    user, err = db_connector.admin_get_user(player_id)
+    
+    if not err:
+        return jsonify({'user_info': user}), 200
+    
+    return jsonify({'err': err}), 400
 
 @app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 def admin_modify_user(user_id):
+    try:
+        update = request.get_json()
+        
+        # get username from request
+        new_username = update.get('username')
+        
+        # username must be present
+        if not new_username:
+            return jsonify({'err': 'Username required'}), 400
 
-    update = request.get_json()
+        # update db
+        res, msg = db_connector.admin_modify_user(user_id, new_username)
+        
+        if res:
+            return jsonify({'message': 'User updated successfully'}), 200
+        else:
+            return jsonify({'error': msg}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
-    res, msg = db_connector.admin_modify_user(user_id, update)
-
-@app.route('/player/gold/history/<int:player_id>', methods=['GET'])
+# get transaction history
+@app.route('/player/transaction/history/<int:player_id>', methods=['GET'])
 def get_player_transaction_history(player_id):
 
-    res, tx_hist = db_connector.admin_get_user_currency_tx(player_id)
-    return jsonify({'transactions_history': tx_hist}), 200
+    tx_hist, err = db_connector.admin_get_user_currency_tx(player_id)
+    
+    if not err:
+        return jsonify({'transactions_history': tx_hist}), 200
+    
+    return jsonify({'err': err}), 400
 
+# get user market history
 @app.route('/admin/user/market-history/<int:user_id>', methods=['PUT'])
 def get_user_market_history(user_id):
 
-    res, user_market_hist = db_connector.admin_get_user_market_hist(user_id)
-    return jsonify({'market_history': user_market_hist}), 200
-
-def check_all_gacha_collections():
-    pass
-
-def check_all_sys_gacha_collections():
-    pass
-
-def modify_gacha_collection():
-    pass
-
-def check_gacha_info(gacha_id):
-    """ PIECE SERVICE QUERY """
-    pass
-
-def modify_gacha_info(gacha_id):
-    """ PIECE SERVICE QUERY """
-    pass
-
-def check_auction_market():
-    """ AUCTION SERVICE QUERY """
-    pass
+    user_market_hist, err = db_connector.admin_get_user_market_hist(user_id)
+    
+    if not err:
+        return jsonify({'market_history': user_market_hist}), 200
+    
+    return jsonify({'err': err}), 400
 
 if __name__ == '__main__':
     app.run()
+    

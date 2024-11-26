@@ -5,12 +5,11 @@ services:
       - "3000:80"
     networks:
       - user_network
+    volumes:
+      - ./user_gateway:/app
     depends_on:
       - auth
       - user
-      #- piece
-      #- banner
-      #- auction
 
   admin_gateway:
     build: ./admin_gateway
@@ -18,12 +17,11 @@ services:
       - "3001:80"
     networks:
       - admin_network
+    volumes:
+      - ./admin_gateway:/app
     depends_on:
       - auth
       - user
-      #- piece
-      #- banner
-      #- auction
 
   auth:
     build: ./auth
@@ -32,6 +30,9 @@ services:
     networks:
       - admin_network
       - user_network
+    volumes:
+      - ./auth:/app
+      - ./auth/data:/app/data
 
   user:
     build: ./user
@@ -40,6 +41,9 @@ services:
     networks:
       - admin_network
       - user_network
+    volumes:
+      - ./user:/app
+      - ./user/data:/app/data
 
   piece:
     build: ./piece
@@ -64,6 +68,9 @@ services:
   #  networks:
   #    - admin_network
   #    - user_network
+  #  volumes:
+  #    - ./auction:/app
+  #    - ./auction/data:/app/data
 
 networks:
   admin_network:
