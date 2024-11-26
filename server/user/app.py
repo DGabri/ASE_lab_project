@@ -13,9 +13,10 @@ app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
 
 logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
-
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
 
 #################################################################
@@ -55,7 +56,7 @@ def init_db(config_json):
         with open(config_json["db"]["init_scheme"], 'r') as f:
             init_scheme_sql = f.read()
             db.cursor.executescript(init_scheme_sql)
-            logger.info("DB init successful")
+            logger.warning("DB init successful")
         return db
     
     except Exception as e:
@@ -79,14 +80,18 @@ def create_player_account():
         
         data = request.get_json()
         
+        if not all(k in data for k in ['username', 'email', 'user_id']):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
         user_info = {
             'username': data['username'],
             'email': data['email'],
             'user_id': data['user_id']
         }
-        
+        logger.warning(f"User Info: {user_info}")
         # create user in DB, get error message if any
         user_id, err_msg = db_connector.create_user_account(user_info)
+        logger.warning(f"Created User ID: {user_id}, error msg: {err_msg}")
             
         if err_msg:
             db_connector.log_action(user_id, "ERR_create_player", err_msg)
@@ -139,15 +144,6 @@ def update_player(player_id):
     
     db_connector.log_action(player_id, "ERR_modify_user", msg)
     return jsonify({'error': msg}), 400
-
-""" MANAGE REGULAR PLAYERS FROM ADMIN """
-def login():
-    #db_connector.log_action(player_id, "loging", msg)
-    pass
-
-def logout():
-    #db_connector.log_action(player_id, "logut", msg)
-    pass
 
 # See collection
 @app.route('/player/collection/<int:player_id>', methods=['GET'])
@@ -281,7 +277,7 @@ def get_player(player_id):
     res, user = db_connector.admin_get_user(player_id)
 
 
-@app.route('/admin/user/<int:user_id>/modify', methods=['PUT'])
+@app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 def admin_modify_user(user_id):
 
     update = request.get_json()

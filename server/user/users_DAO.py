@@ -1,11 +1,18 @@
 import sqlite3
 import time
+import logging 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 class UsersDAO:
     def __init__(self, database):
         self.connection = sqlite3.connect(database, check_same_thread=False)
         self.cursor = self.connection.cursor()
-    
+        
     def get_user_account(self, user_info):
         try:
             # initial zero balance for tokens
@@ -14,7 +21,7 @@ class UsersDAO:
             (user_info["email"], user_info["username"], 0))
     
             self.connection.commit()
-            return self.cursor.lastrowid
+            return self.cursor.lastrowid 
 
         # rollback errors for consistency
         except sqlite3.Error:
@@ -27,17 +34,17 @@ class UsersDAO:
         """
         try:            
             # initial zero balance for tokens
-            # account status set to active
+            logging.info(f"DAO user INFO: {user_info}")
+            
             self.cursor.execute("""
             INSERT INTO users (id, email, username, token_balance) VALUES (?, ?, ?, ?)""",
             (user_info["user_id"], user_info["email"], user_info["username"], 0))
             
-            self.connection.commit()
             return self.cursor.lastrowid, None
         
         # rollback errors for consistency
         except sqlite3.Error as e:
-            print(f"DB error: {str(e)}")
+            logging.info(f"DB error: {str(e)}")
 
             self.connection.rollback()
             return None, None

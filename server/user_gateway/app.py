@@ -5,7 +5,12 @@ import logging
 import jwt
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -18,6 +23,11 @@ MICROSERVICES_URLS = {
     "banner": "http://banner:5000",
     "piece": "http://piece:5000",
     "user": "http://user:5000"
+}
+
+PUBLIC_ROUTES = {
+    ("POST", "auth/create_user"),
+    ("POST", "auth/login")
 }
 
 def verify_authentication_authorization(token, route, method):
@@ -37,8 +47,9 @@ def verify_authentication_authorization(token, route, method):
         return {"error": "Auth service unavailable"}, 503
 
 # tells if the requested route is public    
-def is_public_auth_route(method, path):
-    return (method == "POST") and ((path == "register") or (path == "login") or (path == "refresh"))
+def is_public_auth_route(method, microservice, path):
+    route = f"{microservice}/{path}"
+    return (method, route) in PUBLIC_ROUTES
 
 @app.route('/<microservice>/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<microservice>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -52,7 +63,7 @@ def admin_gateway(microservice, path):
     logger.info(f"Forwarding to: {microservice} {target_url}")
 
     # login is not required to register a new user
-    if not (microservice == "auth" and ((path == "create_user") or (path == "login"))):
+    if not is_public_auth_route(request.method, microservice, path):
         authentication_header = request.headers.get("Authorization")
         
         if not authentication_header or not authentication_header.startswith("Bearer "):

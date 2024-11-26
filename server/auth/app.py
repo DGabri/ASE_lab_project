@@ -1,5 +1,4 @@
 from wtforms.validators import Email, InputRequired, Length, NumberRange
-#from flask_jwt import JWT, jwt_required, current_identity
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
@@ -31,9 +30,10 @@ app.config['WTF_CSRF_ENABLED'] = False
 # configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s %(message)s',
-    datefmt='%d/%m/%Y %H:%M:%S'
+    format='%(asctime)s %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
+
 logger = logging.getLogger(__name__)
 
 #################################################################
@@ -59,19 +59,21 @@ class UserRegistrationForm(FlaskForm):
 # routes permission mapping
 ROUTE_PERMISSIONS = {
     # user routes
-    'GET:/player/collection/<player_id>': [1, 0],
-    'PUT:/player/gold/<player_id>': [1, 0],
-    'PUT:/player/<player_id>': [1, 0],
-    'DELETE:/player/<player_id>': [1, 0],
+    'POST:/user/create_user': [1, 0],                   # create user
+    'DELETE:/user/player/<player_id>': [1, 0],          # delete account
+    'PUT:/user/player/<player_id>': [1, 0],             # modify account username
+    'GET:/user/player/collection/<player_id>': [1, 0],  # see player collection
+    'PUT:/user/player/gold/<player_id>': [1, 0],        # refill user gold
+    'PUT:/user/player/<player_id>': [1, 0],             #
     
     # admin routes
-    'GET:/player/all': [0],
-    'GET:/player/<player_id>': [0],
-    'PUT:/admin/user/<user_id>/modify': [0],
-    'PUT:/admin/user/ban/<user_id>': [0],
-    'PUT:/admin/user/unban/<user_id>': [0],
-    'GET:/player/gold/history/<player_id>': [0],
-    'PUT:/admin/user/market-history/<user_id>': [0]
+    'GET:/user/player/all': [0],                            # get all users
+    'GET:/user/player/<player_id>': [0],                    # get a specific user
+    'PUT:/user/admin/user/<user_id>/modify': [0],           # modify a user
+    'PUT:/user/admin/user/ban/<user_id>': [0],              # ban user
+    'PUT:/user/admin/user/unban/<user_id>': [0],            # unban user
+    'GET:/user/player/gold/history/<player_id>': [0],       # get user gold refill history
+    'PUT:/user/admin/user/market-history/<user_id>': [0]    # get user market history
 }
 
 # as defined in auth_scheme.sql
@@ -104,7 +106,7 @@ def init_db(config_json):
         with open(config_json["db"]["init_scheme"], 'r') as f:
             init_scheme_sql = f.read()
             db.cursor.executescript(init_scheme_sql)
-            logger.info("DB init successful")
+            logger.warning("DB init successful")
         return db
     
     except Exception as e:
@@ -259,7 +261,7 @@ def register():
             'password': data['password'],
             'user_type': user_type,
         }
-        logger.info(user_info)
+        logger.warning(f"User_info: {user_info}")
 
         # validate password requirements
         valid_password = password_requirements.test(user_info["password"])
@@ -273,11 +275,11 @@ def register():
         salt = bcrypt.gensalt()
         user_info["password"] = bcrypt.hashpw(password_bytes, salt)
         
-        logger.info(password_bytes)
-        logger.info(user_info)
+        logger.warning(f"Password bytes: {password_bytes}")
+        logger.warning(f"User_info: {user_info}")
         # Create user in auth database
         user_id, err_msg = db_connector.create_user(user_info)
-        logger.info(user_id)
+        logger.warning(f"User id: {user_id}")
         
         if err_msg:
             return jsonify({'error': err_msg}), 400
@@ -290,7 +292,7 @@ def register():
         }
 
         try:
-            res = requests.post("http://user_gateway:3000/user/create_user", json=user_data)
+            res = requests.post("http://user:5000/create_user", json=user_data)
             
             if res.status_code != 201:
                 # rollback user creation
@@ -301,10 +303,8 @@ def register():
             return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
 
         except:
-            return jsonify({'msg': 'User registered successfully','user_id': user_id}), 400
-            
-        return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
-        
+            return jsonify({'msg': 'Registration failed'}), 400
+                    
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
 
@@ -313,7 +313,7 @@ def register():
 def login():
     try:
         data = request.get_json()
-        logger.info(f"Login attempt for username: {data.get('username')}")
+        logger.warning(f"Login attempt for username: {data.get('username')}")
         
         if not data or 'username' not in data or 'password' not in data:
             return jsonify({'error': 'Missing credentials'}), 400
@@ -324,10 +324,10 @@ def login():
         )
         
         if error:
-            logger.info(f"Authentication failed: {error}")
+            logger.warning(f"Authentication failed: {error}")
             return jsonify({'error': "Wrong credentials"}), 401
 
-        logger.info(f"User authenticated successfully: {user_data}")
+        logger.warning(f"User authenticated successfully: {user_data}")
 
         # generate access and refresh tokens
         try:
@@ -431,6 +431,30 @@ def refresh():
         logger.error(f'Token refresh error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
+##
+def normalize_route(route):
+    """
+    Normalize route by replacing numeric IDs with placeholders
+    Example: 'player/gold/1' -> 'player/gold/{player_id}'
+    """
+    parts = route.split('/')
+    normalized_parts = []
+    
+    for part in parts:
+        # Check if part is numeric (an ID)
+        if part.isdigit():
+            # Determine placeholder based on route context
+            if 'player' in parts:
+                normalized_parts.append('<player_id>')
+            elif 'user' in parts:
+                normalized_parts.append('<user_id>')
+            else:
+                normalized_parts.append('<id>')
+        else:
+            normalized_parts.append(part)
+    
+    return '/'.join(normalized_parts)
+
 @app.route('/authorize', methods=['POST'])
 def authorize():
     try:
@@ -446,14 +470,22 @@ def authorize():
         if error:
             return jsonify({'error': error}), 401
 
-        route_key = f"{method}:{route}"
-        logger.info(route_key)
+        user_type = payload['user_type']
+        normalized_route = normalize_route(route)
+        route_key = f"{method}:{normalized_route}"
+        logger.warning(f"Original route: {route}")
+        logger.warning(f"Normalized route key: {route_key}")
+        logger.warning(f"User type: {user_type}")
+        
+        logger.warning(f"Route key: {route_key}")
+        
         allowed_roles = ROUTE_PERMISSIONS.get(route_key)
+        logger.warning(f"User_type: {user_type} Allowed roles: {allowed_roles}")
         
         if not allowed_roles:
             return jsonify({'error': 'Route not found'}), 404
 
-        if payload['user_type'] not in allowed_roles:
+        if user_type not in allowed_roles:
             return jsonify({'error': 'Insufficient permissions'}), 403
 
         return jsonify({
