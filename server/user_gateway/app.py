@@ -53,7 +53,7 @@ def is_public_auth_route(method, microservice, path):
 
 @app.route('/<microservice>/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<microservice>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def admin_gateway(microservice, path):
+def user_gateway(microservice, path):
     if microservice not in MICROSERVICES_URLS:
         return jsonify({"error": f"Service: '{microservice}' not found"}), 404
 
@@ -73,7 +73,7 @@ def admin_gateway(microservice, path):
         
         # verify action with auth service
         auth_response, auth_return_code = verify_authentication_authorization(token, path, request.method)
-        
+        logging.info(f"[USER GATEWAY] auth_response: {auth_response} response code: {auth_return_code}")
         if auth_return_code != 200:
             if auth_return_code == 401:
                 return jsonify({"error": "Please login"}), 401

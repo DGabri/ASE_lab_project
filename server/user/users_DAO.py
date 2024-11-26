@@ -37,17 +37,34 @@ class UsersDAO:
             logging.info(f"DAO user INFO: {user_info}")
             
             self.cursor.execute("""
-            INSERT INTO users (id, email, username, token_balance) VALUES (?, ?, ?, ?)""",
-            (user_info["user_id"], user_info["email"], user_info["username"], 0))
+            INSERT INTO users (id, username, email, token_balance) 
+            VALUES (?, ?, ?, ?)
+            """, (user_info["user_id"], user_info["username"], user_info["email"], 0))
             
-            return self.cursor.lastrowid, None
+            # Important: Commit the transaction
+            self.connection.commit()
+            
+            # Return the user_id we just inserted
+            logging.info(f"Successfully created user with id: {user_info['user_id']}")
+            return user_info["user_id"], None
         
         # rollback errors for consistency
-        except sqlite3.Error as e:
-            logging.info(f"DB error: {str(e)}")
-
+        except sqlite3.IntegrityError as e:
             self.connection.rollback()
-            return None, None
+            logging.error(f"Integrity error creating user: {str(e)}")
+            if "UNIQUE constraint failed" in str(e):
+                return None, "Username or email already exists"
+            return None, str(e)
+        
+        except sqlite3.Error as e:
+            self.connection.rollback()
+            logging.error(f"Database error creating user: {str(e)}")
+            return None, str(e)
+        
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Unexpected error creating user: {str(e)}")
+            return None, "Internal server error"
     
     ## REMOVE, PUT IN AUTH
     def delete_user_account(self, user_id):
@@ -123,11 +140,19 @@ class UsersDAO:
         """
         returns a tuple: (user_balance, error_message)
         """
+        logging.info(f"Checking user balance for user_id: {user_id} increment: {increment_amount} is_refill: {is_refill}")
+        
+        self.cursor.execute("SELECT token_balance FROM users WHERE id = ?", (user_id,))
+        result = self.cursor.fetchone()
+        
+        logging.info(f"Query result: {result}")
+        
         try:
             self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
             result = self.cursor.fetchone()
             
             if not result:
+                logging.warning(f"User {user_id} not found in database")
                 return 0, "User not found"
             
             present_token_balance = float(result[0])
@@ -137,8 +162,8 @@ class UsersDAO:
                 return 0, "Negative balance"
             
             # prevent game cheat
-            if (is_refill and increment_amount > 500):
-                return 0, "Refill balance must be below 500 to prevent cheating"
+            if (is_refill and increment_amount > 50):
+                return 0, "Refill balance must be below 50 to prevent cheating"
                 
             # update
             self.cursor.execute("UPDATE users SET token_balance = ? WHERE id = ?", (new_token_balance, user_id) )
@@ -165,7 +190,7 @@ class UsersDAO:
             
             self.connection.commit()
             result = self.cursor.fetchone()
-            
+            logging.info(f"Updated result: {result}")
             return new_token_balance, None
             
         except Exception as e:

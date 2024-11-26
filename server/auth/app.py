@@ -59,21 +59,20 @@ class UserRegistrationForm(FlaskForm):
 # routes permission mapping
 ROUTE_PERMISSIONS = {
     # user routes
-    'POST:/user/create_user': [1, 0],                   # create user
-    'DELETE:/user/player/<player_id>': [1, 0],          # delete account
-    'PUT:/user/player/<player_id>': [1, 0],             # modify account username
-    'GET:/user/player/collection/<player_id>': [1, 0],  # see player collection
-    'PUT:/user/player/gold/<player_id>': [1, 0],        # refill user gold
-    'PUT:/user/player/<player_id>': [1, 0],             #
+    'DELETE:/player/<player_id>': [1, 0],          # delete account
+    'PUT:/player/<player_id>': [1, 0],             # modify account username
+    'GET:/player/collection/<player_id>': [1, 0],  # see player collection
+    'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
+    'PUT:/player/<player_id>': [1, 0],             #
     
     # admin routes
-    'GET:/user/player/all': [0],                            # get all users
-    'GET:/user/player/<player_id>': [0],                    # get a specific user
-    'PUT:/user/admin/user/<user_id>/modify': [0],           # modify a user
-    'PUT:/user/admin/user/ban/<user_id>': [0],              # ban user
-    'PUT:/user/admin/user/unban/<user_id>': [0],            # unban user
-    'GET:/user/player/gold/history/<player_id>': [0],       # get user gold refill history
-    'PUT:/user/admin/user/market-history/<user_id>': [0]    # get user market history
+    'GET:/player/all': [0],                            # get all users
+    'GET:/player/<player_id>': [0],                    # get a specific user
+    'PUT:/admin/user/<user_id>/modify': [0],           # modify a user
+    'PUT:/admin/user/ban/<user_id>': [0],              # ban user
+    'PUT:/admin/user/unban/<user_id>': [0],            # unban user
+    'GET:/player/gold/history/<player_id>': [0],       # get user gold refill history
+    'PUT:/admin/user/market-history/<user_id>': [0]    # get user market history
 }
 
 # as defined in auth_scheme.sql
@@ -290,7 +289,7 @@ def register():
             'email': data['email'],
             'user_id': user_id
         }
-
+        logger.warning(f"User data for user service: {user_data}")
         try:
             res = requests.post("http://user:5000/create_user", json=user_data)
             
@@ -437,6 +436,9 @@ def normalize_route(route):
     Normalize route by replacing numeric IDs with placeholders
     Example: 'player/gold/1' -> 'player/gold/{player_id}'
     """
+    if not route.startswith('/'):
+        route = '/' + route
+        
     parts = route.split('/')
     normalized_parts = []
     
@@ -472,24 +474,26 @@ def authorize():
 
         user_type = payload['user_type']
         normalized_route = normalize_route(route)
+        
         route_key = f"{method}:{normalized_route}"
         logger.warning(f"Original route: {route}")
         logger.warning(f"Normalized route key: {route_key}")
         logger.warning(f"User type: {user_type}")
         
-        logger.warning(f"Route key: {route_key}")
         
+        logger.warning(f"Available routes: {list(ROUTE_PERMISSIONS.keys())}")
         allowed_roles = ROUTE_PERMISSIONS.get(route_key)
+        logger.warning(f"Matching route: {route_key} -> allowed roles: {allowed_roles}")
+
         logger.warning(f"User_type: {user_type} Allowed roles: {allowed_roles}")
-        
+
         if not allowed_roles:
-            return jsonify({'error': 'Route not found'}), 404
+            return jsonify({'error': 'Route not found', 'requested': route_key}), 404
 
         if user_type not in allowed_roles:
             return jsonify({'error': 'Insufficient permissions'}), 403
 
-        return jsonify({
-            'valid': True, 'user': payload}), 200
+        return jsonify({'valid': True, 'user': payload}), 200
 
     except Exception as e:
         logger.error(f'Token verification error: {str(e)}')

@@ -88,16 +88,26 @@ def create_player_account():
             'email': data['email'],
             'user_id': data['user_id']
         }
-        logger.warning(f"User Info: {user_info}")
+        
+        logger.info(f"Received create user request with data: {data}")
+        
+        # validate user id as int
+        try:
+            data['user_id'] = int(data['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'user_id must be int'}), 400
+            
         # create user in DB, get error message if any
         user_id, err_msg = db_connector.create_user_account(user_info)
         logger.warning(f"Created User ID: {user_id}, error msg: {err_msg}")
             
         if err_msg:
+            logger.error(f"Error creating user: {err_msg}")
             db_connector.log_action(user_id, "ERR_create_player", err_msg)
             return jsonify({'error': err_msg}), 400
             
         if user_id:
+            logger.info(f"Successfully created user with ID: {user_id}")
             db_connector.log_action(user_id, "create_player", "created_user")
             return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
         
