@@ -168,7 +168,11 @@ def pull(banner_id):
             return content, code
 
         banner = Banner.from_dict(content.get_json()['banner'])
-        response = requests.get("http://localhost:5003/piece/all", timeout=5)
+        response = requests.get("http://piece:5000/piece/all", timeout=5)
+
+        if response.status_code != 200:
+            return response
+            
         pieces = response.json()['pieces']
         pieces_pulled = []
 

@@ -78,7 +78,7 @@ class PiecesDAO:
         try:
             with self.connection:
                 # SQL injection checked
-                self.cursor.execute('UPDATE pieces SET ' + ', '.join([f"{key} = ?"  for key in piece_keys]) + ' WHERE id = ? RETURNING id', piece_values + (piece['id'],)) # nosec
+                self.cursor.execute('UPDATE pieces SET ' + ', '.join([f"{key} = ?" for key in piece_keys]) + ' WHERE id = ? RETURNING id', piece_values + (piece['id'],)) # nosec
                 row = self.cursor.fetchone()
 
             if not row:
