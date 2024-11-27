@@ -101,5 +101,6 @@ def user_gateway(microservice, path):
     except requests.exceptions.RequestException as e:
         return {"error": f"Service unavailable: {e}"}, 503
 
+
 if __name__ == '__main__':
     app.run(port=80)

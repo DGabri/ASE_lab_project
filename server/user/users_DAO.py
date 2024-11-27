@@ -12,7 +12,16 @@ class UsersDAO:
     def __init__(self, database):
         self.connection = sqlite3.connect(database, check_same_thread=False)
         self.cursor = self.connection.cursor()
-    
+        
+    def get_max_user_id(self):
+        """Endpoint to support ID synchronization"""
+        try:
+            self.cursor.execute("SELECT MAX(user_id) FROM users")
+            return self.cursor.fetchone()[0] or 0
+        except Exception as e:
+            logger.error(f"Error getting max user ID: {str(e)}")
+            raise
+        
     # function to create a user account    
     def create_user_account(self, user_info):
         """

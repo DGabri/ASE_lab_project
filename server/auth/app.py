@@ -55,13 +55,14 @@ class UserRegistrationForm(FlaskForm):
 # routes permission mapping
 ROUTE_PERMISSIONS = {
     # user routes
-    'DELETE:/player/<player_id>': [1, 0],          # delete account
+    'DELETE:/delete_user/<player_id>': [1, 0],          # delete account
     'PUT:/player/<player_id>': [1, 0],             # modify account username
     'GET:/player/collection/<player_id>': [1, 0],  # see player collection
     'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
     'PUT:/player/<player_id>': [1, 0],             # 
     'POST:/auction/complete': [1],                 # complete auction process
     'POST:/auction': [1,0],                        # create an auction
+    'POST:/logout/<player_id>': [1,0],         # logout
     
     # admin routes
     'GET:/admin/logs': [0],                            # get all logs
@@ -473,37 +474,38 @@ def login():
         return jsonify({'error': 'Internal server error'}), 500
 
 
-@app.route('/logout', methods=['POST'])
-def logout():
+@app.route('/logout/<int:player_id>', methods=['POST'])
+def logout(player_id):
     try:
         auth_header = request.headers.get('Authorization')
-        refresh_token = request.json.get('refresh_token')
-        
+
         if not auth_header:
             return jsonify({'error': 'Missing Authorization header'}), 401
         
         try:
-            # get access token
+            # verify access token
             access_token = auth_header.split(' ')[1]
             payload, error = verify_token(access_token)
             
             if error:
                 return jsonify({'error': error}), 401
                 
-            # extract user id from payload
-            user_id = payload['user_id']
+            # verify the user is logging out their own account
+            token_user_id = int(payload.get('sub'))
+            if token_user_id != player_id:
+                return jsonify({'error': 'Cannot logout other users'}), 403
                 
-            # If refresh token provided, only invalidate that specific token
-            if refresh_token:
-                success = db_connector.revoke_user_refresh_token(user_id)
-                      
-                if success:  
-                    return jsonify({'msg': 'Logged out successfully'}), 200
-                
-                return jsonify({'error': 'Error revoking token'}), 400
+
+            success = db_connector.revoke_user_refresh_token(player_id)
+                    
+            if success:  
+                return jsonify({'msg': 'Logged out successfully'}), 200
+            
+            return jsonify({'error': 'Error revoking token'}), 400
             
         except Exception as e:
-            return jsonify({'error': "Error revoking token"}), 400
+            logger.error(f"[AUTH] Error during logout: {str(e)}")
+            return jsonify({'error': "Error during logout"}), 400
             
     except Exception as e:
         logger.error(f'Logout error: {str(e)}')
@@ -543,58 +545,48 @@ def refresh():
         logger.error(f'Token refresh error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
     
+
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
-def delete_user(user_id):
+def delete_user(player_id):
     try:
         refresh_token = request.json.get('refresh_token')
         if not refresh_token:
             return jsonify({'error': 'Refresh token required'}), 400
 
         # have to be authenticated to delete user
-        user_id = db_connector.verify_refresh_token(refresh_token)
+        auth_user = db_connector.verify_refresh_token(refresh_token)
         
-        if not user_id:
+        if not auth_user:
             return jsonify({'error': 'Invalid or expired refresh token'}), 401
 
         # delete user from auth db
-        rsp, err = db_connector.delete_user(user_id["user_id"])
+        rsp, err = db_connector.delete_user(player_id)
+        logging.info(f"[AUTH] Delete user: {rsp}")
         
         if err:
             return jsonify({'error': 'error deleting user'}), 404
 
-        
-        return jsonify({'rsp': "user deleted successfully"}), 200
+        # Synchronize with user service
+        try:
+            res = requests.delete(
+                f"http://user:5000/player/{player_id}",
+                timeout=10
+            )
+            if res.status_code == 200:
+                return jsonify({'rsp': "user deleted successfully"}), 200
+            
+            # If user service deletion fails, log it but don't rollback auth deletion
+            logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
+            return jsonify({'error': "partial deletion - user removed from auth but not from user service"}), 500
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"[AUTH] User service connection error during deletion: {str(e)}")
+            return jsonify({'error': "user service connection error during deletion"}), 500
 
     except Exception as e:
-        logger.error(f'Token refresh error: {str(e)}')
+        logger.error(f'Delete user error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
     
-@app.route('/delete_user/<int:player_id>', methods=['DELETE'])
-def delete(user_id):
-    try:
-        refresh_token = request.json.get('refresh_token')
-        if not refresh_token:
-            return jsonify({'error': 'Refresh token required'}), 400
-
-        # have to be authenticated to delete user
-        user_id = db_connector.verify_refresh_token(refresh_token)
-        
-        if not user_id:
-            return jsonify({'error': 'Invalid or expired refresh token'}), 401
-
-        # delete user from auth db
-        rsp, err = db_connector.delete_user(user_id["user_id"])
-        
-        if err:
-            return jsonify({'error': 'error deleting user'}), 404
-
-        
-        return jsonify({'rsp': "user deleted successfully"}), 200
-
-    except Exception as e:
-        logger.error(f'Token refresh error: {str(e)}')
-        return jsonify({'error': 'Internal server error'}), 500
-
 ##
 def normalize_route(route):
     """
@@ -611,7 +603,7 @@ def normalize_route(route):
         # Check if part is numeric (an ID)
         if part.isdigit():
             # Determine placeholder based on route context
-            if 'player' in parts:
+            if ('player' in parts) or ('delete_user' in parts) or ('logout' in parts):
                 normalized_parts.append('<player_id>')
             elif 'user' in parts:
                 normalized_parts.append('<user_id>')

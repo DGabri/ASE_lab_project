@@ -339,6 +339,14 @@ def get_user_market_history(user_id):
     
     return jsonify({'err': err}), 400
 
+@app.route('/max_user_id', methods=['GET'])
+def get_max_user_id():
+    try:
+        max_id = db_connector.get_max_user_id()
+        return jsonify({'max_id': max_id}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run()
     
