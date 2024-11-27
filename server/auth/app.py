@@ -53,16 +53,20 @@ ROUTE_PERMISSIONS = {
     'PUT:/player/<player_id>': [1, 0],             # modify account username
     'GET:/player/collection/<player_id>': [1, 0],  # see player collection
     'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
-    'PUT:/player/<player_id>': [1, 0],             #
+    'PUT:/player/<player_id>': [1, 0],             # 
+    'POST:/auction/complete': [1],                 # complete auction process
     
     # admin routes
-    'GET:/player/all': [0],                            # get all users
+    'GET:/admin/logs': [0],                            # get all logs
+    'GET:/player/all': [0],                            # get all players
     'GET:/player/<player_id>': [0],                    # get a specific user
-    'PUT:/admin/user/<user_id>/modify': [0],           # modify a user
+    'PUT:/admin/user/modify/<user_id>': [0],           # modify a user
+    'GET:/player/transaction/history/<player_id>': [0],# get user transaction history
+    'PUT:/admin/user/market-history/<user_id>': [0],    # get user market history
+    
     'PUT:/admin/user/ban/<user_id>': [0],              # ban user
     'PUT:/admin/user/unban/<user_id>': [0],            # unban user
-    'GET:/player/gold/history/<player_id>': [0],       # get user gold refill history
-    'PUT:/admin/user/market-history/<user_id>': [0]    # get user market history
+
 }
 
 # as defined in auth_scheme.sql

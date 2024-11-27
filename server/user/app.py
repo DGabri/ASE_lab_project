@@ -274,6 +274,7 @@ def get_logs():
         
     return jsonify({'rsp': logs}), 200
 
+# get all players
 @app.route('/player/all', methods=['GET'])
 def get_all_players():
 
@@ -284,7 +285,7 @@ def get_all_players():
     
     return jsonify({'err': err}), 400
 
-
+# get a specific player
 @app.route('/player/<int:player_id>', methods=['GET'])
 def get_player(player_id):
     user, err = db_connector.admin_get_user(player_id)
@@ -294,6 +295,7 @@ def get_player(player_id):
     
     return jsonify({'err': err}), 400
 
+# modify a user
 @app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 def admin_modify_user(user_id):
     try:
