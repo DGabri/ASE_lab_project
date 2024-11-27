@@ -58,6 +58,9 @@ services:
     networks:
       - admin_network
       - user_network
+    secrets:
+      - piece_cert_secret
+      - piece_key_secret
 
   banner:
     build: ./banner
@@ -66,6 +69,9 @@ services:
     networks:
       - admin_network
       - user_network
+    secrets:
+      - banner_cert_secret
+      - banner_key_secret
 
   auction:
     build: ./auction
@@ -80,3 +86,13 @@ networks:
     driver: bridge
   user_network:
     driver: bridge
+
+secrets:
+  piece_cert_secret:
+    file: ./piece/cert.pem
+  piece_key_secret:
+    file: ./piece/key.pem
+  banner_cert_secret:
+    file: ./banner/cert.pem
+  banner_key_secret:
+    file: ./banner/key.pem

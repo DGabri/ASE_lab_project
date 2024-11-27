@@ -1,5 +1,5 @@
 import sqlite3
-from db_result import DBResult, DBResultCode
+from classes.db_result import DBResult, DBResultCode
 from classes.piece import Piece
 
 class PiecesDAO:

@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from DAOs.banners_DAO import BannersDAO
-from db_result import DBResultCode
+from classes.db_result import DBResultCode
 from classes.banner import Banner
 from classes.rates import Rates
 import sqlite3
@@ -168,10 +168,10 @@ def pull(banner_id):
             return content, code
 
         banner = Banner.from_dict(content.get_json()['banner'])
-        response = requests.get("http://piece:5000/piece/all", timeout=5)
+        response = requests.get("https://piece:5003/piece/all", timeout = 5, verify = False) # nosec
 
         if response.status_code != 200:
-            return response
+            return jsonify(message = "Internal problem with service 'piece'"), response.status_code
             
         pieces = response.json()['pieces']
         pieces_pulled = []

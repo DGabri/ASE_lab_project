@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from DAOs.pieces_DAO import PiecesDAO
-from db_result import DBResultCode
+from classes.db_result import DBResultCode
 from classes.piece import Piece
 import sqlite3
 import json
