@@ -17,8 +17,7 @@ CREATE TABLE IF NOT EXISTS logs (
     ts INTEGER NOT NULL,
     user_id INTEGER,
     action TEXT NOT NULL,
-    message TEXT,
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    message TEXT
 );
 
 CREATE TABLE IF NOT EXISTS transactions (

@@ -2,7 +2,6 @@ from flask import Flask, request, Response, jsonify
 from urllib.parse import urljoin
 import requests
 import logging
-import jwt
 
 # Configure logging
 logging.basicConfig(

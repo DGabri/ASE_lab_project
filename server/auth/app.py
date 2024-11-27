@@ -1,7 +1,5 @@
 from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
 from wtforms import StringField, IntegerField
-from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
-from wtforms import StringField, IntegerField
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
@@ -37,44 +35,33 @@ password_requirements = PasswordPolicy.from_names(
 )
 
 class UserRegistrationForm(FlaskForm):
-    username = StringField(validators=[
-        InputRequired(message="Username required"), 
-        InputRequired(message="Username required"), 
-        Length(min=1, max=15, message="Username len must be between 1 and 15 chars long")])
+    username = StringField(validators=[InputRequired(message="Username required"), InputRequired(message="Username required"), Length(min=1, max=15, message="Username len must be between 1 and 15 chars long")])
     email = StringField(validators=[Email(message="Email is invalid"), InputRequired(message="Email required")])
     password = StringField('password', [InputRequired(message="Password is required")])
-    user_type = IntegerField('user_type', validators=[
-            DataRequired(message="User type required"),
-            NumberRange(min=0, max=1, message="User type must be 0 (admin) or 1 (player)"),
-        ])
-    user_type = IntegerField('user_type', validators=[
-            DataRequired(message="User type required"),
-            NumberRange(min=0, max=1, message="User type must be 0 (admin) or 1 (player)"),
-        ])
+    user_type = StringField('user_type', [DataRequired(message="User type required")])
+
 
 # routes permission mapping
 ROUTE_PERMISSIONS = {
     # user routes
-    'DELETE:/delete_user/<player_id>': [1, 0],          # delete account
+    'DELETE:/delete_user/<player_id>': [1, 0],     # delete account
     'PUT:/player/<player_id>': [1, 0],             # modify account username
     'GET:/player/collection/<player_id>': [1, 0],  # see player collection
     'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
     'PUT:/player/<player_id>': [1, 0],             # 
     'POST:/auction/complete': [1],                 # complete auction process
     'POST:/auction': [1,0],                        # create an auction
-    'POST:/logout/<player_id>': [1,0],         # logout
+    'POST:/logout/<player_id>': [1,0],             # logout
+    'POST:/login': [1,0],                          # logout
     
     # admin routes
-    'GET:/admin/logs': [0],                            # get all logs
-    'GET:/player/all': [0],                            # get all players
-    'GET:/player/<player_id>': [0],                    # get a specific user
-    'PUT:/admin/user/modify/<user_id>': [0],           # modify a user
-    'GET:/player/transaction/history/<player_id>': [0],# get user transaction history
-    'PUT:/admin/user/market-history/<user_id>': [0],   # get user market history
-    
-    'PUT:/admin/user/ban/<user_id>': [0],              # ban user
-    'PUT:/admin/user/unban/<user_id>': [0],            # unban user
-
+    'GET:/admin/logs': [0],                                  # get all logs
+    'GET:/player/all': [0],                                  # get all players
+    'GET:/player/<player_id>': [0],                          # get a specific user
+    'PUT:/admin/user/modify/<user_id>': [0],                 # modify a user
+    'GET:/admin/player/transaction/history/<player_id>': [0],# get user transaction history
+    'GET:/admin/player/market-history/<player_id>': [0],     # get user market history
+    'GET:/admin/logs': [0],                                  # get syslog
 }
 
 # as defined in auth_scheme.sql
@@ -585,44 +572,32 @@ def refresh():
         logger.error(f'Token refresh error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
     
-
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
-@verify_user_access
+@verify_user_access  # This already checks authorization
 def delete_user(player_id):
     try:
-        refresh_token = request.json.get('refresh_token')
-        if not refresh_token:
-            return jsonify({'error': 'Refresh token required'}), 400
-
-        # have to be authenticated to delete user
-        auth_user = db_connector.verify_refresh_token(refresh_token)
-        
-        if not auth_user:
-            return jsonify({'error': 'Invalid or expired refresh token'}), 401
-
-        # delete user from auth db
-        rsp, err = db_connector.delete_user(player_id)
-        logging.info(f"[AUTH] Delete user: {rsp}")
-        
-        if err:
-            return jsonify({'error': 'error deleting user'}), 404
-
-        # Synchronize with user service
+        # First delete from user service
         try:
             res = requests.delete(
                 f"http://user:5000/player/{player_id}",
                 timeout=10
             )
-            if res.status_code == 200:
-                return jsonify({'rsp': "user deleted successfully"}), 200
-            
-            # If user service deletion fails, log it but don't rollback auth deletion
-            logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
-            return jsonify({'error': "partial deletion - user removed from auth but not from user service"}), 500
-            
+            if not res.status_code == 200:
+                logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
+                return jsonify({'error': 'Failed to delete user from user service'}), res.status_code
+                
         except requests.exceptions.RequestException as e:
             logger.error(f"[AUTH] User service connection error during deletion: {str(e)}")
-            return jsonify({'error': "user service connection error during deletion"}), 500
+            return jsonify({'error': "User service connection error during deletion"}), 500
+
+        # If user service delete succeeded, delete from auth db
+        rsp, err = db_connector.delete_user(player_id)
+        logging.info(f"[AUTH] Delete user: {rsp}")
+        
+        if err:
+            return jsonify({'error': 'Error deleting user from auth service'}), 404
+
+        return jsonify({'rsp': "User deleted successfully"}), 200
 
     except Exception as e:
         logger.error(f'Delete user error: {str(e)}')
@@ -641,13 +616,13 @@ def normalize_route(route):
     normalized_parts = []
     
     for part in parts:
-        # Check if part is numeric (an ID)
         if part.isdigit():
-            # Determine placeholder based on route context
-            if ('player' in parts) or ('delete_user' in parts) or ('logout' in parts):
-                normalized_parts.append('<player_id>')
-            elif 'user' in parts:
+            # Check for admin user modification route specifically
+            if 'admin/user/modify' in route:
                 normalized_parts.append('<user_id>')
+            # Check other routes
+            elif ('player' in parts) or ('delete_user' in parts) or ('logout' in parts):
+                normalized_parts.append('<player_id>')
             else:
                 normalized_parts.append('<id>')
         else:
@@ -697,7 +672,7 @@ def authorize():
         logger.error(f'Token verification error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/user/modify/<int:user_id>', methods=['PUT'])
+@app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 @verify_user_access
 def modify_user(user_id):
     try:
@@ -707,21 +682,41 @@ def modify_user(user_id):
             return jsonify({'error': 'username required'}), 400
             
         new_user_info = {
-            'user_id': user_id,  # Use URL parameter instead of body
+            'user_id': user_id,
             'username': data['username']
         }
         
-        # update db
+        # Update auth db
         res, msg = db_connector.modify_user_account(new_user_info)
         
-        if res:
-            return jsonify({'rsp': msg}), 200
-        else:
+        if not res:
             return jsonify({'error': msg}), 400
+            
+        # Call user service to update username
+        try:
+            response = requests.put(
+                f"http://user:5000/admin/user/modify/{user_id}",
+                json={'username': data['username']},
+                headers={'Authorization': request.headers.get('Authorization')},
+                timeout=10
+            )
+            
+            if not response.ok:
+                logger.error(f"[AUTH] Failed to update user service: {response.text}")
+                # Rollback auth db change
+                db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
+                return jsonify({'error': 'Failed to update user service'}), 400
+                
+        except requests.RequestException as e:
+            logger.error(f"[AUTH] Error calling user service: {str(e)}")
+            # Rollback auth db change
+            db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
+            return jsonify({'error': 'Failed to communicate with user service'}), 500
+            
+        return jsonify({'rsp': msg}), 200
             
     except Exception as e:
         logger.error(f"[AUTH] Error modifying user: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
-
 if __name__ == '__main__':
     app.run()

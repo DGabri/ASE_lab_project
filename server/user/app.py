@@ -335,7 +335,7 @@ def admin_modify_user(user_id):
         return jsonify({'err': str(e)}), 500
     
 # get transaction history
-@app.route('/player/transaction/history/<int:player_id>', methods=['GET'])
+@app.route('/admin/player/transaction/history/<int:player_id>', methods=['GET'])
 def get_player_transaction_history(player_id):
 
     tx_hist, err = db_connector.admin_get_user_currency_tx(player_id)
@@ -346,7 +346,7 @@ def get_player_transaction_history(player_id):
     return jsonify({'err': err}), 400
 
 # get user market history
-@app.route('/admin/user/market-history/<int:user_id>', methods=['PUT'])
+@app.route('/admin/player/market-history/<int:user_id>', methods=['GET'])
 def get_user_market_history(user_id):
 
     user_market_hist, err = db_connector.admin_get_user_market_hist(user_id)

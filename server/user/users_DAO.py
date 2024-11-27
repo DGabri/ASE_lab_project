@@ -254,19 +254,46 @@ class UsersDAO:
      
     def admin_get_all_users(self):
         try:
-            self.cursor.execute("SELECT * FROM users")
-            return [dict(row) for row in self.cursor.fetchall()], None
+            self.cursor.execute("SELECT user_id, username, email, token_balance FROM users")
+            rows = self.cursor.fetchall()
+            
+            # convert to list
+            users = []
+            for row in rows:
+                users.append({
+                    'user_id': row[0],
+                    'username': row[1],
+                    'email': row[2],
+                    'token_balance': row[3]
+                })
+            
+            return users, None
         
-        except sqlite3.Error:
-            return [], "error retrieving players"
+        except sqlite3.Error as e:
+            logging.error(f"Error retrieving players: {str(e)}")
+            return [], "Error retrieving players"
         
     def admin_get_user(self, user_id):
         try:
-            self.cursor.execute("SELECT * FROM users where user_id = ?", (user_id))
-            return [dict(row) for row in self.cursor.fetchall()], None
-        
-        except sqlite3.Error:
-            return [], "error retrieving player"
+            self.cursor.execute("""
+                SELECT user_id, username, email, token_balance FROM users WHERE user_id = ?
+            """, (user_id,))
+            
+            rows = self.cursor.fetchall()
+            users = []
+            for row in rows:
+                users.append({
+                    'user_id': row[0],
+                    'username': row[1],
+                    'email': row[2],
+                    'token_balance': row[3]
+                })
+            
+            return users, None
+            
+        except sqlite3.Error as e:
+            logging.error(f"Error retrieving user {user_id}: {str(e)}")
+            return [], "Error retrieving player"
     
     def admin_modify_user(self, user_id, new_username):
         try:
@@ -282,35 +309,58 @@ class UsersDAO:
             return False, "Failed to modify user"
         
     def admin_get_user_currency_tx(self, user_id):
-        
         try:
-            self.cursor.execute(" SELECT * FROM transactions WHERE user_id = ? ORDER BY ts DESC ", (user_id))
-            return [dict(row) for row in self.cursor.fetchall()], False
+            self.cursor.execute("""
+                SELECT user_id, amount, type, ts FROM transactions WHERE user_id = ? ORDER BY ts DESC
+            """, (user_id,))
+            
+            transactions = []
+            for row in self.cursor.fetchall():
+                transactions.append({
+                    'user_id': row[0],
+                    'amount': row[1],
+                    'type': row[2],
+                    'timestamp': row[3]
+                })
+            
+            return transactions, None
         
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            logging.error(f"Error retrieving transactions for user {user_id}: {str(e)}")
             return [], "Error retrieving transactions"
-    
+
     def admin_get_user_market_hist(self, user_id):
-        
         try:
-            self.cursor.execute("SELECT * FROM transactions WHERE user_id = ? AND type = 'auction' ORDER BY ts DESC", (user_id))
-            return [dict(row) for row in self.cursor.fetchall()], None
+            self.cursor.execute("""
+                SELECT user_id, amount, type, ts FROM transactions WHERE user_id = ? AND type = 'auction' ORDER BY ts DESC
+            """, (user_id,))  
+            
+            transactions = []
+            for row in self.cursor.fetchall():
+                transactions.append({
+                    'user_id': row[0],
+                    'amount': row[1],
+                    'type': row[2],
+                    'timestamp': row[3]
+                })
+            
+            return transactions, None
         
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            logging.error(f"Error retrieving auction history for user {user_id}: {str(e)}")
             return [], "Error retrieving transactions"
     
     # log action to the database
     def log_action(self, user_id, action, message):
 
         try:
-            self.cursor.execute(" UPDATE users SET account_status = 0 WHERE id = ?", (user_id))
-            
             # log action
             now = int(time.time())
             
             self.cursor.execute(" INSERT INTO logs (ts, user_id, action, message) VALUES (?, ?, ?, ?)", (now, user_id, action, message))
             
             self.connection.commit()
+            logger.info("[USER LOG] LOGGED ACTION")
             return True
         
         except sqlite3.Error:
@@ -322,14 +372,25 @@ class UsersDAO:
         try:
             # get logs up to 1 hour ago
             one_hour_ago_ts = int(time.time()) - 60 * 60
-            self.cursor.execute(" SELECT * FROM logs WHERE ts >= ?", (one_hour_ago_ts,))
-            result = self.cursor.fetchone()
+            #self.cursor.execute(" SELECT * FROM logs WHERE ts >= ?", (one_hour_ago_ts,))
+            self.cursor.execute(" SELECT * FROM logs")
+            results = self.cursor.fetchall()
             
-            if not result:
-                return [], "No logs in the last 5 minutes"
+            if not results:
+                return [], "No logs in the last hour"
         
-            return result, False
-        
+            # convert to dict
+            logs = []
+            for row in results:
+                logs.append({
+                    'timestamp': row[0],
+                    'user_id': row[1],
+                    'action': row[2],
+                    'message': row[3]
+                })
+            
+            return logs, None
+
         except sqlite3.Error:
             self.connection.rollback()
             return [], "Error retrieving logs"
