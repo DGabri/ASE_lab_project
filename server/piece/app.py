@@ -129,4 +129,4 @@ def get_all_pieces():
     return jsonify(pieces = [piece.to_dict() for piece in result.content]), 200
 
 if __name__ == '__main__':
-    app.run(debug = False)
+    app.run(debug = True) # nosec

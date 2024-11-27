@@ -61,6 +61,8 @@ services:
     secrets:
       - piece_cert_secret
       - piece_key_secret
+    volumes:
+      - ./piece/db:/app/db
 
   banner:
     build: ./banner
@@ -72,6 +74,8 @@ services:
     secrets:
       - banner_cert_secret
       - banner_key_secret
+    volumes:
+      - ./banner/db:/app/db
 
   auction:
     build: ./auction

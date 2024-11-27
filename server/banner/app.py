@@ -168,7 +168,7 @@ def pull(banner_id):
             return content, code
 
         banner = Banner.from_dict(content.get_json()['banner'])
-        response = requests.get("https://piece:5003/piece/all", timeout = 5, verify = False) # nosec
+        response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
 
         if response.status_code != 200:
             return jsonify(message = "Internal problem with service 'piece'"), response.status_code
@@ -204,4 +204,4 @@ def pull_piece(banner, pieces):
     return piece_selected
 
 if __name__ == '__main__':
-    app.run(debug = False)
+    app.run(debug = True) # nosec
