@@ -3,7 +3,6 @@ from datetime import datetime
 import time
 from flask import app
 import requests
-from auctions_DAO import AuctionDAO
 
 class AuctionService:
     def __init__(self, auction_dao):
