@@ -266,3 +266,43 @@ class AuctionDAO:
         if result:
             return result
         return []
+
+    def update_auction_status(self, auction_id, status):
+        """
+        Updates the status of an auction.
+        
+        Args:
+            auction_id (int): The ID of the auction to update.
+            status (str): The new status to set for the auction (e.g., 'running', 'ended', 'cancelled').
+
+        Returns:
+            dict: A message indicating success or failure.
+        """
+        try:
+            # Verifica che lo status sia uno stato valido
+            valid_statuses = ['running', 'ended', 'cancelled']
+            if status not in valid_statuses:
+                raise ValueError(f"Invalid status value: {status}. Valid statuses are {valid_statuses}")
+
+            # Esegui la query per aggiornare lo stato dell'asta
+            query = "UPDATE auctions SET status = ? WHERE auction_id = ?"
+            connection = self.auction_dao.connection
+            cursor = connection.cursor()
+            cursor.execute(query, (status, auction_id))
+
+            # Se il numero di righe modificate è 0, significa che l'asta non è stata trovata
+            if cursor.rowcount == 0:
+                return {"error": f"Auction with ID {auction_id} not found."}
+
+            # Commit delle modifiche
+            connection.commit()
+
+            # Restituisci una risposta di successo
+            return {"message": f"Auction {auction_id} status updated to '{status}'."}
+
+        except ValueError as ve:
+            logging.warning("Validation error in update_auction_status for auction %s: %s", auction_id, ve)
+            return {"error": str(ve)}
+        except Exception as e:
+            logging.error("Error updating auction status for auction %s: %s", auction_id, e)
+            return {"error": "Failed to update auction status due to an internal error."}
