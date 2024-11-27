@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -11,7 +12,7 @@ from flask_cors import CORS
 from auction_service import AuctionService
 from auctions_DAO import AuctionDAO
 
-from flask import Flask, json, request, jsonify
+from flask import Flask, abort, json, request, jsonify
 import os
 from flask import request, jsonify
 app = Flask(__name__)
@@ -30,18 +31,46 @@ auction_service = AuctionService(auction_dao)
 @app.route('/create_auction', methods=['POST'])
 def create_auction():
     try:
+        # Estrai i dati dal corpo della richiesta
         data = request.get_json()
-        piece_id = data['piece_id']
-        creator_id = data['creator_id']
-        start_price = data['start_price']
-        end_date = data['end_date']
+        logging.debug(f"Received data: {data}")
+
+        # Verifica la presenza di tutti i campi obbligatori
+        piece_id = data.get('piece_id')
+        creator_id = data.get('creator_id')
+        start_price = data.get('start_price')
+        end_date = data.get('end_date')
 
         if not piece_id or not creator_id or not start_price or not end_date:
+            logging.error("Missing required fields")
             return jsonify({"error": "Missing required fields"}), 400
-        response = auction_service.create_auction(piece_id, creator_id, start_price, end_date)
-        return jsonify(response), 201
+
+        # Ulteriori validazioni per i campi
+        if start_price <= 0:
+            logging.error("Invalid start price")
+            return jsonify({"error": "Start price must be greater than zero"}), 400
+
+        # Verifica se la data di fine è nel formato corretto (YYYY-MM-DD HH:MM:SS)
+        try:
+            # Se la data è nel formato con 'T' come separatore, cerca di fare la conversione
+            if 'T' in end_date:
+                end_date = end_date.replace('T', ' ')  # Modifica per il formato compatibile
+            datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
+        except ValueError as e:
+            logging.error(f"Invalid end_date format: {e}")
+            return jsonify({"error": "Invalid end_date format, expected 'YYYY-MM-DD HH:MM:SS'"}), 400
+
+        logging.debug(f"Start price: {start_price}, End date: {end_date}")
+
+        # Chiamata al servizio per creare l'asta
+        auction_id = auction_service.create_auction(piece_id, creator_id, start_price, end_date)
+        logging.debug(f"Auction created with ID: {auction_id}")
+        return jsonify({"id": auction_id, "message": "Auction created successfully."}), 201
+
     except Exception as e:
+        logging.error(f"Error occurred: {e}")
         return jsonify({"error": "An error occurred while processing the request"}), 500
+    
 
 @app.route('/auction/<int:auction_id>', methods=['GET'])
 def get_auction_info(auction_id):
@@ -55,19 +84,56 @@ def get_auction_info(auction_id):
         logging.error("Error fetching auction info for auction_id %s: %s", auction_id, e)
         return jsonify({"error": "An error occurred while processing the request"}), 500
 
-
 @app.route('/auction/bid/<int:auction_id>', methods=['POST'])
 def place_bid(auction_id):
     try:
+        # Recupera i dati dalla richiesta
         data = request.get_json()
-        # these are given by json
+
+        # Verifica che i dati contengano i campi necessari
+        if not data or 'user_id' not in data or 'bid_amount' not in data:
+            return jsonify({"error": "Missing user_id or bid_amount"}), 400
+
         user_id = data['user_id']
         bid_amount = data['bid_amount']
 
-        response = auction_service.place_bid(auction_id, user_id, bid_amount)
-        return jsonify(response),200
+        # Validazione del bid_amount (deve essere maggiore di zero)
+        if bid_amount <= 0:
+            return jsonify({"error": "Bid amount must be greater than zero"}), 400
+
+        # Verifica se l'asta esiste
+        auction = auction_service.get_auction_by_id(auction_id)
+        if auction is None:
+            return jsonify({"error": "Auction not found"}), 404
+
+        # Verifica che l'asta sia attiva
+        if auction.get('status') != 'active':
+            return jsonify({"error": "Auction is not active"}), 400
+
+        # Verifica che l'importo dell'offerta sia maggiore del prezzo corrente
+        current_price = auction.get('current_price', 0)
+        if bid_amount <= current_price:
+            return jsonify({
+                "error": f"Bid amount must be greater than the current price of {current_price}."
+            }), 400
+
+        # Procedi con l'inserimento dell'offerta
+        # (Chiamata al servizio che aggiorna l'asta con il nuovo importo dell'offerta)
+        updated_auction = auction_service.place_bid(auction_id, user_id, bid_amount)
+
+        # Rispondi con il messaggio di successo e il nuovo prezzo
+        return jsonify({
+            "message": "Bid placed successfully",
+            "new_price": updated_auction['current_price']
+        }), 200
+
+    except ValueError as ve:
+        # Gestione degli errori specifici come bid_amount non valido
+        return jsonify({"error": f"Invalid value: {str(ve)}"}), 400
     except Exception as e:
-        return jsonify({"error": "An error occurred while bid an auction"}), 500
+        # Gestione di errori generici
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 
 @app.route('/auction/running/all', methods=['GET'])
 def get_active_auctions():
@@ -93,37 +159,55 @@ def get_active_auctions_by_piece_id(piece_id):
     except Exception as e:
         return jsonify({"error": "An error occurred while fetching active auctions"}), 500
 
-###############other routes##########
-
-@app.route('/close_auction', methods=['POST'])
-def close_auction():
-    data = request.get_json()
-    auction_id = data['auction_id']
-    response = auction_service.close_auction(auction_id)
-    return jsonify(response)
-
-@app.route('/auction/test', methods=['GET'])
-def test():
-    return jsonify({"message": "Server is up and running!"})
-
-@app.route('/close_expired_auctions', methods=['POST'])
-def close_expired_auctions():
-    response = auction_service.close_expired_auctions()
-    return jsonify(response)
-
-
-@app.route('/auction/<int:auction_id>/bidding_history', methods=['GET'])
-def get_bidding_history(auction_id):
+@app.route('/auction/modify/<int:auction_id>', methods=['PUT'])
+def modify_auction(auction_id):
     try:
-        bidding_history = auction_service.get_market_history(auction_id)
-        
-        if bidding_history["status"] == "error":
-            return jsonify(bidding_history), 404 
-        return jsonify(bidding_history), 200 
+        # Verifica se l'asta esiste
+        auction = auction_service.get_auction_by_id(auction_id)
+        if auction is None:
+            return jsonify({"error": "Auction not found"}), 404
 
+        # Modifica lo stato dell'asta
+        data = request.get_json()
+        response = auction_service.modify_auction(auction_id, data)
+
+        return jsonify(response), 200
     except Exception as e:
-        logging.error(f"Error retrieving bidding history for auction {auction_id}: {e}")
-        return jsonify({"status": "error", "message": "An unexpected error occurred."}), 500
+        return jsonify({"error": str(e)}), 500
+
+    
+###############other routes##########
+#
+#@app.route('/close_auction', methods=['POST'])
+#def close_auction():
+#    data = request.get_json()
+ #   data = request.get_json()
+ #   auction_id = data['auction_id']
+  #  response = auction_service.close_auction(auction_id)
+  #  return jsonify(response)
+
+#@app.route('/auction/test', methods=['GET'])
+#def test():
+  #  return jsonify({"message": "Server is up and running!"})
+
+#@app.route('/close_expired_auctions', methods=['POST'])
+#def close_expired_auctions():
+  #  response = auction_service.close_expired_auctions()
+  ##  return jsonify(response)
+
+
+#@app.route('/auction/<int:auction_id>/bidding_history', methods=['GET'])
+#def get_bidding_history(auction_id):
+   # try:
+    #    bidding_history = auction_service.get_market_history(auction_id)
+        
+     #   if bidding_history["status"] == "error":
+     #       return jsonify(bidding_history), 404 
+      #  return jsonify(bidding_history), 200 
+
+   # except Exception as e:
+       # logging.error(f"Error retrieving bidding history for auction {auction_id}: {e}")
+       # return jsonify({"status": "error", "message": "An unexpected error occurred."}), 500
 
 
 
