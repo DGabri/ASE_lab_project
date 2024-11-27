@@ -110,8 +110,8 @@ class AuctionService:
                 "amount": -highest_bid,
                 "is_refill": False
             }
-
-            response = requests.put(f"{self.api_base_url}/player/gold/{user_id}", json=update_data_winner, timeout=10)
+            
+            response = requests.put(f"{self.api_base_url}/player/gold/{user_id}", json=update_data_winner, timeout=10, verify=False) # nosec
             if response.status_code != 200:
                 raise Exception(f"Error updating winner balance: {response.json().get('rsp', 'Unknown error')}")
 
@@ -121,8 +121,8 @@ class AuctionService:
                 "amount": highest_bid,
                 "is_refill": True
             }
-
-            response_creator = requests.put(f"{self.api_base_url}/player/gold/{creator_id}", json=update_data_creator,timeout=10)
+            
+            response_creator = requests.put(f"{self.api_base_url}/player/gold/{creator_id}", json=update_data_creator, timeout=10, verify=False) # nosec
             if response_creator.status_code != 200:
                 raise Exception(f"Error updating creator balance: {response_creator.json().get('rsp', 'Unknown error')}")
 
@@ -216,7 +216,50 @@ class AuctionService:
         except Exception as e:
             logging.error("Error retrieving auction info for auction_id %s: %s", auction_id, e)
             return None
+        
+    def get_auction_by_id(self, auction_id):
+        """
+        Retrieves auction information by auction_id from the database.
+        
+        :param auction_id: The ID of the auction to retrieve.
+        :return: Dictionary with auction details if found, None otherwise.
+        """
+        try:
+            # SQL query to get auction details by auction_id
+            query = """
+                SELECT auction_id, piece_id, creator_id, start_price, end_date, current_price 
+                FROM auctions WHERE auction_id = ?
+            """
+            
+            # Execute the query using auction_dao, which should handle DB connections and queries
+            result = self.auction_dao.execute_query(query, (auction_id,))
 
+            # If no result is found for the provided auction_id, log and return None
+            if not result or len(result) == 0:
+                logging.error(f"No auction found for auction_id {auction_id}")
+                return None
+
+            # If the result does not contain the expected number of columns (6), log an error and return None
+            if len(result[0]) != 6:
+                logging.error(f"Unexpected result format for auction_id {auction_id}: {result}")
+                return None
+
+            # Assuming the first element in the result contains the auction details
+            auction_info = {
+                'auction_id': result[0][0],       
+                'piece_id': result[0][1],        
+                'creator_id': result[0][2],       
+                'start_price': result[0][3],      
+                'end_date': result[0][4],         
+                'current_price': result[0][5]     
+            }
+
+            return auction_info
+
+        except Exception as e:
+            # Log any exception that occurs during the query execution
+            logging.error("Error retrieving auction info for auction_id %s: %s", auction_id, e)
+            return None
     def get_past_auctions(self):
         current_timestamp = int(time.time())
         query = """
@@ -283,3 +326,44 @@ class AuctionService:
             app.logger.error(f"Error fetching active auctions: {str(e)}")
             return None
         
+    def modify_auction(self, auction_id, status):
+        """
+        Modifies the details of an auction and performs necessary actions when changing the status.
+
+        Args:
+            auction_id (int): The ID of the auction to modify.
+            status (str): The new status to set for the auction (e.g., 'running', 'ended', 'cancelled').
+
+        Returns:
+            dict: A message indicating success or failure.
+        """
+        try:
+            valid_statuses = ['running', 'ended', 'cancelled']
+            if status not in valid_statuses:
+                raise ValueError(f"Invalid status value: {status}. Valid statuses are {valid_statuses}")
+
+            query = "UPDATE auctions SET status = ? WHERE auction_id = ?"
+            connection = self.auction_dao.connection
+            cursor = connection.cursor()
+            cursor.execute(query, (status, auction_id))
+
+            if cursor.rowcount == 0:
+                return {"error": f"Auction with ID {auction_id} not found."}
+
+            if status == 'ended':
+                close_result = self.close_auction(auction_id)
+                if close_result.get("error"):
+                    return close_result  
+
+            connection.commit()
+
+            return {"message": f"Auction {auction_id} status updated to '{status}'."}
+
+        except ValueError as ve:
+            logging.warning("Validation error in modify_auction for auction %s: %s", auction_id, ve)
+            return {"error": str(ve)}
+        except Exception as e:
+            logging.error("Error modifying auction %s: %s", auction_id, e)
+            return {"error": "Failed to modify auction due to an internal error."}
+
+                

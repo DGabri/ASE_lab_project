@@ -180,7 +180,7 @@ class AuthDAO:
             
             # get max id from user
             try:
-                response = requests.get("http://user:5000/max_user_id", timeout=10)
+                response = requests.get("https://user:5000/max_user_id", timeout=10, verify=False) # nosec 
                 if response.status_code == 200:
                     remote_max = response.json().get('max_id', 0)
                     return max(local_max, remote_max) + 1

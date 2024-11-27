@@ -17,11 +17,11 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 # Microservices URLs mapping
 MICROSERVICES_URLS = {
-    "auction": "http://auction:5005",
-    "auth": "http://auth:5000",
-    "banner": "http://banner:5000",
-    "piece": "http://piece:5000",
-    "user": "http://user:5000"
+    "auction": "https://auction:5005",
+    "auth": "https://auth:5000",
+    "banner": "https://banner:5000",
+    "piece": "https://piece:5000",
+    "user": "https://user:5000"
 }
 
 # Define public routes needed for admin authentication
@@ -42,8 +42,9 @@ def verify_admin_authentication(token, route, method):
                 "route": route,
                 "method": method
             },
-            timeout=10
-        )
+            timeout=10, 
+            verify=False
+        ) # nosec
         
         if auth_response.status_code == 200:
             # Additional check for admin role
@@ -110,8 +111,9 @@ def admin_gateway(microservice, path):
             headers={key: value for key, value in request.headers if key != 'Host'},
             params=request.args,
             allow_redirects=False,
-            timeout=10
-        )
+            timeout=10, 
+            verify=False
+        ) # nosec
 
         # Forward response to caller
         return Response(

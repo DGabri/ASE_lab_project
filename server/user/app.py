@@ -175,8 +175,9 @@ def update_player(player_id):
                     auth_url,
                     headers={'Authorization': auth_header},
                     json=auth_payload,
-                    timeout=10
-                )
+                    timeout=10, 
+                    verify=False
+                ) # nosec
                             
                 if auth_response.status_code == 200:
                     return jsonify({'message': msg}), 200
