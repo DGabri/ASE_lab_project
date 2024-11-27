@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT UNIQUE NOT NULL,
     hashed_password TEXT NOT NULL,
     user_type INTEGER NOT NULL, -- 0 = admin 1 = player
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP,
     account_status INTEGER  -- 0 = banned 1 = active
 );
 

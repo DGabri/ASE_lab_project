@@ -81,10 +81,10 @@ def load_config():
             return json.load(f)
         
     except FileNotFoundError:
-        raise RuntimeError(f"Config not found")
+        raise RuntimeError(f"[AUTH] Config not found")
     
     except json.JSONDecodeError:
-        raise RuntimeError(f"Invalid JSON in config")
+        raise RuntimeError(f"[AUTH] Invalid JSON in config")
 
 # db Setup
 def init_db(config_json):
@@ -99,82 +99,110 @@ def init_db(config_json):
         return db
     
     except Exception as e:
-        logger.error(f"DB init failed: {str(e)}")
+        logger.error(f"[AUTH] DB init failed: {str(e)}")
         raise
 
 def init_admin(config):  
     try:
-        # check if admin already exists
-        db_connector.cursor.execute(
-            "SELECT COUNT(*) FROM users WHERE user_type = 0"
-        )
-        admin_count = db_connector.cursor.fetchone()[0]
-        
-        if admin_count > 0:
-            logger.info("Admin user already exists, skipping initialization")
-            return
-        
-        # read admin credentials from config
-        admin_info = config["admin_credentials"]
-        
-        # admin registration form
-        admin_data = {
-            'username': admin_info['username'],
-            'email': admin_info['email'],
-            'password': admin_info['password'],
-            'user_type': admin_info['user_type']
-        }
-        
-        # Generate password hash
-        password_bytes = admin_data['password'].encode('utf-8')
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password_bytes, salt)
-        
-        # Prepare user info for database
-        user_info = {
-            'username': admin_data['username'],
-            'email': admin_data['email'],
-            'password': hashed_password,
-            'user_type': admin_data['user_type']
-        }
-        
-        # create user in auth database
-        user_id, err_msg = db_connector.create_user(user_info)
-        
-        if err_msg:
-            logger.error(f"Failed to create admin user: {err_msg}")
-            return
+        # atomic transaction
+        with db_connector.connection:
             
-        # call user service to add admin
-        user_data = {
-            'username': admin_data['username'],
-            'email': admin_data['email'],
-            'user_id': user_id
-        }
-        
-        try:
-            res = requests.post(
-                "http://user:5000/create_user",
-                json=user_data,
-                timeout=10
+            # check if admin already present
+            db_connector.cursor.execute(
+                "SELECT COUNT(*) FROM users WHERE user_type = 0"
             )
+            admin_count = db_connector.cursor.fetchone()[0]
             
-            if res.status_code != 201:
-                logger.error("Failed to sync admin with user service")
-                db_connector.delete_user(user_id)
+            logging.info(f"[AUTH] Admin count: {admin_count}")
+            
+            if admin_count > 0:
+                logger.info("Admin user already exists, skipping initialization")
+
+                db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                users = db_connector.cursor.fetchall()
+                logger.info("[AUTH] Current users in DB:")
+                for user in users:
+                    logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                return
+            
+            # read admin credentials from config
+            admin_info = config["admin_credentials"]
+            
+            # admin registration form
+            admin_data = {
+                'username': admin_info['username'],
+                'email': admin_info['email'],
+                'password': admin_info['password'],
+                'user_type': admin_info['user_type']
+            }
+            
+            # hash password
+            password_bytes = admin_data['password'].encode('utf-8')
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password_bytes, salt)
+            admin_data['password'] = hashed_password
+            
+            logging.info(f"[AUTH] Admin data signup: {admin_data}")
+            
+            # create user in auth database within same transaction
+            user_id, err_msg = db_connector.create_user(admin_data)
+            
+            if err_msg:
+                logger.error(f"[AUTH] Failed to create admin user: {err_msg}")
                 return
                 
-            logger.info("Default admin user created successfully")
+            # print db after insertion
+            db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+            users = db_connector.cursor.fetchall()
+            logger.info("[AUTH] Users in DB after admin creation:")
+            for user in users:
+                logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                
+            # call user service to add admin
+            user_data = {
+                'username': admin_data['username'],
+                'email': admin_data['email'],
+                'user_id': user_id
+            }
             
-        except requests.exceptions.RequestException as e:
-            logger.error(f"User service connection failed: {str(e)}")
-            db_connector.delete_user(user_id)
-            
+            try:
+                res = requests.post(
+                    "http://user:5000/create_user",
+                    json=user_data,
+                    timeout=10
+                )
+                
+                if res.status_code == 200:
+                    logger.info("[AUTH] Admin user already exists in user service")
+                    # print db after 
+                    db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                    users = db_connector.cursor.fetchall()
+                    logger.info("[AUTH] Final users in DB:")
+                    for user in users:
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                    return
+                elif res.status_code == 201:
+                    logger.info("[AUTH] Default admin user created successfully")
+                    db_connector.connection.commit()
+                    # print db after 
+                    db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                    users = db_connector.cursor.fetchall()
+                    logger.info("[AUTH] Final users in DB after successful creation:")
+                    for user in users:
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                    return
+                else: 
+                    logger.error("[AUTH] Failed to sync admin with user service")
+                    raise Exception("Failed to sync with user service")
+                    
+            except requests.exceptions.RequestException as e:
+                logger.error(f"[AUTH] User service connection failed: {str(e)}")
+                raise
+                            
     except Exception as e:
-        logger.error(f"Error creating admin user: {str(e)}")
-        if 'user_id' in locals():
-            db_connector.delete_user(user_id)
-
+        logger.error(f"[AUTH] Error creating admin user: {str(e)}")
+        if 'db_connector' in locals() and db_connector.connection:
+            db_connector.connection.rollback()
 
 # read config
 config = load_config()
@@ -335,7 +363,7 @@ def register():
             'password': data['password'],
             'user_type': user_type,
         }
-        logger.warning(f"User_info: {user_info}")
+        logger.warning(f"[AUTH] User_info: {user_info}")
 
         # validate password requirements
         valid_password = password_requirements.test(user_info["password"])
@@ -349,11 +377,11 @@ def register():
         salt = bcrypt.gensalt()
         user_info["password"] = bcrypt.hashpw(password_bytes, salt)
         
-        logger.warning(f"Password bytes: {password_bytes}")
-        logger.warning(f"User_info: {user_info}")
+        logger.warning(f"[AUTH] Password bytes: {password_bytes}")
+        logger.warning(f"[AUTH] User_info: {user_info}")
         # create user in auth database
         user_id, err_msg = db_connector.create_user(user_info)
-        logger.warning(f"User id: {user_id}")
+        logger.warning(f"[AUTH] User id: {user_id}")
         
         if err_msg:
             return jsonify({'error': err_msg}), 400
@@ -364,7 +392,7 @@ def register():
             'email': data['email'],
             'user_id': user_id
         }
-        logger.warning(f"User data for user service: {user_data}")
+        logger.warning(f"[AUTH] User data for user service: {user_data}")
         try:
             res = requests.post("http://user:5000/create_user", json=user_data, timeout=10)
             
@@ -387,7 +415,7 @@ def register():
 def login():
     try:
         data = request.get_json()
-        logger.warning(f"Login attempt for username: {data.get('username')}")
+        logger.warning(f"[AUTH] Login attempt for username: {data.get('username')}")
         
         if not data or 'username' not in data or 'password' not in data:
             return jsonify({'error': 'Missing credentials'}), 400
@@ -398,10 +426,10 @@ def login():
         )
         
         if error:
-            logger.warning(f"Authentication failed: {error}")
+            logger.warning(f"[AUTH] Authentication failed: {error}")
             return jsonify({'error': "Wrong credentials"}), 401
 
-        logger.warning(f"User authenticated successfully: {user_data}")
+        logger.warning(f"[AUTH] User authenticated successfully: {user_data}")
 
         # generate access and refresh tokens
         try:
@@ -427,11 +455,11 @@ def login():
             }), 200
 
         except Exception as token_error:
-            logger.error(f"Token generation error: {str(token_error)}", exc_info=True)
+            logger.error(f"[AUTH] Token generation error: {str(token_error)}", exc_info=True)
             return jsonify({'error': 'Error generating tokens'}), 500
 
     except Exception as e:
-        logger.error(f"Login error: {str(e)}", exc_info=True)
+        logger.error(f"[AUTH] Login error: {str(e)}", exc_info=True)
         return jsonify({'error': 'Internal server error'}), 500
 
 
@@ -577,16 +605,16 @@ def authorize():
         normalized_route = normalize_route(route)
         
         route_key = f"{method}:{normalized_route}"
-        logger.warning(f"Original route: {route}")
-        logger.warning(f"Normalized route key: {route_key}")
-        logger.warning(f"User type: {user_type}")
+        logger.warning(f"[AUTH] Original route: {route}")
+        logger.warning(f"[AUTH] Normalized route key: {route_key}")
+        logger.warning(f"[AUTH] User type: {user_type}")
         
         
-        logger.warning(f"Available routes: {list(ROUTE_PERMISSIONS.keys())}")
+        logger.warning(f"[AUTH] Available routes: {list(ROUTE_PERMISSIONS.keys())}")
         allowed_roles = ROUTE_PERMISSIONS.get(route_key)
-        logger.warning(f"Matching route: {route_key} -> allowed roles: {allowed_roles}")
+        logger.warning(f"[AUTH] Matching route: {route_key} -> allowed roles: {allowed_roles}")
 
-        logger.warning(f"User_type: {user_type} Allowed roles: {allowed_roles}")
+        logger.warning(f"[AUTH] User_type: {user_type} Allowed roles: {allowed_roles}")
 
         if not allowed_roles:
             return jsonify({'error': 'Route not found', 'requested': route_key}), 404
@@ -622,7 +650,7 @@ def modify_user():
             return jsonify({'error': msg}), 400
             
     except Exception as e:
-        logger.error(f"Error modifying user: {str(e)}")
+        logger.error(f"[AUTH] Error modifying user: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
     
 # Ban player account

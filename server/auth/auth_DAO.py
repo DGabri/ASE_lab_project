@@ -13,11 +13,13 @@ class AuthDAO:
 
     def create_user(self, user_data):
         try:
-           
+            now = time.time()
+            logger.info(f"[AUTH-DAO] [{now}] Creating new user: {user_data}")
+            
             self.cursor.execute("""
                 INSERT INTO users (username, email, hashed_password, user_type, created_at, account_status)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, 1) """, 
-            (user_data["username"], user_data["email"], user_data["password"], user_data["user_type"]))
+                VALUES (?, ?, ?, ?, ?, ?) """, 
+            (user_data["username"], user_data["email"], user_data["password"], user_data["user_type"], now, 1))
 
             return self.cursor.lastrowid, None
         
@@ -48,7 +50,7 @@ class AuthDAO:
             
         except Exception as e:
             self.connection.rollback()
-            print(f"Error updating user: {str(e)}")
+            print(f"[AUTH-DAO] Error updating user: {str(e)}")
             return False, "Internal server error"
         
     def delete_user(self, user_id):
@@ -65,12 +67,12 @@ class AuthDAO:
                 self.connection.rollback()
                 return False, "User not found"
             
-            logger.info(f"Successfully deleted user with ID: {user_id}")
+            logger.info(f"[AUTH-DAO] Successfully deleted user with ID: {user_id}")
             return True, None
 
         except Exception as e:
 
-            logger.error(f"Error deleting user {user_id}: {str(e)}", exc_info=True)
+            logger.error(f"[AUTH-DAO] Error deleting user {user_id}: {str(e)}", exc_info=True)
             return False, f"Error deleting user: {str(e)}"
     
     def revoke_user_refresh_token(self, user_id):
@@ -92,15 +94,15 @@ class AuthDAO:
             user = self.cursor.fetchone()
             
             if not user:
-                logger.info(f"No user found for username: {username}")
+                logger.info(f"[AUTH-DAO] No user found for username: {username}")
                 return None, "Invalid credentials"
             
-            logger.debug(f"Found user record: {user}")
+            logger.debug(f"[AUTH-DAO] Found user record: {user}")
             user_id, username, db_password_hash, user_type, account_status = user
             
             # user is banned
             if account_status == 0:
-                logger.info(f"Banned account attempt: {username}")
+                logger.info(f"[AUTH-DAO] Banned account attempt: {username}")
                 return None, "Banned account"
             
             try:
@@ -110,23 +112,23 @@ class AuthDAO:
                 
                 # Verify password
                 if bcrypt.checkpw(password_bytes, hash_bytes):
-                    logger.info(f"Successful authentication for user: {username}")
+                    logger.info(f"[AUTH-DAO] Successful AUTH-DAOentication for user: {username}")
                     return {
                         "user_id": user_id,
                         "username": username,
                         "user_type": user_type
                     }, None
                 else:
-                    logger.info(f"Invalid password for user: {username}")
+                    logger.info(f"[AUTH-DAO] Invalid password for user: {username}")
                     return None, "Invalid credentials"
                     
             except ValueError as ve:
-                logger.error(f"Password verification error: {str(ve)}")
+                logger.error(f"[AUTH-DAO] Password verification error: {str(ve)}")
                 return None, "Invalid password format"
                 
         except Exception as e:
-            logger.error(f"Authentication error: {str(e)}", exc_info=True)
-            return None, f"Authentication error: {str(e)}"
+            logger.error(f"[AUTH-DAO] AUTH-DAOentication error: {str(e)}", exc_info=True)
+            return None, f"AUTH-DAOentication error: {str(e)}"
 
     def store_refresh_token(self, token, user_id, expires_at):
         self.cursor.execute(

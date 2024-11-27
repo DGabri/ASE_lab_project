@@ -23,7 +23,7 @@ class UsersDAO:
             logging.info(f"DAO user INFO: {user_info}")
             
             self.cursor.execute("""
-            INSERT INTO users (id, username, email, token_balance) 
+            INSERT INTO users (user_id, username, email, token_balance) 
             VALUES (?, ?, ?, ?)
             """, (user_info["user_id"], user_info["username"], user_info["email"], 0))
             
@@ -58,7 +58,7 @@ class UsersDAO:
         returns a tuple: (success_boolean, error_message)
         """
         try:
-            self.cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
             result = self.cursor.fetchone()
             
             if not result:
@@ -74,7 +74,7 @@ class UsersDAO:
             self.cursor.execute("DELETE FROM logs WHERE user_id = ? ", (user_id,))
             
             # delte user from users db
-            self.cursor.execute("DELETE FROM users WHERE id = ? ", (user_id,))
+            self.cursor.execute("DELETE FROM users WHERE user_id = ? ", (user_id,))
             
             self.connection.commit()
             return True, "User deleted correctly"
@@ -88,14 +88,14 @@ class UsersDAO:
     # modify username
     def modify_user_account(self, new_user_info):
         try:
-            self.cursor.execute("SELECT id FROM users WHERE id = ?", (new_user_info["user_id"],))
+            self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (new_user_info["user_id"],))
             result = self.cursor.fetchone()
             
             if not result:
                 return False, "User not found"
             
             # update
-            self.cursor.execute("UPDATE users SET username = ? WHERE id = ?", (new_user_info["username"], new_user_info["user_id"]) )
+            self.cursor.execute("UPDATE users SET username = ? WHERE user_id = ?", (new_user_info["username"], new_user_info["user_id"]) )
             
             self.connection.commit()
             result = self.cursor.fetchone()
@@ -106,12 +106,49 @@ class UsersDAO:
             self.connection.rollback()
             print(f"Error updating user: {str(e)}")
             return False, "Internal server error"
+        
+    def get_user_by_id(self, user_id):
+        try:
+            self.cursor.execute(
+                "SELECT user_id, username, email FROM users WHERE user_id = ?", 
+                (user_id,)
+            )
+            user = self.cursor.fetchone()
+            if user:
+                return {
+                    'user_id': user[0],
+                    'username': user[1],
+                    'email': user[2]
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by ID: {str(e)}")
+            return None
+
+    def get_user_by_username(self, username):
+        try:
+            self.cursor.execute(
+                "SELECT user_id, username, email FROM users WHERE username = ?", 
+                (username,)
+            )
+            user = self.cursor.fetchone()
+            if user:
+                return {
+                    'user_id': user[0],
+                    'username': user[1],
+                    'email': user[2]
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by username: {str(e)}")
+            return None
     
+    ############### COLLECTION ###############    
     def get_user_gacha_collection(self, user_id):
 
         try:
             # check if user exists
-            self.cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
             result = self.cursor.fetchone()
             
             if not result:
@@ -130,13 +167,13 @@ class UsersDAO:
         """
         logging.info(f"Checking user balance for user_id: {user_id} increment: {increment_amount} is_refill: {is_refill}")
         
-        self.cursor.execute("SELECT token_balance FROM users WHERE id = ?", (user_id,))
+        self.cursor.execute("SELECT token_balance FROM users WHERE user_id = ?", (user_id,))
         result = self.cursor.fetchone()
         
         logging.info(f"Query result: {result}")
         
         try:
-            self.cursor.execute(" SELECT token_balance FROM users WHERE id = ?", (user_id,))
+            self.cursor.execute(" SELECT token_balance FROM users WHERE user_id = ?", (user_id,))
             result = self.cursor.fetchone()
             
             if not result:
@@ -154,7 +191,7 @@ class UsersDAO:
                 return 0, "Refill balance must be below 50 to prevent cheating"
                 
             # update
-            self.cursor.execute("UPDATE users SET token_balance = ? WHERE id = ?", (new_token_balance, user_id) )
+            self.cursor.execute("UPDATE users SET token_balance = ? WHERE user_id = ?", (new_token_balance, user_id) )
             
             # save transaction
             now = int(time.time())
@@ -174,7 +211,7 @@ class UsersDAO:
             self.cursor.execute("INSERT INTO transactions (user_id, amount, type, ts) VALUES (?,?,?,?)", (user_id, increment_amount, transaction_type, now))
             
             # Get new balance
-            self.cursor.execute("SELECT token_balance FROM users WHERE id = ? ", (user_id,))
+            self.cursor.execute("SELECT token_balance FROM users WHERE user_id = ? ", (user_id,))
             
             self.connection.commit()
             result = self.cursor.fetchone()
@@ -199,7 +236,7 @@ class UsersDAO:
         
     def admin_get_user(self, user_id):
         try:
-            self.cursor.execute("SELECT * FROM users where id = ?", (user_id))
+            self.cursor.execute("SELECT * FROM users where user_id = ?", (user_id))
             return [dict(row) for row in self.cursor.fetchall()], None
         
         except sqlite3.Error:

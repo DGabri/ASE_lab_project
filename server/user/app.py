@@ -41,10 +41,10 @@ def load_config():
             return json.load(f)
         
     except FileNotFoundError:
-        raise RuntimeError(f"Config not found")
+        raise RuntimeError(f"[USER] Config not found")
     
     except json.JSONDecodeError:
-        raise RuntimeError(f"Invalid JSON in config")
+        raise RuntimeError(f"[USER] Invalid JSON in config")
 
 # db Setup
 def init_db(config_json):
@@ -59,7 +59,7 @@ def init_db(config_json):
         return db
     
     except Exception as e:
-        logger.error(f"DB init failed: {str(e)}")
+        logger.error(f"[USER] DB init failed: {str(e)}")
         raise
     
 # read config
@@ -76,19 +76,10 @@ db_connector = init_db(config)
 @app.route('/create_user', methods=['POST'])
 def create_player_account():
     try:
-        
         data = request.get_json()
         
         if not all(k in data for k in ['username', 'email', 'user_id']):
             return jsonify({'error': 'Missing required fields'}), 400
-        
-        user_info = {
-            'username': data['username'],
-            'email': data['email'],
-            'user_id': data['user_id']
-        }
-        
-        logger.info(f"Received create user request with data: {data}")
         
         # validate user id as int
         try:
@@ -96,27 +87,34 @@ def create_player_account():
         except (ValueError, TypeError):
             return jsonify({'error': 'user_id must be int'}), 400
             
-        # create user in DB, get error message if any
+        user_info = {
+            'username': data['username'],
+            'email': data['email'],
+            'user_id': data['user_id']
+        }
+        
+        logger.info(f"[USER] Received create user request with data: {data}")
+        
+        # Try to create user - let the database handle uniqueness constraints
         user_id, err_msg = db_connector.create_user_account(user_info)
-        logger.warning(f"Created User ID: {user_id}, error msg: {err_msg}")
             
         if err_msg:
-            logger.error(f"Error creating user: {err_msg}")
-            db_connector.log_action(user_id, "ERR_create_player", err_msg)
-            return jsonify({'error': err_msg}), 400
+            # Check if it's a duplicate - both username and id match
+            existing_user = db_connector.get_user_by_id(data['user_id'])
+            if existing_user and existing_user['username'] == data['username']:
+                return jsonify({'rsp': 'User already exists', 'id': data['user_id']}), 200
+                
+            # Otherwise it's a conflict (either username or id taken)
+            return jsonify({'error': err_msg}), 409
             
-        if user_id:
-            logger.info(f"Successfully created user with ID: {user_id}")
-            db_connector.log_action(user_id, "create_player", "created_user")
-            return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
-        
-        db_connector.log_action(user_id, "ERR_create_player", "Error creating account")
-        return jsonify({'error': 'error creating account'}), 500
+        logger.info(f"[USER] Successfully created user with ID: {user_id}")
+        db_connector.log_action(user_id, "create_player", "created_user")
+        return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
 
     except Exception as e:
-        app.logger.error(f'Error creating user: {str(e)}')
+        logger.error(f'Error creating user: {str(e)}')
         return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
-
+    
 # Delete account
 @app.route('/player/<int:player_id>', methods=['DELETE'])
 def delete_player(player_id):
