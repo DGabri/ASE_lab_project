@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import pytest
 import json
-from app import app  # Import your Flask app (the one you've defined in your script)
+from app import app 
 
 @pytest.fixture
 def client():
