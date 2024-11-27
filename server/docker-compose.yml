@@ -10,6 +10,9 @@ services:
     depends_on:
       - auth
       - user
+      #- piece
+      #- banner
+      - auction
 
   admin_gateway:
     build: ./admin_gateway
@@ -22,6 +25,9 @@ services:
     depends_on:
       - auth
       - user
+      #- piece
+      #- banner
+      #- auction
 
   auth:
     build: ./auth
@@ -61,16 +67,13 @@ services:
       - admin_network
       - user_network
 
-  #auction:
-  #  build: ./auction
-  #  ports:
-  #    - "5005:5000"
-  #  networks:
-  #    - admin_network
-  #    - user_network
-  #  volumes:
-  #    - ./auction:/app
-  #    - ./auction/data:/app/data
+  auction:
+    build: ./auction
+    ports:
+      - "5005:5000"
+    networks:
+      - admin_network
+      - user_network
 
 networks:
   admin_network:

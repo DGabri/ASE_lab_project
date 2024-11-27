@@ -55,6 +55,7 @@ ROUTE_PERMISSIONS = {
     'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
     'PUT:/player/<player_id>': [1, 0],             # 
     'POST:/auction/complete': [1],                 # complete auction process
+    'POST/auction':[1,0],                          # create an auction
     
     # admin routes
     'GET:/admin/logs': [0],                            # get all logs
@@ -373,7 +374,6 @@ def register():
         valid_password = password_requirements.test(user_info["password"])
         
         if len(valid_password) > 0:
-            db_connector.log_action(user_id, "ERR_create_player", "Invalid pwd")
             return jsonify({'error': 'Password must be at least 8 characters, contain an uppercase char and two numbers'}), 400    
         
         # generate password hash
@@ -412,7 +412,7 @@ def register():
             return jsonify({'msg': 'Registration failed'}), 400
                     
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': f'Internal server error: {e}'}), 500
 
 
 @app.route('/login', methods=['POST'])

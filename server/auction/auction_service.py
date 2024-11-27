@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 import time
 from flask import app
+import requests
 from auctions_DAO import AuctionDAO
 
 class AuctionService:
@@ -57,29 +58,94 @@ class AuctionService:
             return {"error": "Failed to place bid due to an internal error."}
 
     def close_auction(self, auction_id):
-        """Closes an auction and awards the item to the highest bidder, if any."""
-        try:
-            highest_bid = self.auction_dao.get_highest_bid(auction_id)
-            if highest_bid:
-                winner_id = highest_bid[0]['user_id']
-                piece_id = self.auction_dao.get_piece_id(auction_id)
-                
-                self.award_piece_to_winner(winner_id, piece_id)
+            """Closes an auction and awards the item to the highest bidder, if any."""
+            try:
+                highest_bid = self.auction_dao.get_highest_bid(auction_id)
+                if highest_bid:
+                    winner_id = highest_bid[0]['user_id']
+                    creator_id= highest_bid[0]['creator_id']
+                    piece_id = self.auction_dao.get_piece_id(auction_id)
 
-            self.auction_dao.close_auction(auction_id)
-            return {"message": "Auction closed and winner awarded."}
-        except Exception as e:
-            logging.error("Error closing auction %s: %s", auction_id, e)
-            return {"error": "Failed to close auction due to an internal error."}
+                    # Call the method to award the piece and update balances and collection
+                    self.award_piece_to_winner(winner_id, piece_id, highest_bid[0]['bid_amount'],creator_id)
 
-    #to implement
-    def award_piece_to_winner(self, user_id, piece_id):
-        """Awards the auction piece to the winning user (to be implemented based on system)."""
+                self.auction_dao.close_auction(auction_id)
+                return {"message": "Auction closed and winner awarded."}
+            except Exception as e:
+                logging.error("Error closing auction %s: %s", auction_id, e)
+                return {"error": "Failed to close auction due to an internal error."}
+
+    def award_piece_to_winner(self, user_id, piece_id, highest_bid, creator_id):
+        """
+        Awards the auction piece to the winning user and updates their balance through the API.
+        The creator of the piece receives a percentage of the highest bid.
+        """
         try:
             logging.info("Awarding piece %s to user %s", piece_id, user_id)
+
+            cursor = self.db_connection.cursor()         
+            self.db_connection.begin()
+
+            current_time = int(time.time())
+
+            # Aggiungi il pezzo alla collezione del vincitore
+            cursor.execute(
+                "INSERT INTO collection (user_id, gacha_id, added_at) VALUES (?, ?, ?)",
+                (user_id, piece_id, current_time)
+            )
+
+            # Log dell'azione
+            cursor.execute(
+                "INSERT INTO logs (ts, user_id, action, message) VALUES (?, ?, ?, ?)",
+                (current_time, user_id, 'AWARD_PIECE', f"Awarded piece {piece_id} to user {user_id}")
+            )
+
+            # Registra la transazione del vincitore
+            cursor.execute(
+                "INSERT INTO transactions (user_id, amount, type, ts) VALUES (?, ?, ?, ?)",
+                (user_id, highest_bid, 'reward', current_time)
+            )
+
+            # Aggiorna il saldo del vincitore (sottrai il costo)
+            update_data_winner = {
+                "amount": -highest_bid,
+                "is_refill": False
+            }
+
+            response = requests.put(f"{self.api_base_url}/player/gold/{user_id}", json=update_data_winner, timeout=10)
+            if response.status_code != 200:
+                raise Exception(f"Error updating winner balance: {response.json().get('rsp', 'Unknown error')}")
+
+
+            # Aggiorna il saldo del creator (aggiungi la quota)
+            update_data_creator = {
+                "amount": highest_bid,
+                "is_refill": True
+            }
+
+            response_creator = requests.put(f"{self.api_base_url}/player/gold/{creator_id}", json=update_data_creator,timeout=10)
+            if response_creator.status_code != 200:
+                raise Exception(f"Error updating creator balance: {response_creator.json().get('rsp', 'Unknown error')}")
+
+            # Registra la transazione per il creator
+            cursor.execute(
+                "INSERT INTO transactions (user_id, amount, type, ts) VALUES (?, ?, ?, ?)",
+                (creator_id, highest_bid, 'creator_reward', current_time)
+            )
+
+            # Commit delle modifiche
+            self.db_connection.commit()
+
+            logging.info(
+                "Piece %s awarded to user %s successfully. Creator %s received %s gold.",
+                piece_id, user_id, creator_id, highest_bid
+            )
+
         except Exception as e:
             logging.error("Error awarding piece %s to user %s: %s", piece_id, user_id, e)
+            self.db_connection.rollback()
             raise Exception("Failed to award piece to winner.")
+
         
     def close_expired_auctions(self):
         try:

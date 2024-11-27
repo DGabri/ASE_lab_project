@@ -48,6 +48,7 @@ class AuctionWorker:
                 logging.info("%s",expired_auctions)
                 for auction in expired_auctions:
                     auction_id = auction['auction_id']
+                    creator_id= auction["creator_id"]
                     logging.info("Closing auction ID %s", auction_id)
                     result = self.auction_service.close_auction(auction_id)
 

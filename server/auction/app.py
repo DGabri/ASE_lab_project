@@ -24,7 +24,6 @@ auction_service = AuctionService(auction_dao)
 @app.route('/auction', methods=['POST'])
 def create_auction():
     try:
-
         data = request.get_json()
         piece_id = data['piece_id']
         creator_id = data['creator_id']
@@ -58,6 +57,7 @@ def place_bid(auction_id):
         # these are given by json
         user_id = data['user_id']
         bid_amount = data['bid_amount']
+
         response = auction_service.place_bid(auction_id, user_id, bid_amount)
         return jsonify(response),200
     except Exception as e:
@@ -122,6 +122,6 @@ def get_bidding_history(auction_id):
 
 
 if __name__ == '__main__':
-    app.run(port=5005)
+    app.run()
 
 

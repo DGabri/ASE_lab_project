@@ -5,6 +5,8 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install -r requirements.txt
+RUN pip-audit --fix 
+RUN bandit -r .
 
 EXPOSE 5005
 
