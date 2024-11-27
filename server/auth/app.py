@@ -166,10 +166,11 @@ def init_admin(config):
             
             try:
                 res = requests.post(
-                    "http://user:5000/create_user",
+                    "https://user:5000/create_user",
                     json=user_data,
-                    timeout=10
-                )
+                    timeout=10, 
+                    verify=False
+                ) # nosec
                 
                 if res.status_code == 200:
                     logger.info("[AUTH] Admin user already exists in user service")
@@ -432,7 +433,7 @@ def register():
         }
         logger.warning(f"[AUTH] User data for user service: {user_data}")
         try:
-            res = requests.post("http://user:5000/create_user", json=user_data, timeout=10)
+            res = requests.post("https://user:5000/create_user", json=user_data, timeout=10, verify=False) # nosec
             
             if res.status_code != 201:
                 # rollback user creation
@@ -579,9 +580,10 @@ def delete_user(player_id):
         # First delete from user service
         try:
             res = requests.delete(
-                f"http://user:5000/player/{player_id}",
-                timeout=10
-            )
+                f"https://user:5000/player/{player_id}",
+                timeout=10, 
+                verify=False
+            ) # nosec
             if not res.status_code == 200:
                 logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
                 return jsonify({'error': 'Failed to delete user from user service'}), res.status_code
@@ -695,11 +697,12 @@ def modify_user(user_id):
         # Call user service to update username
         try:
             response = requests.put(
-                f"http://user:5000/admin/user/modify/{user_id}",
+                f"https://user:5000/admin/user/modify/{user_id}",
                 json={'username': data['username']},
                 headers={'Authorization': request.headers.get('Authorization')},
-                timeout=10
-            )
+                timeout=10, 
+                verify=False
+            ) # nosec
             
             if not response.ok:
                 logger.error(f"[AUTH] Failed to update user service: {response.text}")

@@ -13,6 +13,9 @@ services:
       #- piece
       #- banner
       - auction
+    secrets:
+      - user_gateway_cert_secret
+      - user_gateway_key_secret
 
   admin_gateway:
     build: ./admin_gateway
@@ -28,6 +31,9 @@ services:
       #- piece
       #- banner
       #- auction
+    secrets:
+      - admin_gateway_cert_secret
+      - admin_gateway_key_secret
 
   auth:
     build: ./auth
@@ -39,6 +45,9 @@ services:
     volumes:
       - ./auth:/app
       - ./auth/data:/app/data
+    secrets:
+      - auth_cert_secret
+      - auth_key_secret
 
   user:
     build: ./user
@@ -50,6 +59,9 @@ services:
     volumes:
       - ./user:/app
       - ./user/data:/app/data
+    secrets:
+      - user_cert_secret
+      - user_key_secret
 
   piece:
     build: ./piece
@@ -80,6 +92,9 @@ services:
     networks:
       - admin_network
       - user_network
+    secrets:
+      - auction_cert_secret
+      - auction_key_secret
 
 networks:
   admin_network:
@@ -88,6 +103,22 @@ networks:
     driver: bridge
 
 secrets:
+  user_gateway_cert_secret:
+    file: ./user_gateway/cert.pem
+  user_gateway_key_secret:
+    file: ./user_gateway/key.pem
+  admin_gateway_cert_secret:
+    file: ./admin_gateway/cert.pem
+  admin_gateway_key_secret:
+    file: ./admin_gateway/key.pem
+  auth_cert_secret:
+    file: ./auth/cert.pem
+  auth_key_secret:
+    file: ./auth/key.pem
+  user_cert_secret:
+    file: ./user/cert.pem
+  user_key_secret:
+    file: ./user/key.pem
   piece_cert_secret:
     file: ./piece/cert.pem
   piece_key_secret:
@@ -96,3 +127,7 @@ secrets:
     file: ./banner/cert.pem
   banner_key_secret:
     file: ./banner/key.pem
+  auction_cert_secret:
+    file: ./auction/cert.pem
+  auction_key_secret:
+    file: ./auction/key.pem

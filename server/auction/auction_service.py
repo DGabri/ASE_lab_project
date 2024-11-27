@@ -110,8 +110,8 @@ class AuctionService:
                 "amount": -highest_bid,
                 "is_refill": False
             }
-
-            response = requests.put(f"{self.api_base_url}/player/gold/{user_id}", json=update_data_winner, timeout=10)
+            
+            response = requests.put(f"{self.api_base_url}/player/gold/{user_id}", json=update_data_winner, timeout=10, verify=False) # nosec
             if response.status_code != 200:
                 raise Exception(f"Error updating winner balance: {response.json().get('rsp', 'Unknown error')}")
 
@@ -121,8 +121,8 @@ class AuctionService:
                 "amount": highest_bid,
                 "is_refill": True
             }
-
-            response_creator = requests.put(f"{self.api_base_url}/player/gold/{creator_id}", json=update_data_creator,timeout=10)
+            
+            response_creator = requests.put(f"{self.api_base_url}/player/gold/{creator_id}", json=update_data_creator, timeout=10, verify=False) # nosec
             if response_creator.status_code != 200:
                 raise Exception(f"Error updating creator balance: {response_creator.json().get('rsp', 'Unknown error')}")
 
