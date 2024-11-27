@@ -338,31 +338,25 @@ class AuctionService:
             dict: A message indicating success or failure.
         """
         try:
-            # Verifica che lo status sia uno stato valido
             valid_statuses = ['running', 'ended', 'cancelled']
             if status not in valid_statuses:
                 raise ValueError(f"Invalid status value: {status}. Valid statuses are {valid_statuses}")
 
-            # Esegui la query per aggiornare lo stato dell'asta
             query = "UPDATE auctions SET status = ? WHERE auction_id = ?"
             connection = self.auction_dao.connection
             cursor = connection.cursor()
             cursor.execute(query, (status, auction_id))
 
-            # Se il numero di righe modificate è 0, significa che l'asta non è stata trovata
             if cursor.rowcount == 0:
                 return {"error": f"Auction with ID {auction_id} not found."}
 
-            # Se lo stato è 'ended', chiama close_auction per eseguire ulteriori azioni
             if status == 'ended':
                 close_result = self.close_auction(auction_id)
                 if close_result.get("error"):
-                    return close_result  # Restituisce un errore se qualcosa va storto con close_auction
+                    return close_result  
 
-            # Commit delle modifiche
             connection.commit()
 
-            # Restituisci una risposta di successo
             return {"message": f"Auction {auction_id} status updated to '{status}'."}
 
         except ValueError as ve:
