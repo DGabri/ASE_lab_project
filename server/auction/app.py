@@ -1,10 +1,16 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
 import logging
 import sqlite3
 import time
 from venv import logger
 from flask_cors import CORS
-from auctions_DAO import AuctionDAO
 from auction_service import AuctionService
+from auctions_DAO import AuctionDAO
+
 from flask import Flask, json, request, jsonify
 import os
 from flask import request, jsonify
@@ -21,7 +27,7 @@ auction_service = AuctionService(auction_dao)
 
 ## routes for the project
 
-@app.route('/auction', methods=['POST'])
+@app.route('/create_auction', methods=['POST'])
 def create_auction():
     try:
         data = request.get_json()
@@ -63,7 +69,7 @@ def place_bid(auction_id):
     except Exception as e:
         return jsonify({"error": "An error occurred while bid an auction"}), 500
 
-@app.route('/auction/running', methods=['GET'])
+@app.route('/auction/running/all', methods=['GET'])
 def get_active_auctions():
     try:
         auctions = auction_service.get_active_auctions()
@@ -96,7 +102,7 @@ def close_auction():
     response = auction_service.close_auction(auction_id)
     return jsonify(response)
 
-@app.route('/test', methods=['GET'])
+@app.route('/auction/test', methods=['GET'])
 def test():
     return jsonify({"message": "Server is up and running!"})
 
@@ -123,5 +129,3 @@ def get_bidding_history(auction_id):
 
 if __name__ == '__main__':
     app.run()
-
-
