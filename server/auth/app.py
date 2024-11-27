@@ -1,5 +1,7 @@
 from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
 from wtforms import StringField, IntegerField
+from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
+from wtforms import StringField, IntegerField
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
@@ -41,6 +43,10 @@ class UserRegistrationForm(FlaskForm):
         Length(min=1, max=15, message="Username len must be between 1 and 15 chars long")])
     email = StringField(validators=[Email(message="Email is invalid"), InputRequired(message="Email required")])
     password = StringField('password', [InputRequired(message="Password is required")])
+    user_type = IntegerField('user_type', validators=[
+            DataRequired(message="User type required"),
+            NumberRange(min=0, max=1, message="User type must be 0 (admin) or 1 (player)"),
+        ])
     user_type = IntegerField('user_type', validators=[
             DataRequired(message="User type required"),
             NumberRange(min=0, max=1, message="User type must be 0 (admin) or 1 (player)"),
@@ -538,6 +544,32 @@ def refresh():
         return jsonify({'error': 'Internal server error'}), 500
     
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        refresh_token = request.json.get('refresh_token')
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token required'}), 400
+
+        # have to be authenticated to delete user
+        user_id = db_connector.verify_refresh_token(refresh_token)
+        
+        if not user_id:
+            return jsonify({'error': 'Invalid or expired refresh token'}), 401
+
+        # delete user from auth db
+        rsp, err = db_connector.delete_user(user_id["user_id"])
+        
+        if err:
+            return jsonify({'error': 'error deleting user'}), 404
+
+        
+        return jsonify({'rsp': "user deleted successfully"}), 200
+
+    except Exception as e:
+        logger.error(f'Token refresh error: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+    
+@app.route('/delete_user/<int:player_id>', methods=['DELETE'])
 def delete(user_id):
     try:
         refresh_token = request.json.get('refresh_token')
@@ -656,35 +688,6 @@ def modify_user():
     except Exception as e:
         logger.error(f"[AUTH] Error modifying user: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
-    
-# Ban player account
-@app.route('/admin/user/ban/<int:user_id>', methods=['PUT'])
-def ban_user(user_id):
-
-    # pass 0 to ban user
-    res, msg = db_connector.admin_set_user_account_status(user_id, 0)
-    
-    if res:
-        db_connector.log_action(user_id, "ban_user", "Ban successful")
-        return jsonify({'rsp': msg}), 200
-    
-    db_connector.log_action(user_id, "ERR_ban_user", "Ban unsuccessful")
-    return jsonify({'error': msg}), 400 
-
-# Extra unban user
-@app.route('/admin/user/unban/<int:user_id>', methods=['PUT'])
-def unban_user(user_id):
-
-    # pass 1 to unban user
-    res, msg = db_connector.admin_set_user_account_status(user_id, 1)
-    
-    if res:
-        db_connector.log_action(user_id, "unban_user", "Unban successful")
-        return jsonify({'rsp': msg}), 200
-    
-    db_connector.log_action(user_id, "unban_user", "Unban unsuccessful")
-    return jsonify({'error': msg}), 400 
-
 
 if __name__ == '__main__':
     app.run()

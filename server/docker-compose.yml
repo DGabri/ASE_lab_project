@@ -7,6 +7,8 @@ services:
       - user_network
     volumes:
       - ./user_gateway:/app
+    volumes:
+      - ./user_gateway:/app
     depends_on:
       - auth
       - user
@@ -20,6 +22,8 @@ services:
       - "3001:80"
     networks:
       - admin_network
+    volumes:
+      - ./admin_gateway:/app
     volumes:
       - ./admin_gateway:/app
     depends_on:
@@ -39,6 +43,9 @@ services:
     volumes:
       - ./auth:/app
       - ./auth/data:/app/data
+    volumes:
+      - ./auth:/app
+      - ./auth/data:/app/data
 
   user:
     build: ./user
@@ -47,6 +54,9 @@ services:
     networks:
       - admin_network
       - user_network
+    volumes:
+      - ./user:/app
+      - ./user/data:/app/data
     volumes:
       - ./user:/app
       - ./user/data:/app/data
