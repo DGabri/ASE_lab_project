@@ -18,7 +18,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 # microservices urls mapping
 MICROSERVICES_URLS = {
-    "auction": "http://auction:5000",
+    "auction": "http://auction:5005",
     "auth": "http://auth:5000",
     "banner": "http://banner:5000",
     "piece": "http://piece:5000",
@@ -99,7 +99,7 @@ def user_gateway(microservice, path):
         return Response(response.content, status=response.status_code, headers=dict(response.headers))
 
     except requests.exceptions.RequestException as e:
-        return {"error": "Service unavailable"}, 503
+        return {"error": f"Service unavailable: {e}"}, 503
 
 if __name__ == '__main__':
     app.run(port=80)

@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 RUN pip-audit --fix 
 RUN bandit -r .
 
-EXPOSE 5005
+EXPOSE 5000
 
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh

@@ -19,7 +19,7 @@ class AuthDAO:
             
             self.cursor.execute("""
                 INSERT INTO users (username, email, hashed_password, user_type, created_at)
-                VALUES (?, ?, ?, ?, ?, ?) """, 
+                VALUES (?, ?, ?, ?, ?) """, 
             (user_data["username"], user_data["email"], user_data["password"], user_data["user_type"], now))
 
             return self.cursor.lastrowid, None
@@ -90,8 +90,8 @@ class AuthDAO:
     def verify_credentials(self, username, password):
         try:
             self.cursor.execute(
-                """SELECT id, username, hashed_password, user_type, 
-                   FROM users WHERE username = ?""",
+                """SELECT id, username, hashed_password, user_type
+                   FROM users WHERE username = ? """,
                 (username,)
             )
             user = self.cursor.fetchone()

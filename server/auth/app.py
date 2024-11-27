@@ -61,7 +61,7 @@ ROUTE_PERMISSIONS = {
     'PUT:/player/gold/<player_id>': [1, 0],        # refill user gold
     'PUT:/player/<player_id>': [1, 0],             # 
     'POST:/auction/complete': [1],                 # complete auction process
-    'POST/auction':[1,0],                          # create an auction
+    'POST:/auction': [1,0],                        # create an auction
     
     # admin routes
     'GET:/admin/logs': [0],                            # get all logs
@@ -69,7 +69,7 @@ ROUTE_PERMISSIONS = {
     'GET:/player/<player_id>': [0],                    # get a specific user
     'PUT:/admin/user/modify/<user_id>': [0],           # modify a user
     'GET:/player/transaction/history/<player_id>': [0],# get user transaction history
-    'PUT:/admin/user/market-history/<user_id>': [0],    # get user market history
+    'PUT:/admin/user/market-history/<user_id>': [0],   # get user market history
     
     'PUT:/admin/user/ban/<user_id>': [0],              # ban user
     'PUT:/admin/user/unban/<user_id>': [0],            # unban user
@@ -129,11 +129,11 @@ def init_admin(config):
             if admin_count > 0:
                 logger.info("Admin user already exists, skipping initialization")
 
-                db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
                 users = db_connector.cursor.fetchall()
                 logger.info("[AUTH] Current users in DB:")
                 for user in users:
-                    logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                    logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
                 return
             
             # read admin credentials from config
@@ -163,11 +163,11 @@ def init_admin(config):
                 return
                 
             # print db after insertion
-            db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+            db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
             users = db_connector.cursor.fetchall()
             logger.info("[AUTH] Users in DB after admin creation:")
             for user in users:
-                logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
                 
             # call user service to add admin
             user_data = {
@@ -186,21 +186,21 @@ def init_admin(config):
                 if res.status_code == 200:
                     logger.info("[AUTH] Admin user already exists in user service")
                     # print db after 
-                    db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                    db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
                     users = db_connector.cursor.fetchall()
                     logger.info("[AUTH] Final users in DB:")
                     for user in users:
-                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
                     return
                 elif res.status_code == 201:
                     logger.info("[AUTH] Default admin user created successfully")
                     db_connector.connection.commit()
                     # print db after 
-                    db_connector.cursor.execute("SELECT id, username, email, user_type, account_status FROM users")
+                    db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
                     users = db_connector.cursor.fetchall()
                     logger.info("[AUTH] Final users in DB after successful creation:")
                     for user in users:
-                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}, Status: {user[4]}")
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
                     return
                 else: 
                     logger.error("[AUTH] Failed to sync admin with user service")
