@@ -287,6 +287,46 @@ def generate_refresh_token(user_id):
     token = jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
     return token, expires_at
 
+def verify_user_access(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({'error': 'Authorization header is missing'}), 401
+
+        try:
+            # Extract and verify token
+            token = auth_header.split(' ')[1]
+            payload, error = verify_token(token)
+            
+            if error:
+                return jsonify({'error': error}), 401
+
+            # Get the target user_id/player_id from URL parameters or request body
+            target_id = kwargs.get('player_id') or kwargs.get('user_id')
+            
+            # If not in URL params, check request body
+            if not target_id and request.is_json:
+                target_id = request.json.get('user_id')
+                
+            if not target_id:
+                return jsonify({'error': 'No target user specified'}), 400
+
+            # Get the authenticated user's ID from token
+            token_user_id = int(payload.get('sub'))
+            
+            # Allow access if:
+            # 1. User is accessing their own data (IDs match)
+            # 2. User is an admin (user_type = 0)
+            if token_user_id != target_id and payload.get('user_type') != 0:
+                return jsonify({'error': 'Cannot access or modify other users\' data'}), 403
+
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            return jsonify({'error': str(e)}), 401
+    return decorated
+
 # extract current user from auth header
 def get_current_user():
     auth_header = request.headers.get('Authorization')
@@ -547,6 +587,7 @@ def refresh():
     
 
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
+@verify_user_access
 def delete_user(player_id):
     try:
         refresh_token = request.json.get('refresh_token')
@@ -656,16 +697,17 @@ def authorize():
         logger.error(f'Token verification error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/user/modify', methods=['PUT'])
-def modify_user():
+@app.route('/user/modify/<int:user_id>', methods=['PUT'])
+@verify_user_access
+def modify_user(user_id):
     try:
         data = request.get_json()
         
-        if not data or 'user_id' not in data or 'username' not in data:
-            return jsonify({'error': 'username and user_id required'}), 400
+        if not data or 'username' not in data:
+            return jsonify({'error': 'username required'}), 400
             
         new_user_info = {
-            'user_id': data['user_id'],
+            'user_id': user_id,  # Use URL parameter instead of body
             'username': data['username']
         }
         

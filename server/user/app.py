@@ -79,13 +79,13 @@ def create_player_account():
         data = request.get_json()
         
         if not all(k in data for k in ['username', 'email', 'user_id']):
-            return jsonify({'error': 'Missing required fields'}), 400
+            return jsonify({'err': 'Missing required fields'}), 400
         
         # validate user id as int
         try:
             data['user_id'] = int(data['user_id'])
         except (ValueError, TypeError):
-            return jsonify({'error': 'user_id must be int'}), 400
+            return jsonify({'err': 'user_id must be int'}), 400
             
         user_info = {
             'username': data['username'],
@@ -105,7 +105,7 @@ def create_player_account():
                 return jsonify({'rsp': 'User already exists', 'id': data['user_id']}), 200
                 
             # Otherwise it's a conflict (either username or id taken)
-            return jsonify({'error': err_msg}), 409
+            return jsonify({'err': err_msg}), 409
             
         logger.info(f"[USER] Successfully created user with ID: {user_id}")
         db_connector.log_action(user_id, "create_player", "created_user")
@@ -113,7 +113,7 @@ def create_player_account():
 
     except Exception as e:
         logger.error(f'Error creating user: {str(e)}')
-        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
+        return jsonify({'err': 'Internal server error', 'message': str(e)}), 500
     
 # Delete account
 @app.route('/player/<int:player_id>', methods=['DELETE'])
@@ -121,7 +121,7 @@ def delete_player(player_id):
 
     if player_id is None:
         db_connector.log_action(player_id, "ERR_delete_user", "User id to delete not provided")
-        return jsonify({'error': 'Please provide a player id to delete'}), 400
+        return jsonify({'err': 'Please provide a player id to delete'}), 400
         
     res, msg = db_connector.delete_user_account(player_id)
     
@@ -130,16 +130,22 @@ def delete_player(player_id):
         return jsonify({'rsp': msg}), 200
     
     db_connector.log_action(player_id, "ERR_delete_user", "Error deleting user")
-    return jsonify({'error': f'Error deleting player: {msg}'}), 400
+    return jsonify({'err': f'Error deleting player: {msg}'}), 400
 
 # Modify account (only username)
 @app.route('/player/<int:player_id>', methods=['PUT'])
 def update_player(player_id):
     try:
         data = request.get_json()
+        logger.info(f"[USER] Received update request for player {player_id}")
+        logger.info(f"[USER] Request data: {data}")
+        logger.info(f"[USER] Headers: {dict(request.headers)}")
+        
+        if not data:
+            return jsonify({'err': 'No data provided'}), 400
         
         if not data.get('username'):
-            return jsonify({'error': 'Username is required'}), 400
+            return jsonify({'err': 'Username required'}), 400
         
         new_user_info = {
             'user_id': player_id,
@@ -152,33 +158,44 @@ def update_player(player_id):
         if res:
             db_connector.log_action(player_id, "modify_user", msg)
             
+            # get auth token from original request
+            auth_header = request.headers.get('Authorization')
+            if not auth_header:
+                error_msg = "Missing Authorization header for auth service"
+
+                db_connector.log_action(player_id, "ERR_modify_user", error_msg)
+                return jsonify({'err': 'Authorization required'}), 401
+            
             # update auth service
             try:
-                auth_response = requests.put("http://auth:5000/user/modify",
-                    json={
-                        'user_id': player_id,
-                        'username': data.get('username')
-                    },
+                auth_url = f"http://auth:5000/user/modify/{player_id}"
+                auth_payload = {'username': data.get('username')}
+                               
+                auth_response = requests.put(
+                    auth_url,
+                    headers={'Authorization': auth_header},
+                    json=auth_payload,
                     timeout=10
                 )
-                
+                            
                 if auth_response.status_code == 200:
                     return jsonify({'message': msg}), 200
                 else:
-
-                    db_connector.log_action(player_id, "ERR_modify_user", f"Auth service update failed: {auth_response.text}")
-                    return jsonify({'error': 'Failed to update authentication service'}), 500
+                    error_msg = f"Auth service update failed: {auth_response.text}"
+                    db_connector.log_action(player_id, "ERR_modify_user", error_msg)
+                    return jsonify({'err': f'Failed to update authentication service. {error_msg}'}), 500
                     
             except requests.exceptions.RequestException as e:
-                db_connector.log_action(player_id, "ERR_modify_user", f"Auth service connection error: {str(e)}")
-                return jsonify({'error': 'Failed to connect to authentication service'}), 500
+                error_msg = f"Auth service connection error: {str(e)}"
+                db_connector.log_action(player_id, "ERR_modify_user", error_msg)
+                return jsonify({'err': 'Failed to connect to authentication service'}), 500
         
-        # If local update failed
         db_connector.log_action(player_id, "ERR_modify_user", msg)
-        return jsonify({'error': msg}), 400
+        return jsonify({'err': msg}), 400
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"[USER] Unexpected error in update_player: {str(e)}")
+        return jsonify({'err': str(e)}), 500
     
 # See collection
 @app.route('/player/collection/<int:player_id>', methods=['GET'])
@@ -191,7 +208,7 @@ def get_player_collection(player_id):
         return jsonify({'rsp': msg, 'collection': collection}), 200
     
     db_connector.log_action(player_id, "ERR_get_collection", "Error retrieving collection for user")
-    return jsonify({'error': msg}), 400
+    return jsonify({'err': msg}), 400
 
 # Refill gold
 @app.route('/player/gold/<int:player_id>', methods=['PUT'])
@@ -232,7 +249,7 @@ def update_player_gold(player_id):
         
     if new_balance is None:
         db_connector.log_action(player_id, "ERR_refill_gold", err)
-        return jsonify({'error': 'Error updating balance'}), 400
+        return jsonify({'err': 'Error updating balance'}), 400
                 
     db_connector.log_action(player_id, "refill_gold", f"Updated balance: {new_balance}")
     return jsonify({'message': 'Successfully updated player gold', 'player_id': player_id, 'new_balance': new_balance}), 200
@@ -245,7 +262,7 @@ def complete_auction():
         required_fields = ['winner_id', 'gacha_id', 'winning_bid', 'losing_bids']
         
         if not all(field in data for field in required_fields):
-            return jsonify({'error': 'Missing required fields'}), 400
+            return jsonify({'err': 'Missing required fields'}), 400
             
         success, error = db_connector.process_auction_outcome(data)
         
@@ -253,10 +270,10 @@ def complete_auction():
             db_connector.log_action(data['winner_id'],"auction_complete",f"Won auction gacha {data['gacha_id']}")
             return jsonify({'message': 'Auction completed successfully','winner_id': data['winner_id'], 'gacha_id': data['gacha_id']}), 200
         else:
-            return jsonify({'error': error}), 400
+            return jsonify({'err': error}), 400
             
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
 
         
 #######################
@@ -312,10 +329,10 @@ def admin_modify_user(user_id):
         if res:
             return jsonify({'message': 'User updated successfully'}), 200
         else:
-            return jsonify({'error': msg}), 400
+            return jsonify({'err': msg}), 400
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'err': str(e)}), 500
     
 # get transaction history
 @app.route('/player/transaction/history/<int:player_id>', methods=['GET'])
@@ -345,7 +362,7 @@ def get_max_user_id():
         max_id = db_connector.get_max_user_id()
         return jsonify({'max_id': max_id}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'err': str(e)}), 500
     
 if __name__ == '__main__':
     app.run()

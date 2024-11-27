@@ -96,25 +96,42 @@ class UsersDAO:
     
     # modify username
     def modify_user_account(self, new_user_info):
+       
         try:
-            self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (new_user_info["user_id"],))
-            result = self.cursor.fetchone()
-            
-            if not result:
+            # check if user exists
+            self.cursor.execute(
+                "SELECT user_id FROM users WHERE user_id = ?", 
+                (new_user_info["user_id"],)
+            )
+            if not self.cursor.fetchone():
                 return False, "User not found"
-            
+                
+            # check if new username is already taken 
+            self.cursor.execute(
+                "SELECT user_id FROM users WHERE username = ? AND user_id != ?",
+                (new_user_info["username"], new_user_info["user_id"])
+            )
+            if self.cursor.fetchone():
+                return False, "Username already taken"
+                
             # update
-            self.cursor.execute("UPDATE users SET username = ? WHERE user_id = ?", (new_user_info["username"], new_user_info["user_id"]) )
+            self.cursor.execute(
+                "UPDATE users SET username = ? WHERE user_id = ?",
+                (new_user_info["username"], new_user_info["user_id"])
+            )
             
+            # check if update was made
+            if self.cursor.rowcount == 0:
+                self.connection.rollback()
+                return False, "No changes made"
+                
             self.connection.commit()
-            result = self.cursor.fetchone()
-            
             return True, "Username updated successfully"
-            
+                
         except Exception as e:
             self.connection.rollback()
-            print(f"Error updating user: {str(e)}")
-            return False, "Internal server error"
+            logging.error(f"Error updating user: {str(e)}")
+            return False, str(e) 
         
     def get_user_by_id(self, user_id):
         try:
