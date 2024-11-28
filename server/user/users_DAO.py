@@ -19,7 +19,6 @@ class UsersDAO:
             self.cursor.execute("SELECT MAX(user_id) FROM users")
             return self.cursor.fetchone()[0] or 0
         except Exception as e:
-            logger.error(f"Error getting max user ID: {str(e)}")
             raise
         
     # function to create a user account    
@@ -36,10 +35,9 @@ class UsersDAO:
             VALUES (?, ?, ?, ?)
             """, (user_info["user_id"], user_info["username"], user_info["email"], 0))
             
-            # Important: Commit the transaction
             self.connection.commit()
             
-            # Return the user_id we just inserted
+            # return user id
             logging.info(f"Successfully created user with id: {user_info['user_id']}")
             return user_info["user_id"], None
         
@@ -63,9 +61,6 @@ class UsersDAO:
     
     # delete user, also called auth
     def delete_user_account(self, user_id):
-        """
-        returns a tuple: (success_boolean, error_message)
-        """
         try:
             self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
             result = self.cursor.fetchone()
@@ -188,9 +183,6 @@ class UsersDAO:
             return False, [], "Error getting user collection"
     
     def update_token_balance(self, user_id, increment_amount, is_refill):
-        """
-        returns a tuple: (user_balance, error_message)
-        """
         logging.info(f"Checking user balance for user_id: {user_id} increment: {increment_amount} is_refill: {is_refill}")
         
         self.cursor.execute("SELECT token_balance FROM users WHERE user_id = ?", (user_id,))
@@ -396,99 +388,125 @@ class UsersDAO:
             self.connection.rollback()
             return [], "Error retrieving logs"
 
-    def handle_auction_win(self, winner_id, gacha_id, bid_amount, seller_id=None):
-        """
-        Handle auction win: transfer gacha to winner, deduct bid amount, pay seller
-        
-        Args:
-            winner_id (int): ID of the winning bidder
-            gacha_id (int): ID of the gacha being auctioned
-            bid_amount (float): Final winning bid amount
-            seller_id (int, optional): ID of the seller (None for system auctions)
-        
-        Returns:
-            tuple: (success, error_message)
-        """
-        try:          
-            # add gacha to winner collection
-            now = int(time.time())
-            self.cursor.execute("""
-                INSERT INTO collection (user_id, gacha_id, added_at) VALUES (?, ?, ?)
-            """, (winner_id, gacha_id, now))
-            
-            # remove coin from winner
-            winner_balance, err = self.update_token_balance(winner_id, -bid_amount, False)
-            if err:
-
-                return False, f"Failed to update winner balance: {err}"
-                
-            # add token to player if the auction is not a system auction
-            if seller_id:
-                seller_balance, err = self.update_token_balance(seller_id, bid_amount, False)
-                
-                if err:
-                    return False, f"Failed to update seller balance: {err}"
-            
-            return True, None
-            
-        except sqlite3.Error as e:
-            return False, "Database error handling auction win"
-
-    def handle_auction_loss(self, bidder_id, bid_amount):
-        """
-        Refund bid token amount to losing bidder
-            
-        Args:
-            bidder_id (int): ID of the losing bidder
-            bid_amount (float): Bid amount to refund
-        """
+    ################
+    # auction
+    # handle transaction outcome
+    # Deduct money from winner
+    # Give money to seller
+    # update collection
+    def execute_transaction(self, auction_data):
         try:
-            # refund bid amount to loser
-            new_balance, err = self.update_token_balance(bidder_id, bid_amount, False)
-            
-            if err:
-                return False, f"Failed to refund bid: {err}"
-                
-            return True, None
-            
-        except sqlite3.Error as e:
-            logging.error(f"Database error in handle_auction_loss: {str(e)}")
-            return False, "Database error"
+            winner_id = auction_data["winner_id"]
+            final_price = auction_data["final_price"]
+            piece_id = auction_data["piece_id"]
+            seller_id = auction_data["seller_id"]
 
-    def process_auction_outcome(self, auction_data):
-        """
-        handle auction win and loss
-        
-        auction_data: dict containing:
-            winner_id: ID of winning bidder
-            gacha_id: ID of auctioned gacha
-            winning_bid: Final winning bid amount
-            seller_id: ID of seller (optional)
-            losing_bids: List of tuples (bidder_id, bid_amount) for losing bids
-    
-        """
-        try:
-            # handle winner
-            success, error = self.handle_auction_win(
-                auction_data['winner_id'],
-                auction_data['gacha_id'],
-                auction_data['winning_bid'],
-                auction_data.get('seller_id')  # optional, could not be defined
+            # check if winner has balance
+            self.cursor.execute(
+                "SELECT token_balance FROM users WHERE user_id = ?",
+                (winner_id,)
             )
             
-            if not success:
-                return False, f"Failed to process winner: {error}"
-                
-            # manage all losing bids
-            for bidder_id, bid_amount in auction_data['losing_bids']:
-                success, error = self.handle_auction_loss(bidder_id, bid_amount)
-                if not success:
-                    logging.error(f"Failed to process refund for bidder {bidder_id}: {error}")
-                    
-            return True, None
+            winner_balance = self.cursor.fetchone()
+            if not winner_balance or winner_balance[0] < final_price:
+                logger.info(f"[USER DAO] Insufficient winner balance")
+                return False, "Insufficient balance"
+
+            # subtract balance from winner
+            self.cursor.execute(
+                """UPDATE users 
+                SET token_balance = token_balance - ? 
+                WHERE user_id = ?""",
+                (final_price, winner_id)
+            )
             
-        except Exception as e:
-            return False, "Internal error processing auction"
+            self.connection.commit()
+            logger.info(f"[USER DAO] Deducted winner balance")
+            
+            # add token to seller
+            self.cursor.execute(
+                """UPDATE users 
+                SET token_balance = token_balance + ? 
+                WHERE user_id = ?""",
+                (final_price, seller_id)
+            )
+            
+            self.connection.commit()
+            logger.info(f"[USER DAO] Added balance to seller")
+            
+            # add piece to winner collection
+            self.cursor.execute(
+                """INSERT INTO collection (user_id, gacha_id, added_at) 
+                VALUES (?, ?, strftime('%s','now'))""",
+                (winner_id, piece_id)
+            )
+            
+            self.connection.commit()
+            logger.info(f"[USER DAO] added piece to winner collection")
+            
+            # subtract piece from seller collection
+            self.cursor.execute(
+                """DELETE FROM collection 
+                WHERE user_id = ? AND gacha_id = ?""",
+                (seller_id, piece_id)
+            )
+            
+            self.connection.commit()
+            logger.info(f"[USER DAO] Deducted piece from seller")
+            
+            # log transactions for winner and seller
+            # winner
+            self.cursor.execute(
+                """INSERT INTO transactions 
+                (user_id, amount, type, ts) 
+                VALUES (?, ?, 'auction', strftime('%s','now'))""",
+                (winner_id, -final_price)
+            )
+            
+            self.connection.commit()
+            logger.info(f"[USER DAO] Deducted winner balance")
+            
+            # seller
+            self.cursor.execute(
+                """INSERT INTO transactions 
+                (user_id, amount, type, ts) 
+                VALUES (?, ?, 'auction', strftime('%s','now'))""",
+                (seller_id, final_price)
+            )
+            
+            # log the action
+            self.cursor.execute(
+                """INSERT INTO logs (ts, user_id, action, message)
+                VALUES (strftime('%s','now'), ?, 'auction_complete', ?)""",
+                (winner_id, piece_id, "Winner received gacha, seller deducted")
+            )
+            
+            return True, ""
+            
+        except sqlite3.Error as e:
+            return False, str(e)
     
+    def get_user_balance(self, user_id):
+        try:
+            self.cursor.execute("SELECT token_balance FROM users WHERE user_id = ?", (user_id,))
+            result = self.cursor.fetchone()
+            return float(result[0]) if result else (0, "User not found")
+        
+        except Exception as e:
+            return 0, str(e)
+
+    # check if user has a piece
+    def user_has_piece(self, user_id, piece_id):
+        try:
+            self.cursor.execute(
+                "SELECT 1 FROM collection WHERE user_id = ? AND gacha_id = ?", 
+                (user_id, piece_id)
+            )
+            return bool(self.cursor.fetchone()), None
+        except Exception as e:
+            logger.error(f"Error checking piece ownership: {str(e)}")
+            return False, str(e)
+        
     def close(self):
         self.connection.close()
+        

@@ -28,3 +28,6 @@ CREATE TABLE IF NOT EXISTS transactions (
     ts INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (2, 1, strftime('%s','now'));

@@ -7,6 +7,7 @@ from users_DAO import UsersDAO
 import requests
 import logging
 import json
+import time
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
@@ -95,16 +96,16 @@ def create_player_account():
         
         logger.info(f"[USER] Received create user request with data: {data}")
         
-        # Try to create user - let the database handle uniqueness constraints
+        # create user
         user_id, err_msg = db_connector.create_user_account(user_info)
             
         if err_msg:
-            # Check if it's a duplicate - both username and id match
+            # if username and id match it's a duplicate
             existing_user = db_connector.get_user_by_id(data['user_id'])
             if existing_user and existing_user['username'] == data['username']:
                 return jsonify({'rsp': 'User already exists', 'id': data['user_id']}), 200
                 
-            # Otherwise it's a conflict (either username or id taken)
+            # username or id already taken
             return jsonify({'err': err_msg}), 409
             
         logger.info(f"[USER] Successfully created user with ID: {user_id}")
@@ -132,7 +133,7 @@ def delete_player(player_id):
     db_connector.log_action(player_id, "ERR_delete_user", "Error deleting user")
     return jsonify({'err': f'Error deleting player: {msg}'}), 400
 
-# Modify account (only username)
+# only modify username
 @app.route('/player/<int:player_id>', methods=['PUT'])
 def update_player(player_id):
     try:
@@ -198,7 +199,7 @@ def update_player(player_id):
         logger.error(f"[USER] Unexpected error in update_player: {str(e)}")
         return jsonify({'err': str(e)}), 500
     
-# See collection
+# get player collection
 @app.route('/player/collection/<int:player_id>', methods=['GET'])
 def get_player_collection(player_id):
 
@@ -276,12 +277,63 @@ def complete_auction():
     except Exception as e:
         return jsonify({'err': 'Internal server error'}), 500
 
+# receive gacha after auction
+@app.route('/update_collection', methods=['POST'])
+def update_collection():
+    try:
+        data = request.get_json()
+        required_fields = ['winner_id', 'piece_id', 'final_price', 'seller_id']
+        if not all(field in data for field in required_fields):
+            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+
+        auction_data = {
+            'winner_id': data['winner_id'],
+            'gacha_id': data['piece_id'],
+            'winning_bid': data['final_price'],
+            'seller_id': data['seller_id'],
+        }
         
+        logger.info(f"[USER] Auction update: {auction_data}")
+        success, error = db_connector.process_auction_outcome(auction_data)
+        
+        if success:
+            db_connector.log_action(data['winner_id'], 'auction_win', 
+                            f"Won auction for piece {data['piece_id']} at {data['final_price']}")
+            return jsonify({'success': True}), 200
+        
+        logger.error(f"Failed to process auction: {error}")
+        return jsonify({'success': False, 'error': error}), 400
+
+    except Exception as e:
+        logger.error(f"Exception in update_collection: {str(e)}")
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
+    
+# tells user token balance
+@app.route('/user/balance/<int:user_id>', methods=['GET'])
+def get_user_balance(user_id):
+    try:
+        balance = db_connector.get_user_balance(user_id)
+        return jsonify({
+            'success': True,
+            'balance': balance
+        }), 200
+    except Exception as e:
+        logging.error(f"Error getting user balance: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# tells if user has a piece
+@app.route('/user/has_piece/<int:user_id>/<int:piece_id>', methods=['GET'])
+def user_has_piece(user_id, piece_id):
+    has_piece, error = db_connector.user_has_piece(user_id, piece_id)
+    
+    if error:
+        return jsonify({'success': False, 'error': error}), 400
+    return jsonify({'success': True, 'has_piece': has_piece}), 200
 #######################
 
 ##  ADMIN ENDPOINTS  ##
 
-# Check syslog of last 5 minutes
+# get latest syslog
 @app.route('/admin/logs', methods=['GET'])
 def get_logs():
     # get logs from db
@@ -292,6 +344,7 @@ def get_logs():
         
     return jsonify({'rsp': logs}), 200
 
+# get all players
 @app.route('/player/all', methods=['GET'])
 def get_all_players():
 
@@ -302,7 +355,7 @@ def get_all_players():
     
     return jsonify({'err': err}), 400
 
-
+# get a specific player
 @app.route('/player/<int:player_id>', methods=['GET'])
 def get_player(player_id):
     user, err = db_connector.admin_get_user(player_id)
@@ -312,6 +365,7 @@ def get_player(player_id):
     
     return jsonify({'err': err}), 400
 
+# modify username
 @app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 def admin_modify_user(user_id):
     try:
@@ -357,6 +411,7 @@ def get_user_market_history(user_id):
     
     return jsonify({'err': err}), 400
 
+# get the current max user id, used for auth
 @app.route('/max_user_id', methods=['GET'])
 def get_max_user_id():
     try:
