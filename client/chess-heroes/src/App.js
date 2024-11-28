@@ -10,6 +10,7 @@ import Auctions from './components/Auctions'
 import Account from './components/Account'
 import Profile from './components/Profile'
 import Col from 'react-bootstrap/Col'
+import profileIcon from './assets/profile-icon.svg'
 import './App.css'
 
 const App = () => (
@@ -20,7 +21,7 @@ const App = () => (
                     <Link to="/" className="text-decoration-none">
                         <Container className="d-flex gap-3">
                             <Col>
-                                <img src={chessHeroesIcon} width="30" height="30"/>
+                                <img src={chessHeroesIcon} width="35" height="35"/>
                             </Col>
                             <Col className="d-flex align-items-center">
                                 <h5 className="m-0 text-white">Chess Heroes</h5>
@@ -52,7 +53,7 @@ const App = () => (
                     </Navbar.Text>
                     <Navbar.Text>
                         <Link to="/profile" className="text-decoration-none">
-                            <h5 className="m-0">Profile</h5>
+                            <img src={profileIcon} width="45" height="45" />
                         </Link>
                     </Navbar.Text>
                 </Navbar.Collapse>

@@ -10,7 +10,7 @@ distribution = {
 class QuickstartUser(HttpUser):
     
     @task
-    def add(self):
+    def pull(self):
         response = self.client.get('/banner/pull/1', verify = False)
 
         if response.status_code == 200:
