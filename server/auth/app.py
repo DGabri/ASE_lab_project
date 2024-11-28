@@ -73,6 +73,18 @@ ROUTE_PERMISSIONS = {
     'PUT:/modify/<auction_id>': [1, 0],         # modify auction end time
     'GET:/running/all': [1, 0],                 # get all running auctions
 
+    # banner
+    'GET:/banner/<banner_id>': [1],             # get banner info
+    'POST:/banner': [1],                        # add new banner
+    'PUT:/banner/<banner_id>': [1],             # update banner
+    'DELETE:/banner/<banner_id>': [1],          # delete a banner
+    'GET:/banner/pull/<banner_id>': [1],        # pull a banner
+    
+    # piece
+    'GET:/piece': [1],                          # list all pieces
+    'POST:/piece': [1],                         # add new piece
+    'PUT:/piece/<piece_id>': [1],               # update a piece
+    'GET:/piece/all': [1]                      # get all pieces
 }
 
 # as defined in auth_scheme.sql
@@ -82,7 +94,7 @@ VALID_USER_TYPES = {
 }
 
 # normalize routes to reroute to specific service
-def normalize_route(route):
+def normalize_route(route, method):
     if not route.startswith('/'):
         route = '/' + route
     
@@ -104,6 +116,24 @@ def normalize_route(route):
                 normalized_parts.append('<user_id>')
             elif any(x in full_path for x in ['player', 'delete_user', 'logout']):
                 normalized_parts.append('<player_id>')
+            elif '/banner' in full_path:
+                #  add banner id only for GET PUT and DELETE
+                if method in ['GET', 'PUT', 'DELETE']:
+                    normalized_parts.append('<banner_id>')
+                # POST does not need anything
+                elif method == 'POST':
+                    continue
+                else:
+                    normalized_parts.append('<banner_id>')
+            elif '/piece' in full_path:
+                # only PUT adds piece_id
+                if method == 'PUT':
+                    normalized_parts.append('<piece_id>')
+                # skip others
+                else:
+                    continue
+            elif '/piece' in full_path:
+                normalized_parts.append('<piece_id>')
             elif '/running' in full_path:
                 normalized_parts.append('<piece_id>')
             elif part == 'all':
@@ -666,7 +696,11 @@ def authorize():
             return jsonify({'error': error}), 401
 
         user_type = payload['user_type']
-        normalized_route = normalize_route(route)
+        logging.info(f"********************************************")
+        logging.info(f"[REQUEST METHOD] {method}")
+        logging.info(f"********************************************")
+
+        normalized_route = normalize_route(route, method)
         
         route_key = f"{method}:{normalized_route}"
         logger.warning(f"[AUTH] Original route: {route}")
