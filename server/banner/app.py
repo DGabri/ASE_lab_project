@@ -4,6 +4,7 @@ from DAOs.banners_DAO import BannersDAO
 from classes.db_result import DBResultCode
 from classes.banner import Banner
 from classes.rates import Rates
+from requests.exceptions import ConnectionError, HTTPError
 import sqlite3
 import json
 import requests
@@ -48,7 +49,7 @@ def banner_is_valid(banner, to_check):
     if to_check['pic'] and (not 'pic' in banner or not isinstance(banner['pic'], str) or not banner['pic']):
         return False
 
-    if to_check['pieces_num'] and (not 'pieces_num' in banner or not isinstance(banner['pieces_num'], int) or banner['pieces_num'] < 0):
+    if to_check['pieces_num'] and (not 'pieces_num' in banner or not isinstance(banner['pieces_num'], int) or banner['pieces_num'] <= 0):
         return False
 
     if to_check['rates'] and not rates_are_valid(banner['rates']):
@@ -168,10 +169,16 @@ def pull(banner_id):
             return content, code
 
         banner = Banner.from_dict(content.get_json()['banner'])
-        response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
+
+        try:
+            response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "Piece service is down"), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
 
         if response.status_code != 200:
-            return jsonify(message = "Internal problem with service 'piece'"), response.status_code
+            return jsonify(message = respose.json()['message']), response.status_code
             
         pieces = response.json()['pieces']
         pieces_pulled = []
@@ -196,7 +203,7 @@ def pull_piece(banner, pieces):
 
     if rand <= banner.rates.common:
         piece_selected = select_piece_by_grade(pieces, 'C')
-    elif rand <= banner.rates.rare:
+    elif rand <= banner.rates.common + banner.rates.rare:
         piece_selected = select_piece_by_grade(pieces, 'R')
     else:
         piece_selected = select_piece_by_grade(pieces, 'SR')

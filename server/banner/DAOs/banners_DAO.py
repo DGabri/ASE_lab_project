@@ -85,13 +85,13 @@ class BannersDAO:
             with self.connection:
                 self.cursor.execute(
                     'DELETE FROM banners WHERE id = ? RETURNING id',
-                    banner_id
+                    (banner_id,)
                 )
 
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(True, DBResultCode.NOT_FOUND, "No banner founded")
+                return DBResult(True, DBResultCode.NOT_FOUND, "No banner found")
             
             return DBResult(True, DBResultCode.OK, "Banner updated")
         except sqlite3.Error as e:

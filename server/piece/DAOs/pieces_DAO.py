@@ -38,6 +38,23 @@ class PiecesDAO:
         except sqlite3.Error as e:
             return DBResult(None, DBResultCode.ERROR, str(e))
     
+    def delete_piece(self, piece_id):
+        try:
+            with self.connection:
+                self.cursor.execute(
+                    'DELETE FROM pieces WHERE id = ? RETURNING id',
+                    (piece_id,)
+                )
+
+                row = self.cursor.fetchone()
+
+            if not row:
+                return DBResult(True, DBResultCode.NOT_FOUND, "No piece found")
+            
+            return DBResult(True, DBResultCode.OK, "Piece updated")
+        except sqlite3.Error as e:
+            return DBResult(False, DBResultCode.ERROR, str(e))
+
     def get_all_pieces(self):
         try:
             with self.connection:

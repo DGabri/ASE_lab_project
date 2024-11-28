@@ -116,7 +116,20 @@ def update_piece(piece_id):
     if result.code == DBResultCode.ERROR:
         return jsonify(message = result.message), 500
     
-    return jsonify(message = result.message), 200  
+    return jsonify(message = result.message), 200 
+
+# Delete a piece
+@app.route('/piece/<int:piece_id>', methods = ['DELETE'])
+def delete_piece(piece_id):
+    result = pieces_dao.delete_piece(piece_id)
+
+    if result.code == DBResultCode.NOT_FOUND:
+        return jsonify(message = result.message), 404
+
+    if result.code == DBResultCode.ERROR:
+        return jsonify(message = result.message), 500
+
+    return jsonify(message = "Piece deleted"), 200
 
 # Get all the pieces in the database
 @app.route('/piece/all', methods = ['GET'])
