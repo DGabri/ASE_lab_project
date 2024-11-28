@@ -64,12 +64,27 @@ ROUTE_PERMISSIONS = {
     'GET:/admin/logs': [0],                                  # get syslog
     
     # auction
-    'POST:/create_auction': [1,0],
-    'GET:/running/all':[1,0],
-    'POST:/auction/bid/<auction_id>':[1],
-    'GET:/running/<piece_id>':[1,0],
-    'GET:/auction/<auction_id>':[1, 0],
-    'GET:/history': [0],
+    'POST:/create_auction': [1],                # create an auction
+    'GET:/auction/<id>': [1, 0],                # get auction by id
+    'POST:/bid/<auction_id>': [1],              # bid on an auction
+    'POST:/auction/complete': [1],              # complete auction
+    'GET:/history': [1, 0],                     # get historical auctions
+    'GET:/running/<piece_id>': [1, 0],          # get open auctions with a specific piece id
+    'PUT:/modify/<auction_id>': [1, 0],         # modify auction end time
+    'GET:/running/all': [1, 0],                 # get all running auctions
+
+    # banner
+    'GET:/banner/<banner_id>': [1],             # get banner info
+    'POST:/banner': [1],                        # add new banner
+    'PUT:/banner/<banner_id>': [1],             # update banner
+    'DELETE:/banner/<banner_id>': [1],          # delete a banner
+    'GET:/banner/pull/<banner_id>': [1],        # pull a banner
+    
+    # piece
+    'GET:/piece': [1],                          # list all pieces
+    'POST:/piece': [1],                         # add new piece
+    'PUT:/piece/<piece_id>': [1],               # update a piece
+    'GET:/piece/all': [1]                      # get all pieces
 }
 
 # as defined in auth_scheme.sql
@@ -78,31 +93,51 @@ VALID_USER_TYPES = {
     1: "player"
 }
 
-def normalize_route(route):
-    """
-    Normalize route by replacing numeric IDs with placeholders
-    """
+# normalize routes to reroute to specific service
+def normalize_route(route, method):
     if not route.startswith('/'):
         route = '/' + route
-        
+    
     parts = route.split('/')
+    full_path = '/'.join(parts)
     normalized_parts = []
     
     for part in parts:
         if part.isdigit():
-            # Get the full path up to this point to check context
-            current_path = '/'.join(parts[:parts.index(part)])
-            
-            if '/bid' in current_path:
+            if 'bid' in full_path:
                 normalized_parts.append('<auction_id>')
-            elif '/auction/running' in current_path:
+            elif '/auction/running' in full_path:
                 normalized_parts.append('<piece_id>')
-            elif '/auction' in current_path:
+            elif '/auction/auction' in full_path:
                 normalized_parts.append('<auction_id>')
-            elif '/admin/user/modify' in current_path:
+            elif '/auction/modify' in full_path:
+                normalized_parts.append('<auction_id>')
+            elif '/admin/user/modify' in full_path:
                 normalized_parts.append('<user_id>')
-            elif any(x in current_path for x in ['player', 'delete_user', 'logout']):
+            elif any(x in full_path for x in ['player', 'delete_user', 'logout']):
                 normalized_parts.append('<player_id>')
+            elif '/banner' in full_path:
+                #  add banner id only for GET PUT and DELETE
+                if method in ['GET', 'PUT', 'DELETE']:
+                    normalized_parts.append('<banner_id>')
+                # POST does not need anything
+                elif method == 'POST':
+                    continue
+                else:
+                    normalized_parts.append('<banner_id>')
+            elif '/piece' in full_path:
+                # only PUT adds piece_id
+                if method == 'PUT':
+                    normalized_parts.append('<piece_id>')
+                # skip others
+                else:
+                    continue
+            elif '/piece' in full_path:
+                normalized_parts.append('<piece_id>')
+            elif '/running' in full_path:
+                normalized_parts.append('<piece_id>')
+            elif part == 'all':
+                normalized_parts.append('all')
             else:
                 normalized_parts.append('<id>')
         else:
@@ -324,28 +359,28 @@ def verify_user_access(f):
             return jsonify({'error': 'Authorization header is missing'}), 401
 
         try:
-            # Extract and verify token
+            # get token and verify it
             token = auth_header.split(' ')[1]
             payload, error = verify_token(token)
             
             if error:
                 return jsonify({'error': error}), 401
 
-            # Get the target user_id/player_id from URL parameters or request body
+            # get the user id from url or request
             target_id = kwargs.get('player_id') or kwargs.get('user_id')
             
-            # If not in URL params, check request body
+            # if user id is not in url get it from body
             if not target_id and request.is_json:
                 target_id = request.json.get('user_id')
                 
             if not target_id:
                 return jsonify({'error': 'No target user specified'}), 400
 
-            # Get the authenticated user's ID from token
+            # get user id from token
             token_user_id = int(payload.get('sub'))
             
-            # Allow access if:
-            # 1. User is accessing their own data (IDs match)
+            # permit access if:
+            # 1. User is accessing hist data (ID match)
             # 2. User is an admin (user_type = 0)
             if token_user_id != target_id and payload.get('user_type') != 0:
                 return jsonify({'error': 'Cannot access or modify other users\' data'}), 403
@@ -355,6 +390,31 @@ def verify_user_access(f):
         except Exception as e:
             return jsonify({'error': str(e)}), 401
     return decorated
+
+def requires_auth(allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            auth_header = request.headers.get('Authorization')
+            if not auth_header:
+                return jsonify({'error': 'Authorization header is missing'}), 401
+            
+            try:
+                # extract token and verify it
+                token = auth_header.split(' ')[1]
+                payload, error = verify_token(token)
+                
+                if error:
+                    return jsonify({'error': error}), 401
+                
+                if payload['user_type'] not in allowed_roles:
+                    return jsonify({'error': 'Insufficient permissions'}), 403
+                
+                return f(*args, **kwargs)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 401
+        return decorated
+    return decorator
 
 # extract current user from auth header
 def get_current_user():
@@ -390,31 +450,6 @@ def verify_token(token):
         return None, "Token expired"
     except jwt.InvalidTokenError:
         return None, "Invalid token"
-
-def requires_auth(allowed_roles):
-    def decorator(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            auth_header = request.headers.get('Authorization')
-            if not auth_header:
-                return jsonify({'error': 'Authorization header is missing'}), 401
-            
-            try:
-                # extract token and verify it
-                token = auth_header.split(' ')[1]
-                payload, error = verify_token(token)
-                
-                if error:
-                    return jsonify({'error': error}), 401
-                
-                if payload['user_type'] not in allowed_roles:
-                    return jsonify({'error': 'Insufficient permissions'}), 403
-                
-                return f(*args, **kwargs)
-            except Exception as e:
-                return jsonify({'error': str(e)}), 401
-        return decorated
-    return decorator
 
 @app.route('/create_user', methods=['POST'])
 def register():
@@ -513,7 +548,6 @@ def login():
 
         # generate access and refresh tokens
         try:
-            # Fixed: Add missing scope parameter
             access_token = generate_access_token(user_data)
             refresh_token, expires_at = generate_refresh_token(user_data['user_id'])
             expires_at = datetime.datetime.now(datetime.UTC) + timedelta(days=app.config['REFRESH_TOKEN_EXPIRE_DAYS'])
@@ -618,7 +652,7 @@ def refresh():
 @verify_user_access  # This already checks authorization
 def delete_user(player_id):
     try:
-        # First delete from user service
+        # delete user from user service
         try:
             res = requests.delete(
                 f"https://user:5000/player/{player_id}",
@@ -633,7 +667,7 @@ def delete_user(player_id):
             logger.error(f"[AUTH] User service connection error during deletion: {str(e)}")
             return jsonify({'error': "User service connection error during deletion"}), 500
 
-        # If user service delete succeeded, delete from auth db
+        # delete from auth if successfully deleted from user service
         rsp, err = db_connector.delete_user(player_id)
         logging.info(f"[AUTH] Delete user: {rsp}")
         
@@ -662,7 +696,11 @@ def authorize():
             return jsonify({'error': error}), 401
 
         user_type = payload['user_type']
-        normalized_route = normalize_route(route)
+        logging.info(f"********************************************")
+        logging.info(f"[REQUEST METHOD] {method}")
+        logging.info(f"********************************************")
+
+        normalized_route = normalize_route(route, method)
         
         route_key = f"{method}:{normalized_route}"
         logger.warning(f"[AUTH] Original route: {route}")
@@ -702,13 +740,13 @@ def modify_user(user_id):
             'username': data['username']
         }
         
-        # Update auth db
+        # update auth db
         res, msg = db_connector.modify_user_account(new_user_info)
         
         if not res:
             return jsonify({'error': msg}), 400
             
-        # Call user service to update username
+        # call user service to update username
         try:
             response = requests.put(
                 f"https://user:5000/admin/user/modify/{user_id}",
@@ -720,13 +758,11 @@ def modify_user(user_id):
             
             if not response.ok:
                 logger.error(f"[AUTH] Failed to update user service: {response.text}")
-                # Rollback auth db change
                 db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
                 return jsonify({'error': 'Failed to update user service'}), 400
                 
         except requests.RequestException as e:
             logger.error(f"[AUTH] Error calling user service: {str(e)}")
-            # Rollback auth db change
             db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
             return jsonify({'error': 'Failed to communicate with user service'}), 500
             

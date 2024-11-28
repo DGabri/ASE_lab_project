@@ -1,302 +1,271 @@
-from datetime import datetime
-import logging
 import sqlite3
 import time
+import logging
 
-class AuctionDAO:
-    def __init__(self, database, scheme):
-        self.connection = sqlite3.connect(database, check_same_thread = False)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+class AuctionsDAO:
+    def __init__(self, database):
+        self.connection = sqlite3.connect(database, check_same_thread=False)
         self.cursor = self.connection.cursor()
-
-        with open(scheme, 'r') as sql_file:
-            sql_script = sql_file.read()
-
-        try:
-            with self.connection:
-                self.cursor.executescript(sql_script)
-        except sqlite3.Error as e:
-            print(f"Cannot initialize auction DAO: {e}")
-
-    def get_running_auctions(self):
-        try:
-            query = "SELECT * FROM auctions WHERE end_date > NOW() AND status = running"
-            return self.execute_query(query)
-        except Exception as e:
-            logging.error("Error fetching running auctions: %s", e)
-            return None
-
-    def create_auction(self, piece_id, creator_id, start_price, end_date):
-
-        if start_price <= 0:
-            return {"error": "Start price must be greater than zero."}, 400
-
-        try:
-            query = """
-            INSERT INTO auctions (piece_id, creator_id, start_price, current_price, start_date, end_date, status)
-            VALUES (?, ?, ?, ?, strftime('%s', 'now'), ?, 'running')
-            """
-            self.execute_query(query, (piece_id, creator_id, start_price, None, end_date))
-
-            return {"status": "Auction created successfully"}
-        
-        except Exception as e:
-            logging.error("Error creating auction: %s", e)
-            return {"error": "Failed to create auction"}, 500
-
-
-    def update_current_price(self, auction_id, bid_amount):
-        try:
-            query = "UPDATE auctions SET current_price = ? WHERE auction_id = ?"
-            self.execute_query(query, (bid_amount, auction_id))
-            return True
-        except Exception as e:
-            logging.error(f"Error updating current price for auction {auction_id}: {e}")
-            return False
-
-
-    def add_bid(self, auction_id, user_id, bid_amount):
-        try:
-            current_price_query = """
-            SELECT current_price 
-            FROM auctions 
-            WHERE auction_id = ?
-            """
-            connection = self.connection 
-            cursor = connection.cursor()
-            cursor.execute(current_price_query, (auction_id,))
-            result = cursor.fetchone()
-
-            if result is None:
-                raise ValueError(f"Auction with ID {auction_id} does not exist.")
-
-            
-            current_price = result[0]  
-
-            if current_price is None:
-                current_price = 0
-
-            if bid_amount <= current_price:
-                logging.warning(f"Bid amount {bid_amount} is not greater than the current price {current_price}")
-                return False
-
-            insert_bid_query = """
-            INSERT INTO bids (auction_id, user_id, bid_amount)
-            VALUES (?, ?, ?)
-            """
-            cursor.execute(insert_bid_query, (auction_id, user_id, bid_amount))
-
-            update_price_query = """
-            UPDATE auctions
-            SET current_price = ?
-            WHERE auction_id = ?
-            """
-            cursor.execute(update_price_query, (bid_amount, auction_id))
-
-            connection.commit()
-
-            logging.info(f"Bid added successfully for auction {auction_id} by user {user_id}.")
-            return True
-
-        except Exception as e:
-            logging.error(f"Error adding bid for auction {auction_id}: {e}")
-            return False
-
-    def close_auction(self, auction_id):
-        try:
-            query = "UPDATE auctions SET status = 'ended' WHERE auction_id = ?"
-            self.execute_query(query, (auction_id,))
-        except Exception as e:
-            logging.error("Error closing auction %s: %s", auction_id, e)
-
-    def get_highest_bid(self, auction_id):
-            query = "SELECT bid_amount FROM bids WHERE auction_id = ? ORDER BY bid_amount DESC LIMIT 1"
-            result = self.execute_query(query, (auction_id,))
-
-            if result:
-                return result[0][0]  
-            return None
-
-
-
-    def execute_query(self, query, params=None):
-        try:
-            with self.connection as conn:
-                cursor = conn.cursor()
-                cursor.execute(query, params or ())
-                conn.commit()  # Commetti esplicitamente la transazione
-                logging.info(f"Executed query: {query} with params {params}")
-                return cursor.fetchall()
-        except sqlite3.Error as e:
-            logging.error("Database error: %s", e)
-            raise
-
-
-    def get_expired_auctions(self):
-        """
-        Retrieves all expired auctions where the end date has passed and the status is still 'running'.
-        """
-        query = """
-        SELECT auction_id, piece_id, creator_id, current_price, 
-            start_date, end_date, status
-        FROM auctions 
-        WHERE end_date <= strftime('%s', 'now') AND status = 'running'
-        """
-        try:
-            # Ottieni la connessione al database
-            connection = self.connection  
-            cursor = connection.cursor()
-            
-            # Esegui la query
-            cursor.execute(query)
-            rows = cursor.fetchall()
-            
-            # Costruisci la lista di aste scadute
-            expired_auctions = []
-            for row in rows:
-                auction = {
-                    "auction_id": row[0],
-                    "piece_id": row[1],
-                    "creator_id": row[2],
-                    "current_price": row[3],
-                    "start_date": row[4],
-                    "end_date": row[5],
-                    "status": row[6],
-                }
-                expired_auctions.append(auction)
-            
-            return expired_auctions
-
-        except Exception as e:
-            logging.error("Error fetching expired auctions: %s", e)
-            # Puoi decidere di sollevare un'eccezione o restituire un valore vuoto
-            raise RuntimeError("Failed to fetch expired auctions") from e
-
-
-
-    def close_expired_auctions(self):
-        try:
-            expired_auctions = self.get_expired_auctions()  # Verifica se ci sono aste scadute
-            if expired_auctions is None:
-                logging.warning("No expired auctions found.")
-                return {"message": "No expired auctions found."}
-
-            for auction in expired_auctions:
-                # Gestisci la chiusura dell'asta
-                self.close_auction(auction['auction_id'])
-            
-            return {"message": "Expired auctions closed successfully."}
-        except Exception as e:
-            logging.error("Error in closing expired auctions: %s", e)
-            return {"error": "Failed to close expired auctions due to an internal error."}
-
-
-    # Funzione per determinare il vincitore
-    def determine_winner(self, auction_id):
-        query = """
-        SELECT user_id, bid_amount FROM bids
-        WHERE auction_id = ?
-        ORDER BY bid_amount DESC LIMIT 1
-        """
-        result = self.execute_query(query, (auction_id,))
-        if result:
-            winner_id, winning_bid = result[0]
-            logging.info(f"Vincitore dell'asta {auction_id}: User {winner_id} con un'offerta di {winning_bid}")
-        else:
-            logging.info(f"Asta {auction_id} chiusa senza offerte.")
-
+        self._create_tables()
     
+    def _create_tables(self):
+        self.cursor.executescript("""
+            CREATE TABLE IF NOT EXISTS auctions (
+                auction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                seller_id INTEGER NOT NULL,
+                piece_id INTEGER NOT NULL,
+                start_price REAL NOT NULL,
+                current_price REAL NOT NULL,
+                end_time INTEGER NOT NULL,
+                status TEXT CHECK(status IN ('active', 'completed', 'cancelled')) NOT NULL,
+                winner_id INTEGER,
+                created_at INTEGER NOT NULL
+            );
+            
+            CREATE TABLE IF NOT EXISTS bids (
+                bid_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                auction_id INTEGER NOT NULL,
+                bidder_id INTEGER NOT NULL,
+                bid_amount REAL NOT NULL,
+                bid_time INTEGER NOT NULL,
+                FOREIGN KEY (auction_id) REFERENCES auctions (auction_id)
+            );
+        """)
+        self.connection.commit()
+    
+    def create_auction(self, seller_id, piece_id, start_price, duration_hours):
+        """Create a new auction"""
+        try:
+            end_time = int(time.time()) + (duration_hours * 3600)
+            self.cursor.execute("""
+                INSERT INTO auctions (seller_id, piece_id, start_price, current_price, end_time, status, created_at)
+                VALUES (?, ?, ?, ?, ?, 'active', ?)
+            """, (seller_id, piece_id, start_price, start_price, end_time, int(time.time())))
+            self.connection.commit()
+            
+            return self.cursor.lastrowid, None
+        
+        except Exception as e:
+            self.connection.rollback()
+            logger.error(f"Error creating auction: {str(e)}")
+            return None, str(e)
+
+    def get_auction(self, auction_id):
+        """Get auction details"""
+        self.cursor.execute("""
+            SELECT a.*, COUNT(b.bid_id) as bid_count FROM auctions a LEFT JOIN bids b ON a.auction_id = b.auction_id WHERE a.auction_id = ? GROUP BY a.auction_id
+        """, (auction_id,))
+        
+        return self.cursor.fetchone()
+
+    def place_bid(self, auction_id, bidder_id, bid_amount):
+        """Place a bid on an auction"""
+        try:
+            # Check if auction exists and is active
+            auction = self.get_auction(auction_id)
+            if not auction:
+                return None, "Auction not found"
+            if auction[6] != 'active':
+                return None, "Auction is not active"
+            if auction[5] < time.time():
+                return None, "Auction has ended"
+            if bid_amount <= auction[4]:  # current_price
+                return None, "Bid amount must be higher than current price"
+            
+            # Place bid
+            self.cursor.execute("""
+                INSERT INTO bids (auction_id, bidder_id, bid_amount, bid_time) VALUES (?, ?, ?, ?)
+            """, (auction_id, bidder_id, bid_amount, int(time.time())))
+            
+            # Update auction current price
+            self.cursor.execute("""
+                UPDATE auctions SET current_price = ? WHERE auction_id = ?
+            """, (bid_amount, auction_id))
+            
+            self.connection.commit()
+            return True, None
+        
+        except Exception as e:
+            self.connection.rollback()
+            logger.error(f"Error placing bid: {str(e)}")
+            return None, str(e)
+
     def get_active_auctions(self):
-        current_timestamp = int(datetime.now().timestamp())
         query = """
-        SELECT auction_id, piece_id, creator_id, start_price, current_price, 
-               start_date, end_date, status, winner_id 
-        FROM auctions 
-        WHERE status = 'running'
+            SELECT a.*, COUNT(b.bid_id) as bid_count 
+            FROM auctions a 
+            LEFT JOIN bids b ON a.auction_id = b.auction_id 
+            WHERE a.status = 'active' AND a.end_time > ?
         """
+        params = [int(time.time())]
+        
+        query += " GROUP BY a.auction_id"
+        self.cursor.execute(query, params)
+        return self.cursor.fetchall()
+    
+    def get_active_auctions_by_piece_id(self, piece_id):
+        query = """
+            SELECT a.*, COUNT(b.bid_id) as bid_count 
+            FROM auctions a 
+            LEFT JOIN bids b ON a.auction_id = b.auction_id 
+            WHERE a.status = 'active' AND a.end_time > ? AND a.piece_id = ?
+        """
+        params = [int(time.time()), piece_id]
+        
+        query += " GROUP BY a.auction_id"
+        self.cursor.execute(query, params)
+        return self.cursor.fetchall()
 
+    def get_auction_history(self):
+        """Get completed auctions history"""
+        query = """
+            SELECT a.*, COUNT(b.bid_id) as bid_count 
+            FROM auctions a 
+            LEFT JOIN bids b ON a.auction_id = b.auction_id
+            WHERE a.status = 'completed'
+            GROUP BY a.auction_id
+        """
+        self.cursor.execute(query)
+        data = self.cursor.fetchall()
+
+        return data
+
+    def modify_auction(self, auction_id, seller_id, updates):
+        """Modify auction end time"""
         try:
-            cursor = self.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
+            auction = self.get_auction(auction_id)
+            if not auction:
+                return None, "Auction not found"
+            if auction[1] != seller_id:
+                return None, "Not authorized to modify this auction"
+            if auction[6] != 'active':
+                return None, "Cannot modify completed or cancelled auction"
             
-            auctions = []
-            for row in rows:
-                auction = {
-                    "auction_id": row[0],
-                    "piece_id": row[1],
-                    "creator_id": row[2],
-                    "start_price": row[3],
-                    "current_price": row[4],
-                    "start_date": row[5],
-                    "end_date": row[6],
-                    "status": row[7],
-                    "winner_id": row[8]
+            if 'end_time' not in updates:
+                return None, "End time must be provided"
+                
+            self.cursor.execute("""
+                UPDATE auctions 
+                SET end_time = ?
+                WHERE auction_id = ?
+            """, (updates['end_time'], auction_id))
+            
+            self.connection.commit()
+            return True, None
+            
+        except Exception as e:
+            self.connection.rollback()
+            logger.error(f"Error modifying auction: {str(e)}")
+            return None, str(e)
+            
+    def get_ended_auctions(self):
+        """
+        Get historical auctions with comprehensive details.
+        Returns a list of dictionaries, each containing auction data with descriptive field names.
+        """
+        query = """
+            SELECT 
+                a.auction_id, a.seller_id, a.piece_id, a.start_price,
+                a.current_price, a.end_time, a.status, a.winner_id, 
+                a.created_at, COUNT(b.bid_id) as bid_count
+            FROM auctions a
+            LEFT JOIN bids b ON a.auction_id = b.auction_id
+            WHERE a.status = 'completed'
+            GROUP BY 
+                a.auction_id, a.seller_id, a.piece_id,
+                a.start_price, a.current_price, a.end_time, a.status,
+                a.winner_id, a.created_at
+        """
+        
+        self.cursor.execute(query)
+        raw_data = self.cursor.fetchall()
+        
+        # Transform the raw tuple data into descriptive dictionaries
+        formatted_auctions = []
+        for auction in raw_data:
+            formatted_auction = {
+                'auction_id': auction[0],
+                'seller_id': auction[1],
+                'piece_id': auction[2],
+                'start_price': auction[3],
+                'final_price': auction[4],  # current_price becomes final_price for completed auctions
+                'end_time': auction[5],
+                'status': auction[6],
+                'winner_id': auction[7],
+                'created_at': auction[8],
+                'bid_count': auction[9]
+            }
+            formatted_auctions.append(formatted_auction)
+
+        logger.info(f"[AUCTION HISTORY] Retrieved {len(formatted_auctions)} completed auctions")
+        return formatted_auctions
+    
+    def complete_auction(self, auction_id):
+        '''Complete an auction and handle winner determination'''
+        try:
+            self.cursor.execute('''
+                SELECT piece_id, seller_id 
+                FROM auctions 
+                WHERE auction_id = ?
+            ''', (auction_id,))
+            auction_details = self.cursor.fetchone()
+            
+            if not auction_details:
+                return None, "Auction not found"
+                
+            piece_id, seller_id = auction_details
+            logging.info(f"[COMPLETED AUCTION] Piece_id: {piece_id} seller_id: {seller_id}")
+
+            # Get highest bid
+            self.cursor.execute('''
+                SELECT bidder_id, bid_amount
+                FROM bids 
+                WHERE auction_id = ? 
+                ORDER BY bid_amount DESC 
+                LIMIT 1
+            ''', (auction_id,))
+            
+            highest_bid = self.cursor.fetchone()
+            logging.info(f"[COMPLETED AUCTION] highest bid: {highest_bid}")
+            
+            if highest_bid:
+                # Update auction with winner
+                winner_id, final_price = highest_bid
+                self.cursor.execute('''
+                    UPDATE auctions 
+                    SET status = 'completed',
+                        winner_id = ?,
+                        current_price = ?
+                    WHERE auction_id = ?
+                ''', (winner_id, final_price, auction_id))
+                
+                result = {
+                    'winner_id': winner_id,
+                    'piece_id': piece_id,
+                    'final_price': final_price,
+                    'seller_id': seller_id
                 }
-                auctions.append(auction)
+            else:
+                # Delete auction with no bids
+                self.cursor.execute('DELETE FROM auctions WHERE auction_id = ?', (auction_id,))
+                result = {
+                    'winner_id': None,
+                    'piece_id': piece_id,
+                    'final_price': None,
+                    'seller_id': seller_id
+                }
             
-            
-            return auctions
+            self.connection.commit()
+            return result, None
+                
         except Exception as e:
-            raise Exception(f"Error fetching active auctions: {str(e)}")
-        
-    def update_status_to_ended(self, auction_id):
-        query = """
-        UPDATE auctions 
-        SET status = 'ended'
-        WHERE auction_id = %s
-        """
-        try:
-            connection = self._get_connection()
-            cursor = connection.cursor()
-            cursor.execute(query, (auction_id,))
-            connection.commit()
-        except Exception as e:
-            logging.error("Error updating auction status to ended for auction_id %s: %s", auction_id, e)
-            raise
-
-    def get_bidding_history(self, auction_id):
-        query = """
-        SELECT bid_id, user_id, bid_amount, bid_date
-        FROM bids
-        WHERE auction_id = ?
-        ORDER BY bid_date ASC
-        """
-        result = self.execute_query(query, (auction_id,))
-        
-        if result:
-            return result
-        return []
-
-    def update_auction_status(self, auction_id, status):
-        """
-        Updates the status of an auction.
-        
-        Args:
-            auction_id (int): The ID of the auction to update.
-            status (str): The new status to set for the auction (e.g., 'running', 'ended', 'cancelled').
-
-        Returns:
-            dict: A message indicating success or failure.
-        """
-        try:
-            valid_statuses = ['running', 'ended', 'cancelled']
-            if status not in valid_statuses:
-                raise ValueError(f"Invalid status value: {status}. Valid statuses are {valid_statuses}")
-
-            query = "UPDATE auctions SET status = ? WHERE auction_id = ?"
-            connection = self.auction_dao.connection
-            cursor = connection.cursor()
-            cursor.execute(query, (status, auction_id))
-
-            if cursor.rowcount == 0:
-                return {"error": f"Auction with ID {auction_id} not found."}
-            connection.commit()
-
-            return {"message": f"Auction {auction_id} status updated to '{status}'."}
-
-        except ValueError as ve:
-            logging.warning("Validation error in update_auction_status for auction %s: %s", auction_id, ve)
-            return {"error": str(ve)}
-        except Exception as e:
-            logging.error("Error updating auction status for auction %s: %s", auction_id, e)
-            return {"error": "Failed to update auction status due to an internal error."}
+            self.connection.rollback()
+            logger.error(f"Error completing auction: {str(e)}")
+            return None, str(e)

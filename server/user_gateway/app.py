@@ -82,7 +82,7 @@ def user_gateway(microservice, path):
         
         # verify action with auth service
         auth_response, auth_return_code = verify_authentication_authorization(token, path, request.method)
-        logging.info(f"[USER GATEWAY] auth_response: {auth_response} response code: {auth_return_code}")
+        #logging.info(f"[USER GATEWAY] auth_response: {auth_response} response code: {auth_return_code}")
         if auth_return_code != 200:
             if auth_return_code == 401:
                 return jsonify({"err": "Please login"}), 401
