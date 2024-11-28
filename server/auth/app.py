@@ -62,6 +62,14 @@ ROUTE_PERMISSIONS = {
     'GET:/admin/player/transaction/history/<player_id>': [0],# get user transaction history
     'GET:/admin/player/market-history/<player_id>': [0],     # get user market history
     'GET:/admin/logs': [0],                                  # get syslog
+    
+    # auction
+    'POST:/create_auction': [1,0],
+    'GET:/running/all':[1,0],
+    'POST:/auction/bid/<auction_id>':[1],
+    'GET:/running/<piece_id>':[1,0],
+    'GET:/auction/<auction_id>':[1, 0],
+    'GET:/history': [0],
 }
 
 # as defined in auth_scheme.sql
@@ -69,6 +77,39 @@ VALID_USER_TYPES = {
     0: "admin",
     1: "player"
 }
+
+def normalize_route(route):
+    """
+    Normalize route by replacing numeric IDs with placeholders
+    """
+    if not route.startswith('/'):
+        route = '/' + route
+        
+    parts = route.split('/')
+    normalized_parts = []
+    
+    for part in parts:
+        if part.isdigit():
+            # Get the full path up to this point to check context
+            current_path = '/'.join(parts[:parts.index(part)])
+            
+            if '/bid' in current_path:
+                normalized_parts.append('<auction_id>')
+            elif '/auction/running' in current_path:
+                normalized_parts.append('<piece_id>')
+            elif '/auction' in current_path:
+                normalized_parts.append('<auction_id>')
+            elif '/admin/user/modify' in current_path:
+                normalized_parts.append('<user_id>')
+            elif any(x in current_path for x in ['player', 'delete_user', 'logout']):
+                normalized_parts.append('<player_id>')
+            else:
+                normalized_parts.append('<id>')
+        else:
+            normalized_parts.append(part)
+    
+    return '/'.join(normalized_parts)
+
 ##########################################################
 # DB INITIALIZATION
 # load config
@@ -605,33 +646,6 @@ def delete_user(player_id):
         logger.error(f'Delete user error: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
     
-##
-def normalize_route(route):
-    """
-    Normalize route by replacing numeric IDs with placeholders
-    Example: 'player/gold/1' -> 'player/gold/{player_id}'
-    """
-    if not route.startswith('/'):
-        route = '/' + route
-        
-    parts = route.split('/')
-    normalized_parts = []
-    
-    for part in parts:
-        if part.isdigit():
-            # Check for admin user modification route specifically
-            if 'admin/user/modify' in route:
-                normalized_parts.append('<user_id>')
-            # Check other routes
-            elif ('player' in parts) or ('delete_user' in parts) or ('logout' in parts):
-                normalized_parts.append('<player_id>')
-            else:
-                normalized_parts.append('<id>')
-        else:
-            normalized_parts.append(part)
-    
-    return '/'.join(normalized_parts)
-
 @app.route('/authorize', methods=['POST'])
 def authorize():
     try:

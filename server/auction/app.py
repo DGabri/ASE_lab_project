@@ -78,7 +78,7 @@ def get_auction_info(auction_id):
         logging.error("Error fetching auction info for auction_id %s: %s", auction_id, e)
         return jsonify({"error": "An error occurred while processing the request"}), 500
 
-@app.route('/auction/bid/<int:auction_id>', methods=['POST'])
+@app.route('/bid/<int:auction_id>', methods=['POST'])
 def place_bid(auction_id):
     try:
         data = request.get_json()
@@ -118,7 +118,7 @@ def place_bid(auction_id):
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
-@app.route('/auction/running/all', methods=['GET'])
+@app.route('/running/all', methods=['GET'])
 def get_active_auctions():
     try:
         auctions = auction_service.get_active_auctions()
@@ -126,7 +126,7 @@ def get_active_auctions():
     except Exception as e:
         return jsonify({"error": "An error occurred while fetching active auctions"}), 500
 
-@app.route('/auction/history', methods=['GET'])
+@app.route('/history', methods=['GET'])
 def get_past_auctions():
     try:
         auctions = auction_service.get_past_auctions()
@@ -142,7 +142,7 @@ def get_active_auctions_by_piece_id(piece_id):
     except Exception as e:
         return jsonify({"error": "An error occurred while fetching active auctions"}), 500
 
-@app.route('/auction/modify/<int:auction_id>', methods=['PUT'])
+@app.route('/modify/<int:auction_id>', methods=['PUT'])
 def modify_auction(auction_id):
     try:
         auction = auction_service.get_auction_by_id(auction_id)

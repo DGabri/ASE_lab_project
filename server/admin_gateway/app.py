@@ -24,12 +24,21 @@ MICROSERVICES_URLS = {
     "user": "https://user:5000"
 }
 
-# Define public routes needed for admin authentication
+# routes that do not need auth
 PUBLIC_ROUTES = {
     ("POST", "auth/create_user"),
     ("POST", "auth/login")
 }
 
+# routes that are strictly for the admin
+ADMIN_ROUTES = {
+    ("POST", "auth/create_user"),
+    ("DELETE", "user/player"),
+    ("PUT", "user/player"),
+    ("GET", "user/player/collection"),
+    ("PUT", "user/player/gold"),
+    ("POST", "user/auction/complete"),
+}
 def verify_admin_authentication(token, route, method):
     """
     Verify both authentication and admin authorization with auth service

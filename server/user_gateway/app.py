@@ -17,13 +17,14 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 # microservices urls mapping
 MICROSERVICES_URLS = {
-    "auction": "https://auction:5005",
+    "auction": "https://auction:5000",
     "auth": "https://auth:5000",
     "banner": "https://banner:5000",
     "piece": "https://piece:5000",
     "user": "https://user:5000"
 }
 
+# routes that do not need auth
 PUBLIC_ROUTES = {
     ("POST", "auth/create_user"),
     ("POST", "auth/login")
@@ -41,11 +42,18 @@ def verify_authentication_authorization(token, route, method):
             timeout=10, 
             verify=False
         ) # nosec
+        
+        if auth_response.status_code == 200:
+            # Additional check for user role
+            user_data = auth_response.json().get('user', {})
+            if user_data.get('user_type') != 1:  # 1 is admin type as per auth service
+                return {"error": "Only users can use this endpoint"}, 403
+            
         return auth_response.json(), auth_response.status_code
     
     except requests.exceptions.RequestException as e:
         logger.error(f"Auth service error: {str(e)}")
-        return {"error": "Auth service unavailable"}, 503
+        return {"err": "Auth service unavailable"}, 503
 
 # tells if the requested route is public    
 def is_public_auth_route(method, microservice, path):
@@ -56,7 +64,7 @@ def is_public_auth_route(method, microservice, path):
 @app.route('/<microservice>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def user_gateway(microservice, path):
     if microservice not in MICROSERVICES_URLS:
-        return jsonify({"error": f"Service: '{microservice}' not found"}), 404
+        return jsonify({"err": f"Service: '{microservice}' not found"}), 404
 
     # create target url
     target_microservice = MICROSERVICES_URLS[microservice]
@@ -68,7 +76,7 @@ def user_gateway(microservice, path):
         authentication_header = request.headers.get("Authorization")
         
         if not authentication_header or not authentication_header.startswith("Bearer "):
-            return jsonify({"error": "Login required"}), 401
+            return jsonify({"err": "Login required"}), 401
         
         token = authentication_header.split(' ')[1]
         
@@ -77,9 +85,9 @@ def user_gateway(microservice, path):
         logging.info(f"[USER GATEWAY] auth_response: {auth_response} response code: {auth_return_code}")
         if auth_return_code != 200:
             if auth_return_code == 401:
-                return jsonify({"error": "Please login"}), 401
+                return jsonify({"err": "Please login"}), 401
             elif auth_return_code == 403:
-                return jsonify({"error": "Insufficient permissions"}), 403
+                return jsonify(auth_response), auth_return_code
             else:
                 return jsonify(auth_response), auth_return_code
             
@@ -100,7 +108,7 @@ def user_gateway(microservice, path):
         return Response(response.content, status=response.status_code, headers=dict(response.headers))
 
     except requests.exceptions.RequestException as e:
-        return {"error": f"Service unavailable: {e}"}, 503
+        return {"err": f"Service unavailable: {e}"}, 503
 
 
 if __name__ == '__main__':

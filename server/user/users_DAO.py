@@ -383,10 +383,11 @@ class UsersDAO:
             logs = []
             for row in results:
                 logs.append({
-                    'timestamp': row[0],
-                    'user_id': row[1],
-                    'action': row[2],
-                    'message': row[3]
+                    'log_id': row[0],
+                    'timestamp': row[1],
+                    'user_id': row[2],
+                    'action': row[3],
+                    'message': row[4]
                 })
             
             return logs, None

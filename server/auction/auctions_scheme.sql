@@ -37,7 +37,3 @@ INSERT INTO auctions (piece_id, creator_id, start_price, end_date) VALUES
 (1, 1, 100.00, strftime('%s', '2024-12-31T23:59:59')),
 (2, 1, 150.00, strftime('%s', '2024-12-31T23:59:59')),
 (3, 2, 200.00, strftime('%s', '2024-12-31T23:59:59'));
-
-INSERT INTO pieces (name) VALUES ('Ancient Vase'), ('Painting'), ('Sculpture');
-
-INSERT INTO users (username) VALUES ('alice'), ('bob'), ('carol');
