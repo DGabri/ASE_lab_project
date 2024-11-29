@@ -76,7 +76,6 @@ signal.signal(signal.SIGALRM, check_auctions)
 signal.alarm(10)
 
 ########################
-
 @app.route('/create_auction', methods=['POST'])
 def create_auction():
     try:
@@ -87,6 +86,22 @@ def create_auction():
 
         seller_id = data['seller_id']
         piece_id = data['piece_id']
+        
+        # check if requesting user and seller_id are the same
+        try:
+            auth_response = requests.post(
+                "https://auth:5000/verify_user",
+                json={'user_id': seller_id},
+                headers={'Authorization': request.headers.get('Authorization')},
+                timeout=10,
+                verify=False
+            ) # nosec
+            
+            if not auth_response.ok:
+                return jsonify({'err': 'You cannot create an auction on behalf of another user'}), auth_response.status_code
+                
+        except requests.exceptions.RequestException as e:
+            return jsonify({'err': f'Error verifying user authorization: {str(e)}'}), 500
         
         # check if user has piece
         try:
@@ -113,6 +128,7 @@ def create_auction():
         
         if error:
             return jsonify({'err': error}), 400
+        
         return jsonify({'auction_id': auction_id}), 201
 
     except Exception as e:
@@ -161,6 +177,11 @@ def place_bid(auction_id):
         if auction[1] == bidder_id:  
             return jsonify({'err': 'Bidding on own auction forbidden'}), 400
         
+        last_bid = db_connector.get_last_bid(auction_id)
+        
+        if last_bid and last_bid['bidder_id'] == bidder_id:
+            return jsonify({'err': 'Last bidder id is the same'}), 400
+        
         # Check user balance if he can bid
         try:
             response = requests.get(
@@ -199,14 +220,14 @@ def get_active_auctions():
                 'piece_id': auction[2],
                 'current_price': auction[4],
                 'end_time': auction[5],
-                'bid_count': auction[9]
+                'bid_count': auction[9],
+                'best_bidder_id': auction[10] if len(auction) > 10 else None
             } for auction in auctions]
         }), 200
-        
     except Exception as e:
-
+        logging.error(f"Error in get_active_auctions: {str(e)}")
         return jsonify({'err': f'Internal server error: {e}'}), 500
-
+    
 # get historical auctions
 @app.route('/history', methods=['GET'])
 def get_past_auctions():
@@ -232,7 +253,8 @@ def get_active_auctions_by_piece_id(piece_id):
                 'piece_id': a[2],
                 'current_price': a[4],
                 'end_time': a[5],
-                'bid_count': a[9]
+                'bid_count': a[9],
+                'best_bidder_id': a[10]
             } for a in auctions]
         }), 200
         

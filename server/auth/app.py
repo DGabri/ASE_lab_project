@@ -110,7 +110,7 @@ def normalize_route(route, method):
                 normalized_parts.append('<piece_id>')
             elif '/auction/auction' in full_path:
                 normalized_parts.append('<auction_id>')
-            elif '/auction/modify' in full_path:
+            elif '/modify' in full_path:
                 normalized_parts.append('<auction_id>')
             elif '/admin/user/modify' in full_path:
                 normalized_parts.append('<user_id>')
@@ -356,7 +356,7 @@ def verify_user_access(f):
     def decorated(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
         if not auth_header:
-            return jsonify({'error': 'Authorization header is missing'}), 401
+            return jsonify({'err': 'Authorization header is missing'}), 401
 
         try:
             # get token and verify it
@@ -364,7 +364,7 @@ def verify_user_access(f):
             payload, error = verify_token(token)
             
             if error:
-                return jsonify({'error': error}), 401
+                return jsonify({'err': error}), 401
 
             # get the user id from url or request
             target_id = kwargs.get('player_id') or kwargs.get('user_id')
@@ -374,7 +374,7 @@ def verify_user_access(f):
                 target_id = request.json.get('user_id')
                 
             if not target_id:
-                return jsonify({'error': 'No target user specified'}), 400
+                return jsonify({'err': 'No target user specified'}), 400
 
             # get user id from token
             token_user_id = int(payload.get('sub'))
@@ -383,12 +383,12 @@ def verify_user_access(f):
             # 1. User is accessing hist data (ID match)
             # 2. User is an admin (user_type = 0)
             if token_user_id != target_id and payload.get('user_type') != 0:
-                return jsonify({'error': 'Cannot access or modify other users\' data'}), 403
+                return jsonify({'err': 'Cannot access or modify other users\' data'}), 403
 
             return f(*args, **kwargs)
             
         except Exception as e:
-            return jsonify({'error': str(e)}), 401
+            return jsonify({'err': str(e)}), 401
     return decorated
 
 def requires_auth(allowed_roles):
@@ -397,7 +397,7 @@ def requires_auth(allowed_roles):
         def decorated(*args, **kwargs):
             auth_header = request.headers.get('Authorization')
             if not auth_header:
-                return jsonify({'error': 'Authorization header is missing'}), 401
+                return jsonify({'err': 'Authorization header is missing'}), 401
             
             try:
                 # extract token and verify it
@@ -405,14 +405,14 @@ def requires_auth(allowed_roles):
                 payload, error = verify_token(token)
                 
                 if error:
-                    return jsonify({'error': error}), 401
+                    return jsonify({'err': error}), 401
                 
                 if payload['user_type'] not in allowed_roles:
-                    return jsonify({'error': 'Insufficient permissions'}), 403
+                    return jsonify({'err': 'Insufficient permissions'}), 403
                 
                 return f(*args, **kwargs)
             except Exception as e:
-                return jsonify({'error': str(e)}), 401
+                return jsonify({'err': str(e)}), 401
         return decorated
     return decorator
 
@@ -462,16 +462,16 @@ def register():
             errors = {}
             for field, field_err in user_registration_form.errors.items():
                 errors[field] = field_err
-            return jsonify({'error': errors}), 400
+            return jsonify({'err': errors}), 400
         
         data = request.get_json()
         
         try:
             user_type = int(data['user_type'])
             if user_type not in VALID_USER_TYPES:
-                return jsonify({'error': 'Invalid user type'}), 400
+                return jsonify({'err': 'Invalid user type'}), 400
         except (ValueError, TypeError):
-            return jsonify({'error': 'User type must be an integer'}), 400
+            return jsonify({'err': 'User type must be an integer'}), 400
         
         user_info = {
             'username': data['username'],
@@ -485,7 +485,7 @@ def register():
         valid_password = password_requirements.test(user_info["password"])
         
         if len(valid_password) > 0:
-            return jsonify({'error': 'Password must be at least 8 characters, contain an uppercase char and two numbers'}), 400    
+            return jsonify({'err': 'Password must be at least 8 characters, contain an uppercase char and two numbers'}), 400    
         
         # generate password hash
         password_bytes = user_info["password"].encode("utf-8")
@@ -499,7 +499,7 @@ def register():
         logger.warning(f"[AUTH] User id: {user_id}")
         
         if err_msg:
-            return jsonify({'error': err_msg}), 400
+            return jsonify({'err': err_msg}), 400
             
         # call user service to add user
         user_data = {
@@ -514,7 +514,7 @@ def register():
             if res.status_code != 201:
                 # rollback user creation
                 db_connector.delete_user(user_id)
-                return jsonify({'error': 'Registration failed'}), 400
+                return jsonify({'err': 'Registration failed'}), 400
             
             # registration successful            
             return jsonify({'rsp': 'User created correctly', 'id': user_id}), 201
@@ -523,7 +523,7 @@ def register():
             return jsonify({'msg': 'Registration failed'}), 400
                     
     except Exception as e:
-        return jsonify({'error': f'Internal server error: {e}'}), 500
+        return jsonify({'err': f'Internal server error: {e}'}), 500
 
 
 @app.route('/login', methods=['POST'])
@@ -533,7 +533,7 @@ def login():
         logger.warning(f"[AUTH] Login attempt for username: {data.get('username')}")
         
         if not data or 'username' not in data or 'password' not in data:
-            return jsonify({'error': 'Missing credentials'}), 400
+            return jsonify({'err': 'Missing credentials'}), 400
 
         user_data, error = db_connector.verify_credentials(
             data['username'],
@@ -542,7 +542,7 @@ def login():
         
         if error:
             logger.warning(f"[AUTH] Authentication failed: {error}")
-            return jsonify({'error': "Wrong credentials"}), 401
+            return jsonify({'err': "Wrong credentials"}), 401
 
         logger.warning(f"[AUTH] User authenticated successfully: {user_data}")
 
@@ -570,11 +570,11 @@ def login():
 
         except Exception as token_error:
             logger.error(f"[AUTH] Token generation error: {str(token_error)}", exc_info=True)
-            return jsonify({'error': 'Error generating tokens'}), 500
+            return jsonify({'err': 'Error generating tokens'}), 500
 
     except Exception as e:
         logger.error(f"[AUTH] Login error: {str(e)}", exc_info=True)
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
 
 
 @app.route('/logout/<int:player_id>', methods=['POST'])
@@ -583,7 +583,7 @@ def logout(player_id):
         auth_header = request.headers.get('Authorization')
 
         if not auth_header:
-            return jsonify({'error': 'Missing Authorization header'}), 401
+            return jsonify({'err': 'Missing Authorization header'}), 401
         
         try:
             # verify access token
@@ -591,12 +591,12 @@ def logout(player_id):
             payload, error = verify_token(access_token)
             
             if error:
-                return jsonify({'error': error}), 401
+                return jsonify({'err': error}), 401
                 
             # verify the user is logging out their own account
             token_user_id = int(payload.get('sub'))
             if token_user_id != player_id:
-                return jsonify({'error': 'Cannot logout other users'}), 403
+                return jsonify({'err': 'Cannot logout other users'}), 403
                 
 
             success = db_connector.revoke_user_refresh_token(player_id)
@@ -604,26 +604,26 @@ def logout(player_id):
             if success:  
                 return jsonify({'msg': 'Logged out successfully'}), 200
             
-            return jsonify({'error': 'Error revoking token'}), 400
+            return jsonify({'err': 'Error revoking token'}), 400
             
         except Exception as e:
             logger.error(f"[AUTH] Error during logout: {str(e)}")
-            return jsonify({'error': "Error during logout"}), 400
+            return jsonify({'err': "Error during logout"}), 400
             
     except Exception as e:
         logger.error(f'Logout error: {str(e)}')
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
     
 @app.route('/refresh', methods=['POST'])
 def refresh():
     try:
         refresh_token = request.json.get('refresh_token')
         if not refresh_token:
-            return jsonify({'error': 'Refresh token required'}), 400
+            return jsonify({'err': 'Refresh token required'}), 400
 
         user_id = db_connector.verify_refresh_token(refresh_token)
         if not user_id:
-            return jsonify({'error': 'Invalid or expired refresh token'}), 401
+            return jsonify({'err': 'Invalid or expired refresh token'}), 401
 
         # extract user to generate access token
         db_connector.cursor.execute(
@@ -633,7 +633,7 @@ def refresh():
         user = db_connector.cursor.fetchone()
         
         if not user:
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify({'err': 'User not found'}), 404
 
         user_data = {
             'user_id': user_id,
@@ -646,7 +646,7 @@ def refresh():
 
     except Exception as e:
         logger.error(f'Token refresh error: {str(e)}')
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
     
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
 @verify_user_access  # This already checks authorization
@@ -661,24 +661,24 @@ def delete_user(player_id):
             ) # nosec
             if not res.status_code == 200:
                 logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
-                return jsonify({'error': 'Failed to delete user from user service'}), res.status_code
+                return jsonify({'err': 'Failed to delete user from user service'}), res.status_code
                 
         except requests.exceptions.RequestException as e:
             logger.error(f"[AUTH] User service connection error during deletion: {str(e)}")
-            return jsonify({'error': "User service connection error during deletion"}), 500
+            return jsonify({'err': "User service connection error during deletion"}), 500
 
         # delete from auth if successfully deleted from user service
         rsp, err = db_connector.delete_user(player_id)
         logging.info(f"[AUTH] Delete user: {rsp}")
         
         if err:
-            return jsonify({'error': 'Error deleting user from auth service'}), 404
+            return jsonify({'err': 'Error deleting user from auth service'}), 404
 
         return jsonify({'rsp': "User deleted successfully"}), 200
 
     except Exception as e:
         logger.error(f'Delete user error: {str(e)}')
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
     
 @app.route('/authorize', methods=['POST'])
 def authorize():
@@ -688,12 +688,12 @@ def authorize():
         method = request.json.get('method')
         
         if not all([token, route, method]):
-            return jsonify({'error': 'Please provide: token, route and method '}), 400
+            return jsonify({'err': 'Please provide: token, route and method '}), 400
 
         payload, error = verify_token(token)
         
         if error:
-            return jsonify({'error': error}), 401
+            return jsonify({'err': error}), 401
 
         user_type = payload['user_type']
         logging.info(f"********************************************")
@@ -715,16 +715,16 @@ def authorize():
         logger.warning(f"[AUTH] User_type: {user_type} Allowed roles: {allowed_roles}")
 
         if not allowed_roles:
-            return jsonify({'error': 'Route not found', 'requested': route_key}), 404
+            return jsonify({'err': 'Route not found', 'requested': route_key}), 404
 
         if user_type not in allowed_roles:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+            return jsonify({'err': 'Insufficient permissions'}), 403
 
         return jsonify({'valid': True, 'user': payload}), 200
 
     except Exception as e:
         logger.error(f'Token verification error: {str(e)}')
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
 
 @app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 @verify_user_access
@@ -733,7 +733,7 @@ def modify_user(user_id):
         data = request.get_json()
         
         if not data or 'username' not in data:
-            return jsonify({'error': 'username required'}), 400
+            return jsonify({'err': 'username required'}), 400
             
         new_user_info = {
             'user_id': user_id,
@@ -744,7 +744,7 @@ def modify_user(user_id):
         res, msg = db_connector.modify_user_account(new_user_info)
         
         if not res:
-            return jsonify({'error': msg}), 400
+            return jsonify({'err': msg}), 400
             
         # call user service to update username
         try:
@@ -759,17 +759,54 @@ def modify_user(user_id):
             if not response.ok:
                 logger.error(f"[AUTH] Failed to update user service: {response.text}")
                 db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
-                return jsonify({'error': 'Failed to update user service'}), 400
+                return jsonify({'err': 'Failed to update user service'}), 400
                 
         except requests.RequestException as e:
             logger.error(f"[AUTH] Error calling user service: {str(e)}")
             db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
-            return jsonify({'error': 'Failed to communicate with user service'}), 500
+            return jsonify({'err': 'Failed to communicate with user service'}), 500
             
         return jsonify({'rsp': msg}), 200
             
     except Exception as e:
         logger.error(f"[AUTH] Error modifying user: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'err': 'Internal server error'}), 500
+    
+# used to check if the user is the same as the one provided in body
+@app.route('/verify_user', methods=['POST'])
+def verify_user():
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({'err': 'Authorization header missing'}), 401
+
+        data = request.get_json()
+        if not data or 'user_id' not in data:
+            return jsonify({'err': 'user_id required  body'}), 400
+            
+        try:
+            # extract and verify token
+            token = auth_header.split(' ')[1]
+            payload, error = verify_token(token)
+            
+            if error:
+                return jsonify({'err': error}), 401
+            
+            # get user id from token and request
+            token_user_id = int(payload.get('sub'))
+            request_user_id = int(data['user_id'])
+            
+            # check if they match
+            if token_user_id != request_user_id and payload.get('user_type') != 0:
+                return jsonify({'err': 'User ID does not match token'}), 403
+
+            return jsonify({'valid': True}), 200
+            
+        except Exception as e:
+            return jsonify({'err': str(e)}), 401
+            
+    except Exception as e:
+        return jsonify({'err': 'Internal server error'}), 500
+    
 if __name__ == '__main__':
     app.run()
