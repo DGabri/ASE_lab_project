@@ -41,22 +41,27 @@ class AuctionsDAO:
         self.connection.commit()
     
     def create_auction(self, seller_id, piece_id, start_price, duration_hours):
-        """Create a new auction"""
+
         try:
             end_time = int(time.time()) + (duration_hours * 3600)
+            logger.info(f"Creating auction with: seller_id={seller_id}, piece_id={piece_id}, start_price={start_price}, end_time={end_time}")
+            
             self.cursor.execute("""
                 INSERT INTO auctions (seller_id, piece_id, start_price, current_price, end_time, status, created_at)
                 VALUES (?, ?, ?, ?, ?, 'active', ?)
             """, (seller_id, piece_id, start_price, start_price, end_time, int(time.time())))
-            self.connection.commit()
             
-            return self.cursor.lastrowid, None
-        
+            auction_id = self.cursor.lastrowid
+            
+            self.connection.commit()
+                
+            return auction_id, None
+            
         except Exception as e:
             self.connection.rollback()
             logger.error(f"Error creating auction: {str(e)}")
             return None, str(e)
-
+    
     def get_auction(self, auction_id):
         """Get auction details"""
         self.cursor.execute("""
@@ -64,11 +69,32 @@ class AuctionsDAO:
         """, (auction_id,))
         
         return self.cursor.fetchone()
-
+    
+    def get_last_bid(self, auction_id):
+        try:
+            query = """
+                SELECT bidder_id, bid_amount, created_at 
+                FROM bids 
+                WHERE auction_id = %s 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            """
+            result = self.execute_query(query, (auction_id,), fetch_one=True)
+            if result:
+                return {
+                    'bidder_id': result[0],
+                    'bid_amount': result[1],
+                    'created_at': result[2]
+                }
+            return None
+        except Exception as e:
+            logging.error(f"Error getting last bid: {str(e)}")
+            return None
+        
     def place_bid(self, auction_id, bidder_id, bid_amount):
         """Place a bid on an auction"""
         try:
-            # Check if auction exists and is active
+            # check existence and if auction is active
             auction = self.get_auction(auction_id)
             if not auction:
                 return None, "Auction not found"
@@ -76,15 +102,15 @@ class AuctionsDAO:
                 return None, "Auction is not active"
             if auction[5] < time.time():
                 return None, "Auction has ended"
-            if bid_amount <= auction[4]:  # current_price
+            if bid_amount <= auction[4]:
                 return None, "Bid amount must be higher than current price"
             
-            # Place bid
+            # add bid
             self.cursor.execute("""
                 INSERT INTO bids (auction_id, bidder_id, bid_amount, bid_time) VALUES (?, ?, ?, ?)
             """, (auction_id, bidder_id, bid_amount, int(time.time())))
             
-            # Update auction current price
+            # update price of auction
             self.cursor.execute("""
                 UPDATE auctions SET current_price = ? WHERE auction_id = ?
             """, (bid_amount, auction_id))
@@ -99,27 +125,87 @@ class AuctionsDAO:
 
     def get_active_auctions(self):
         query = """
-            SELECT a.*, COUNT(b.bid_id) as bid_count 
+            SELECT 
+                a.*,
+                COUNT(b.bid_id) as bid_count,
+                (SELECT bidder_id 
+                FROM bids 
+                WHERE auction_id = a.auction_id 
+                ORDER BY bid_amount DESC 
+                LIMIT 1) as best_bidder_id
             FROM auctions a 
             LEFT JOIN bids b ON a.auction_id = b.auction_id 
             WHERE a.status = 'active' AND a.end_time > ?
+            GROUP BY a.auction_id
         """
         params = [int(time.time())]
         
-        query += " GROUP BY a.auction_id"
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
     
     def get_active_auctions_by_piece_id(self, piece_id):
         query = """
-            SELECT a.*, COUNT(b.bid_id) as bid_count 
+            SELECT 
+                a.auction_id,
+                a.seller_id,
+                a.piece_id,
+                a.start_price,
+                a.current_price,
+                a.end_time,
+                a.status,
+                a.winner_id,
+                a.created_at,
+                COUNT(DISTINCT b.bid_id) as bid_count,
+                (SELECT bidder_id 
+                FROM bids 
+                WHERE auction_id = a.auction_id 
+                AND bid_amount = (
+                    SELECT MAX(bid_amount) 
+                    FROM bids 
+                    WHERE auction_id = a.auction_id
+                )
+                LIMIT 1) as best_bidder_id
             FROM auctions a 
             LEFT JOIN bids b ON a.auction_id = b.auction_id 
-            WHERE a.status = 'active' AND a.end_time > ? AND a.piece_id = ?
+            WHERE a.status = 'active' 
+            AND a.end_time > ? 
+            AND a.piece_id = ?
+            GROUP BY a.auction_id
         """
         params = [int(time.time()), piece_id]
         
-        query += " GROUP BY a.auction_id"
+        self.cursor.execute(query, params)
+        return self.cursor.fetchall()
+
+    def get_active_auctions(self):
+        query = """
+            SELECT 
+                a.auction_id,
+                a.seller_id,
+                a.piece_id,
+                a.start_price,
+                a.current_price,
+                a.end_time,
+                a.status,
+                a.winner_id,
+                a.created_at,
+                COUNT(DISTINCT b.bid_id) as bid_count,
+                (SELECT bidder_id 
+                FROM bids 
+                WHERE auction_id = a.auction_id 
+                AND bid_amount = (
+                    SELECT MAX(bid_amount) 
+                    FROM bids 
+                    WHERE auction_id = a.auction_id
+                )
+                LIMIT 1) as best_bidder_id
+            FROM auctions a 
+            LEFT JOIN bids b ON a.auction_id = b.auction_id 
+            WHERE a.status = 'active' AND a.end_time > ?
+            GROUP BY a.auction_id
+        """
+        params = [int(time.time())]
+        
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
 
