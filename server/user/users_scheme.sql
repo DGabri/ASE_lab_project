@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS collection (
     user_id INTEGER NOT NULL,
     gacha_id INTEGER NOT NULL,
-    added_at INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    added_at INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS logs (
@@ -26,8 +25,26 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount FLOAT NOT NULL,
     type TEXT NOT NULL,  -- 'purchase', 'reward', 'auction'
     ts INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 INSERT INTO collection (user_id, gacha_id, added_at) 
 VALUES (2, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (2, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (2, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 2, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 2, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (3, 2, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (4, 1, strftime('%s','now'));

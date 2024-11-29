@@ -81,11 +81,23 @@ def create_auction():
     try:
         data = request.get_json()
         required_fields = {'seller_id', 'piece_id', 'start_price', 'duration_hours'}
+        
         if not all(field in data for field in required_fields):
             return jsonify({'err': 'Missing required fields'}), 400
-
-        seller_id = data['seller_id']
-        piece_id = data['piece_id']
+        
+        try:
+            seller_id = int(data['seller_id'])
+            piece_id = int(data['piece_id'])
+            start_price = float(data['start_price'])
+            duration_hours = float(data['duration_hours'])
+        except:
+            return jsonify({'err': 'seller_id, piece_id must be int. start_price and duration_hours float'}), 400
+            
+        if start_price <= 0:
+            return jsonify({'err': 'Starting price must be non zero and positive'}), 400
+        
+        if duration_hours <= 0:
+            return jsonify({'err': 'Duration in hours must be positive'}), 400
         
         # check if requesting user and seller_id are the same
         try:
@@ -120,10 +132,10 @@ def create_auction():
 
         # register auction in db
         auction_id, error = db_connector.create_auction(
-            data['seller_id'], 
-            data['piece_id'],
-            float(data['start_price']), 
-            float(data['duration_hours'])
+            seller_id, 
+            piece_id,
+            start_price, 
+            duration_hours
         )
         
         if error:

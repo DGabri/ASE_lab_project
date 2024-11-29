@@ -59,36 +59,51 @@ class AuthDAO:
             return False, "Internal server error"
         
     def delete_user(self, user_id):
-        """Delete a user and their associated refresh tokens by ID"""
         try:
-            # delete tokens
+            logger.info(f"[AUTH-DAO] Deleting user with ID: {user_id}")
+            # transaction for all queries
+            self.cursor.execute("BEGIN TRANSACTION")
+            
+            # delete refresh token
             self.cursor.execute("DELETE FROM refresh_tokens WHERE user_id = ?", (user_id,))
-            self.connection.commit()
+            
             # delete user
             self.cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
-            self.connection.commit()
             
             if self.cursor.rowcount == 0:
                 self.connection.rollback()
                 return False, "User not found"
             
+            self.connection.commit()
             logger.info(f"[AUTH-DAO] Successfully deleted user with ID: {user_id}")
             return True, None
-
+            
         except Exception as e:
-
-            logger.error(f"[AUTH-DAO] Error deleting user {user_id}: {str(e)}", exc_info=True)
+            logger.error(f"[AUTH-DAO] Error deleting user {user_id}: {str(e)}")
+            self.connection.rollback()
             return False, f"Error deleting user: {str(e)}"
     
     def revoke_user_refresh_token(self, user_id):
         try:
+            # check if token exists
+            self.cursor.execute("SELECT COUNT(*) FROM refresh_tokens WHERE user_id = ?", (user_id,))
+            count = self.cursor.fetchone()[0]
+            logger.info(f"Found {count} tokens for user {user_id}")
+
+            if count == 0:
+                return False, "No active sessions found for user"
+
+            # delete
             self.cursor.execute("DELETE FROM refresh_tokens WHERE user_id = ?", (user_id,))
-            self.connection.commit()
+            rows_deleted = self.cursor.rowcount
+            logger.info(f"Deleted {rows_deleted} tokens for user {user_id}")
             
-            return True
+            self.connection.commit()
+            return True, f"Successfully logged out and deleted {rows_deleted} active sessions"
         
         except Exception as e:
-            return False
+            logger.error(f"Error revoking refresh token for user {user_id}: {str(e)}")
+            return False, f"Error: {str(e)}"
     
     def verify_credentials(self, username, password):
         try:
@@ -109,7 +124,7 @@ class AuthDAO:
             
             
             try:
-                # Ensure password and hash are properly encoded
+                # password and hash encoded
                 password_bytes = password.encode('utf-8')
                 hash_bytes = db_password_hash.encode('utf-8') if isinstance(db_password_hash, str) else db_password_hash
                 
@@ -185,7 +200,7 @@ class AuthDAO:
                     remote_max = response.json().get('max_id', 0)
                     return max(local_max, remote_max) + 1
             except:
-                # If user service is down, use local max + safety margin
+                # to be safe about potential problems with user service
                 return local_max + 100
                 
         except Exception as e:
