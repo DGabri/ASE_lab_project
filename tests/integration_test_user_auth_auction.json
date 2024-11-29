@@ -1,0 +1,3482 @@
+{
+	"info": {
+		"_postman_id": "05e49180-089d-4224-a2c1-9eeae163078d",
+		"name": "Integration test",
+		"description": "Integration tests for the auction, user and auth services. Requests are handled by user and admin gateway so these modules are also tested",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15599800",
+		"_collection_link": "https://cryptobot2019.postman.co/workspace/ASE~569d8104-92bd-4497-95e8-f5154e17f0a0/collection/15599800-05e49180-089d-4224-a2c1-9eeae163078d?action=share&source=collection_link&creator=15599800"
+	},
+	"item": [
+		{
+			"name": "Create user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.eql('User created correctly');",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai121\",\n    \"email\": \"g.deri3211@studenti.unipi.it\",\n    \"password\": \"Aseab1234@\",\n    \"user_type\": 1 \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/create_user",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"create_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai121\",\n    \"email\": \"g.deri3211@studenti.unipi.it\",\n    \"password\": \"a\",\n    \"user_type\": 1 \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/create_user",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"create_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('access_token');",
+							"    ",
+							"    // save token for next requests",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+							"    }",
+							"    if (jsonData.user) {",
+							"        pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai121\",\n    \"password\": \"Aseab1234@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login  - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Error\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai121\",\n    \"password\": \"s@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refill Gold",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Refill Gold Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData).to.have.property('player_id');",
+							"    pm.expect(jsonData).to.have.property('new_balance');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": \"10\",\n    \"is_refill\": \"True\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/gold/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"gold",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refill Gold - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Refill Gold Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.include('Error:');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": \"10000\",\n    \"is_refill\": \"True\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/gold/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"gold",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Account Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"GabrieleDeri10\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Account - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Account Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"test\": \"GabrieleDeri1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/2",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "See collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"See Collection Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData).to.have.property('collection');",
+							"    pm.expect(jsonData.collection).to.be.an('array');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/collection/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"collection",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "See collection - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"See Collection Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/collection/10000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"collection",
+						"10000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Default admin - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Admin Login Error\", function() {",
+							"    let body = JSON.parse(pm.request.body.raw);",
+							"    pm.request.body.raw = JSON.stringify(body);",
+							"   ",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"asdasd@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Default admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('access_token');",
+							"    ",
+							"    // save token for next requests",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"ChessHeroes2024@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player TX history",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Transaction History Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('transactions_history');",
+							"    pm.expect(jsonData.transactions_history).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/transaction/history/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"transaction",
+						"history",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player TX history - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Transaction History Error\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/transaction/history",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"transaction",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all players",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get All Players Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('players');",
+							"    pm.expect(jsonData.players).to.be.an('array');",
+							"    ",
+							"    if (jsonData.players.length > 0) {",
+							"        pm.expect(jsonData.players[0]).to.have.any.keys('id', 'username', 'email');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/player/all",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"player",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all player - Error",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get All Players Error\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/player/all.sd",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"player",
+						"all.sd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify User Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.message).to.equal('User updated successfully');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"new username\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/user/modify/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"user",
+						"modify",
+						"{{user_id}}"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "gabri",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify user - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify User Error\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.equal('Admin login required');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"usernames\": \"new username\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/auth/admin/user/modify/101",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"admin",
+						"user",
+						"modify",
+						"101"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "gabri",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player TX history",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Player Transaction History Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('transactions_history');",
+							"    pm.expect(jsonData.transactions_history).to.be.an('array');",
+							"    ",
+							"    if (jsonData.transactions_history.length > 0) {",
+							"        const transaction = jsonData.transactions_history[0];",
+							"        pm.expect(transaction).to.have.any.keys(['timestamp', 'amount', 'type']);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/transaction/history/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"transaction",
+						"history",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player TX history - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Player Market History Error\", function() {",
+							"",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/transaction/history/asd",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"transaction",
+						"history",
+						"asd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player market history",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Player Market History Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('market_history');",
+							"    pm.expect(jsonData.market_history).to.be.an('array');",
+							"    ",
+							"    // Validate market history object structure if array not empty",
+							"    if (jsonData.market_history.length > 0) {",
+							"        const marketEntry = jsonData.market_history[0];",
+							"        pm.expect(marketEntry).to.have.any.keys(['timestamp', 'piece_id', 'price']);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/market-history/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"market-history",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player market history - Error",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Player Market History Error\", function() {",
+							"",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/player/market-history/1ad",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"player",
+						"market-history",
+						"1ad"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Syslog",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Syslog Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.be.an('array');",
+							"    ",
+							"    if (jsonData.rsp.length > 0) {",
+							"        const logEntry = jsonData.rsp[0];",
+							"        pm.expect(logEntry).to.have.any.keys(['timestamp', 'action', 'log_id', 'message', 'user_id']);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/logs",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"logs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Syslog - Error",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Syslog Error\", function() {    ",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.contains('Admin login required');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/user/admin/logs",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"user",
+						"admin",
+						"logs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Admin Logout Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('msg');",
+							"    pm.expect(jsonData.msg).to.include('Successfully');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/auth/logout/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"logout",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout Admin - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Admin Logout Error\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/auth/logout/100000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"logout",
+						"100000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user For Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.eql('User created correctly');",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai1211\",\n    \"email\": \"g.deri321111@studenti.unipi.it\",\n    \"password\": \"Aseab1234@\",\n    \"user_type\": 1 \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/create_user",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"create_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Create auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('access_token');",
+							"    ",
+							"    // save token for next requests",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+							"    }",
+							"    if (jsonData.user) {",
+							"        pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai1211\",\n    \"password\": \"Aseab1234@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Auction short term",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Auction Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"piece_id\": 1,\n    \"seller_id\": {{user_id}},\n    \"start_price\": 100,\n    \"duration_hours\": \"0.000001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Auction - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Auction Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"piece_id\": 1,\n    \"seller_id\": {{user_id}},\n    \"start_price\": -100,\n    \"duration_hours\": \"0.03\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Auction Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"",
+							"    ",
+							"    if (jsonData.auction_id) {",
+							"        pm.collectionVariables.set(\"auction_id\", jsonData.auction_id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"piece_id\": 2,\n    \"seller_id\": {{user_id}},\n    \"start_price\": 1,\n    \"duration_hours\": \"0.04\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Logout Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('msg');",
+							"    pm.expect(jsonData.msg).to.contains('logged out');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/logout/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"logout",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login For auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('access_token');",
+							"    ",
+							"    // save token for next requests",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+							"    }",
+							"    if (jsonData.user) {",
+							"        pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"new username\",\n    \"password\": \"Aseab1234@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auction Info Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Place Bid Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"    pm.expect(jsonData).to.have.property('bid_count');",
+							"    pm.expect(jsonData).to.have.property('created_at');",
+							"    pm.expect(jsonData).to.have.property('current_price');",
+							"    pm.expect(jsonData).to.have.property('end_time');",
+							"    pm.expect(jsonData).to.have.property('piece_id');",
+							"    pm.expect(jsonData).to.have.property('seller_id');",
+							"    pm.expect(jsonData).to.have.property('start_price');",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData).to.have.property('winner_id');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/auction/{{auction_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"auction",
+						"{{auction_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auction Info - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Place Bid Success\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/auction/6000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"auction",
+						"6000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Bid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Place Bid Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.message).to.equal('Bid placed successfully');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bidder_id\": {{user_id}},\n    \"bid_amount\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/bid/{{auction_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"bid",
+						"{{auction_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Bid - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Place Bid Error\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.equal('Auction not found');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bidder_id\": 2,\n    \"bid_amount\": 1501\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/bid/6000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"bid",
+						"6000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Active Auctions Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/running/all",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"running",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Active Auctions Success\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/running/all/",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"running",
+						"all",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Historical Auctions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Historical Auctions Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/history",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Historical Auctions - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Historical Auctions Error\", function() {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/history1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"history1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions By Piece ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Active Auctions By Piece ID Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"piece_id\": 1,\n    \"creator_id\": 1,\n    \"start_price\": 100,\n    \"end_date\": \"2024-12-31 23:59:59\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/running/0",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"running",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions By Piece ID - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Active Auctions By Piece ID Error\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"piece_id\": 1,\n    \"creator_id\": 1,\n    \"start_price\": 100,\n    \"end_date\": \"2024-12-31 23:59:59\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/auction/running/-1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"auction",
+						"running",
+						"-1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Modify auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('access_token');",
+							"    ",
+							"    // save token for next requests",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+							"    }",
+							"    if (jsonData.user) {",
+							"        pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"gabrai1211\",\n    \"password\": \"Aseab1234@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Auction Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.message).to.equal('Auction modified successfully');",
+							"",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"seller_id\": {{user_id}},\n    \"auction_id\": {{auction_id}},\n    \"end_time\": \"2024-12-31 23:59:59\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/modify/{{auction_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"modify",
+						"{{auction_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Auction - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Auction Error\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.equal('Auction not found');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"seller_id\": -1,\n    \"auction_id\": 1,\n    \"end_time\": \"2024-12-31 23:59:59\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auction/modify/5",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auction",
+						"modify",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Logout Error\", function() {",
+							"    pm.response.to.have.status(403);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.equal('Cannot logout other users');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/logout/2000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"logout",
+						"2000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Logout Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('msg');",
+							"    pm.expect(jsonData.msg).to.contains('logged out');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/logout/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"logout",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete account - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete account Error\", function() {",
+							"    pm.response.to.have.status(403);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contains('Cannot access or modify other users');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaGVzcy1oZXJvZXMiLCJzdWIiOiIyIiwiYXVkIjoiY2hlc3MtaGVyb2VzLXVzZXJzIiwiZXhwIjoxNzM2MzAwNjY5LCJpYXQiOjE3MzI3MDA2NjksImp0aSI6IjcyZDY4MDhhLTM2YmUtNDYyMS1hZDhkLTQyZWRmMTNkMGM0ZSIsInVzZXJfdHlwZSI6MSwicm9sZSI6InBsYXllciJ9.DN2rB8Za_5rqV6Sg-fDO7n6AVjdx8RCCsfUBSW_Mj98",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/delete_user/2000",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"delete_user",
+						"2000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete Account Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.contains('User deleted successfully');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/auth/delete_user/3",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"delete_user",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "user_id",
+			"value": ""
+		},
+		{
+			"key": "auction_id",
+			"value": ""
+		}
+	]
+}

@@ -25,3 +25,7 @@ yarn-error.log*
 # Python
 __pycache__/
 *.log
+
+server/auth/auth.db
+server/user/users.db
+server/auction/auction.db

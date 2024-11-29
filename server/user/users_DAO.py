@@ -1,6 +1,8 @@
 import sqlite3
 import time
 import logging 
+import json
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s: %(message)s',
@@ -62,32 +64,43 @@ class UsersDAO:
     # delete user, also called auth
     def delete_user_account(self, user_id):
         try:
+            # Log initial check
+            logger.info(f"[USER-DAO] Checking existence of user {user_id}")
+            
             self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
             result = self.cursor.fetchone()
             
             if not result:
+                logger.error(f"[USER-DAO] User {user_id} not found in database")
                 return False, "User not found"
             
-            # delete user colelction
-            self.cursor.execute("DELETE FROM collection WHERE user_id = ? ", (user_id,))
+            logger.info(f"[USER-DAO] User {user_id} found, starting deletion process")
+                
+            # Begin transaction
+            self.cursor.execute("BEGIN TRANSACTION")
             
-            # delete user transactions
-            self.cursor.execute("DELETE FROM transactions WHERE user_id = ? ", (user_id,))
+            # Delete with logging each step
+            logger.info(f"[USER-DAO] Deleting from collection")
+            self.cursor.execute("DELETE FROM collection WHERE user_id = ?", (user_id,))
             
-            # delete user logs
-            self.cursor.execute("DELETE FROM logs WHERE user_id = ? ", (user_id,))
+            logger.info(f"[USER-DAO] Deleting from transactions")
+            self.cursor.execute("DELETE FROM transactions WHERE user_id = ?", (user_id,))
             
-            # delte user from users db
-            self.cursor.execute("DELETE FROM users WHERE user_id = ? ", (user_id,))
+            logger.info(f"[USER-DAO] Deleting from logs")
+            self.cursor.execute("DELETE FROM logs WHERE user_id = ?", (user_id,))
+            
+            logger.info(f"[USER-DAO] Deleting from users")
+            self.cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
             
             self.connection.commit()
-            return True, "User deleted correctly"
-        
+            logger.info(f"[USER-DAO] Successfully deleted all data for user {user_id}")
+            return True, "User deleted successfully"
+            
         except sqlite3.Error as e:
-            print(f"DB error: {str(e)}")
-
+            error_msg = f"DB error during user deletion: {str(e)}"
+            logger.error(f"[USER-DAO] {error_msg}")
             self.connection.rollback()
-            return False, e
+            return False, error_msg
     
     # modify username
     def modify_user_account(self, new_user_info):
@@ -166,7 +179,6 @@ class UsersDAO:
     
     ############### COLLECTION ###############    
     def get_user_gacha_collection(self, user_id):
-
         try:
             # check if user exists
             self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
@@ -175,12 +187,28 @@ class UsersDAO:
             if not result:
                 return False, [], "User does not exist"
             
-            # get collection
-            self.cursor.execute(" SELECT * FROM collection WHERE user_id = ? ", (user_id,))
-            return True, [dict(row) for row in self.cursor.fetchall()], "Success"
+            # get collection with explicit columns and JSON structure
+            self.cursor.execute("""
+                SELECT json_object(
+                    'user_id', user_id,
+                    'gacha_id', gacha_id,
+                    'added_at', added_at
+                ) as item
+                FROM collection 
+                WHERE user_id = ?
+            """, (user_id,))
+            
+            # Convert each JSON string to a Python dict
+            collection = [json.loads(row[0]) for row in self.cursor.fetchall()]
+            
+            return True, collection, "Success"
         
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            logger.error(f"Database error: {str(e)}")
             return False, [], "Error getting user collection"
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parsing error: {str(e)}")
+            return False, [], "Error parsing collection data"
     
     def update_token_balance(self, user_id, increment_amount, is_refill):
         logging.info(f"Checking user balance for user_id: {user_id} increment: {increment_amount} is_refill: {is_refill}")
@@ -498,13 +526,28 @@ class UsersDAO:
     # check if user has a piece
     def user_has_piece(self, user_id, piece_id):
         try:
+            # check if user has piece
             self.cursor.execute(
-                "SELECT 1 FROM collection WHERE user_id = ? AND gacha_id = ?", 
+                "SELECT added_at FROM collection WHERE user_id = ? AND gacha_id = ? ORDER BY added_at ASC LIMIT 1", 
                 (user_id, piece_id)
             )
-            return bool(self.cursor.fetchone()), None
+            result = self.cursor.fetchone()
+            
+            if not result:
+                return False, None
+                
+            # if there is at least one piece remove the oldest for the auction
+            self.cursor.execute(
+                "DELETE FROM collection WHERE user_id = ? AND gacha_id = ? AND added_at = ?",
+                (user_id, piece_id, result[0])
+            )
+            self.connection.commit()
+            
+            return True, None
+            
         except Exception as e:
-            logger.error(f"Error checking piece ownership: {str(e)}")
+            logger.error(f"Error checking/removing piece: {str(e)}")
+            self.connection.rollback()
             return False, str(e)
         
     def close(self):
