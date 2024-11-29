@@ -164,12 +164,51 @@ class AuctionsDAO:
             self.connection.rollback()
             logger.error(f"Error modifying auction: {str(e)}")
             return None, str(e)
-            
+        
+    # ended auctions that have to be processed    
     def get_ended_auctions(self):
+        
+        query = """
+            SELECT 
+                a.auction_id, a.seller_id, a.piece_id, a.start_price,
+                a.current_price, a.end_time, a.status, a.winner_id, 
+                a.created_at, COUNT(b.bid_id) as bid_count
+            FROM auctions a
+            LEFT JOIN bids b ON a.auction_id = b.auction_id
+            WHERE a.status = 'active' 
+            AND a.end_time < ?
+            GROUP BY 
+                a.auction_id, a.seller_id, a.piece_id,
+                a.start_price, a.current_price, a.end_time, a.status,
+                a.winner_id, a.created_at
         """
-        Get historical auctions with comprehensive details.
-        Returns a list of dictionaries, each containing auction data with descriptive field names.
-        """
+        
+        current_time = int(time.time())
+        self.cursor.execute(query, (current_time,))
+        raw_data = self.cursor.fetchall()
+        
+        formatted_auctions = []
+        for auction in raw_data:
+            formatted_auction = {
+                'auction_id': auction[0],
+                'seller_id': auction[1],
+                'piece_id': auction[2],
+                'start_price': auction[3],
+                'final_price': auction[4],
+                'end_time': auction[5],
+                'status': auction[6],
+                'winner_id': auction[7],
+                'created_at': auction[8],
+                'bid_count': auction[9]
+            }
+            formatted_auctions.append(formatted_auction)
+
+        logger.info(f"[AUCTION HISTORY] Retrieved {len(formatted_auctions)} ended auctions pending completion")
+        return formatted_auctions
+
+    # get closed auctions    
+    def get_completed_auctions(self):
+
         query = """
             SELECT 
                 a.auction_id, a.seller_id, a.piece_id, a.start_price,
@@ -187,7 +226,6 @@ class AuctionsDAO:
         self.cursor.execute(query)
         raw_data = self.cursor.fetchall()
         
-        # Transform the raw tuple data into descriptive dictionaries
         formatted_auctions = []
         for auction in raw_data:
             formatted_auction = {
@@ -195,7 +233,7 @@ class AuctionsDAO:
                 'seller_id': auction[1],
                 'piece_id': auction[2],
                 'start_price': auction[3],
-                'final_price': auction[4],  # current_price becomes final_price for completed auctions
+                'final_price': auction[4],
                 'end_time': auction[5],
                 'status': auction[6],
                 'winner_id': auction[7],
@@ -206,7 +244,7 @@ class AuctionsDAO:
 
         logger.info(f"[AUCTION HISTORY] Retrieved {len(formatted_auctions)} completed auctions")
         return formatted_auctions
-    
+
     def complete_auction(self, auction_id):
         '''Complete an auction and handle winner determination'''
         try:

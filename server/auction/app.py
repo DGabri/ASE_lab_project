@@ -29,21 +29,22 @@ def check_auctions(signum, frame):
         logging.info("[AUCTION CHECK] Checking for ended auctions...")
         ended_auctions = db_connector.get_ended_auctions()
         logging.info(f"[AUCTION CHECK] Found {len(ended_auctions) if ended_auctions else 0} ended auctions")
-        
+        logging.info(f"[ENDED AUCTIONS] {ended_auctions}")
         if ended_auctions:
             for auction in ended_auctions:
                 try:
-                    auction_id = auction[0]
-                    logging.info(f"[AUCTION CHECK] Auction ended: {auction_id}")
+                    auction_id = auction['auction_id']
+                    logging.info(f"[AUCTION CHECK] Processing auction: {auction_id}")
+                    
                     auction_complete_data, error = db_connector.complete_auction(auction_id)
-                    logging.info(f"[AUCTION CHECK] Auction ended result: {auction_complete_data} [ERRROR]: {error}")
-                    #auction_complete_data contains: {'winner_id': 2, 'piece_id': 1, 'final_price': 1501.0, 'seller_id': 1}
                     if error:
-                        return
+                        logging.error(f"[AUCTION CHECK] Failed to complete auction {auction_id}: {error}")
+                        continue
                         
+                    logging.info(f"[AUCTION CHECK] Auction {auction_id} completed with data: {auction_complete_data}")
+                    
                     # update winner collection
-                    if auction_complete_data['winner_id']:
-                        # request to user
+                    if auction_complete_data and auction_complete_data.get('winner_id'):
                         try:
                             res = requests.post(
                                 "https://user:5000/update_collection",
@@ -51,17 +52,21 @@ def check_auctions(signum, frame):
                                 timeout=10, 
                                 verify=False
                             ) # nosec
+                            
+                            if not res.ok:
+                                logging.error(f"[AUCTION CHECK] Failed to update collection: Status {res.status_code}, Response: {res.text}")
                                 
                         except requests.exceptions.RequestException as e:
                             logging.error(f"[AUCTION CHECK] User service connection failed: {str(e)}")
-                            raise
+                            continue
                 except Exception as e:
-                    logging.error(f"[AUCTION CHECK] Error completing auction {auction[0]}: {str(e)}")
+                    logging.error(f"[AUCTION CHECK] Error processing auction {auction[0]}: {str(e)}", exc_info=True)
+                    continue
         else:
             logging.info("[AUCTION CHECK] No ended auctions found")
             
     except Exception as e:
-        logging.error(f"[AUCTION CHECK] Error in auction check: {str(e)}")
+        logging.error(f"[AUCTION CHECK] Error in auction check: {str(e)}", exc_info=True)
     finally:
         # set next check after 60 seconds
         signal.alarm(60)
@@ -207,7 +212,7 @@ def get_active_auctions():
 def get_past_auctions():
     try:
         
-        auctions = db_connector.get_ended_auctions()
+        auctions = db_connector.get_completed_auctions()
         logging.info(f"[ENDED AUCTIONS] Auctions: {auctions}")
         
         return jsonify({'auctions': auctions}), 200
