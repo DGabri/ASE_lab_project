@@ -3,6 +3,7 @@ from flask_cors import CORS
 from DAOs.pieces_DAO import PiecesDAO
 from classes.db_result import DBResultCode
 from classes.piece import Piece
+from werkzeug.exceptions import UnsupportedMediaType
 import sqlite3
 import json
 import logging
@@ -63,60 +64,65 @@ def get_pieces():
 # Add a new piece
 @app.route('/piece', methods = ['POST'])
 def add_piece():
-    piece = request.get_json()
+    try:
+        piece = request.get_json()
 
-    if not piece_is_valid(piece, {
-        'name': True,
-        'grade': True,
-        'pic': True,
-        'value': True,
-        'description': True
-    }):
-        return jsonify(message = "Attributes not found or invalid"), 400
+        if not piece_is_valid(piece, {
+            'name': True,
+            'grade': True,
+            'pic': True,
+            'value': True,
+            'description': True
+        }):
+            return jsonify(message = "Attributes not found or invalid"), 400
 
-    new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['value'], piece['description'])
-    result = pieces_dao.insert_piece(new_piece)
+        new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['value'], piece['description'])
+        result = pieces_dao.insert_piece(new_piece)
 
-    if result.code == DBResultCode.ERROR:
-        return jsonify(message = result.message), 500
-    
-    return jsonify(piece_id = result.content), 201
+        if result.code == DBResultCode.ERROR:
+            return jsonify(message = result.message), 500
         
+        return jsonify(piece_id = result.content), 201
+    except Exception as e:
+        return jsonify(message = str(e)), 500
 # Update a piece
 @app.route('/piece/<int:piece_id>', methods = ['PUT'])
 def update_piece(piece_id):
-    piece = request.get_json()
+    try:
+        piece = request.get_json()
 
-    if not piece_is_valid(piece,  {
-        'name': 'name' in piece,
-        'grade': 'grade' in piece,
-        'pic': 'pic' in piece,
-        'value': 'value' in piece,
-        'description': 'description' in piece
-    }):
-        return jsonify(message = "Attributes invalid"), 400
+        if not piece_is_valid(piece,  {
+            'name': 'name' in piece,
+            'grade': 'grade' in piece,
+            'pic': 'pic' in piece,
+            'value': 'value' in piece,
+            'description': 'description' in piece
+        }):
+            return jsonify(message = "Attributes invalid"), 400
 
-    piece = Piece(
-        piece_id,
-        piece['name'] if 'name' in piece else None,
-        piece['grade'] if 'grade' in piece else None,
-        piece['pic'] if 'pic' in piece else None,
-        piece['value'] if 'value' in piece else None,
-        piece['description'] if 'description' in piece else None
-    )
+        piece = Piece(
+            piece_id,
+            piece['name'] if 'name' in piece else None,
+            piece['grade'] if 'grade' in piece else None,
+            piece['pic'] if 'pic' in piece else None,
+            piece['value'] if 'value' in piece else None,
+            piece['description'] if 'description' in piece else None
+        )
 
-    if not piece.to_dict():
-        return jsonify(message = "No attribute found"), 400
+        if all(not value or key == 'id' for key, value in piece.to_dict().items()):
+            return jsonify(message = "No attribute found"), 400
 
-    result = pieces_dao.update_piece(piece)
+        result = pieces_dao.update_piece(piece)
 
-    if result.code == DBResultCode.NOT_FOUND:
-            return jsonify(message = result.message), 404
+        if result.code == DBResultCode.NOT_FOUND:
+                return jsonify(message = result.message), 404
 
-    if result.code == DBResultCode.ERROR:
-        return jsonify(message = result.message), 500
+        if result.code == DBResultCode.ERROR:
+            return jsonify(message = result.message), 500
     
-    return jsonify(message = result.message), 200 
+        return jsonify(message = result.message), 200 
+    except UnsupportedMediaType as e:
+        return jsonify(message = str(e)), 415
 
 # Delete a piece
 @app.route('/piece/<int:piece_id>', methods = ['DELETE'])

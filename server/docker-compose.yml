@@ -10,8 +10,8 @@ services:
     depends_on:
       - auth
       - user
-      #- piece
-      #- banner
+      - piece
+      - banner
       - auction
     secrets:
       - user_gateway_cert_secret
@@ -28,8 +28,8 @@ services:
     depends_on:
       - auth
       - user
-      #- piece
-      #- banner
+      - piece
+      - banner
       #- auction
     secrets:
       - admin_gateway_cert_secret

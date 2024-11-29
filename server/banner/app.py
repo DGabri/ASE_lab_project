@@ -5,6 +5,7 @@ from classes.db_result import DBResultCode
 from classes.banner import Banner
 from classes.rates import Rates
 from requests.exceptions import ConnectionError, HTTPError
+from werkzeug.exceptions import UnsupportedMediaType
 import sqlite3
 import json
 import requests
@@ -73,67 +74,72 @@ def get_banner(banner_id):
 # Add a new banner
 @app.route('/banner', methods = ['POST'])
 def add_banner():
-    banner = request.get_json()
+    try:
+        banner = request.get_json()
 
-    if not banner_is_valid(banner, {
-        'name': True,
-        'cost': True,
-        'pic': True,
-        'pieces_num': True,
-        'rates': True
-    }):
-        return jsonify(message = "Attributes not found or invalid"), 400
+        if not banner_is_valid(banner, {
+            'name': True,
+            'cost': True,
+            'pic': True,
+            'pieces_num': True,
+            'rates': True
+        }):
+            return jsonify(message = "Attributes not found or invalid"), 400
 
-    new_rates = Rates(banner['rates']['common'], banner['rates']['rare'], banner['rates']['super_rare'])
-    new_banner = Banner(None, banner['name'], banner['cost'], banner['pic'], banner['pieces_num'], new_rates)
-    result = banners_dao.insert_banner(new_banner)
+        new_rates = Rates(banner['rates']['common'], banner['rates']['rare'], banner['rates']['super_rare'])
+        new_banner = Banner(None, banner['name'], banner['cost'], banner['pic'], banner['pieces_num'], new_rates)
+        result = banners_dao.insert_banner(new_banner)
 
-    if result.code == DBResultCode.NOT_FOUND:
-        return jsonify(message = result.message), 404
+        if result.code == DBResultCode.NOT_FOUND:
+            return jsonify(message = result.message), 404
 
-    if result.code == DBResultCode.ERROR:
-        return jsonify(message = result.message), 500
+        if result.code == DBResultCode.ERROR:
+            return jsonify(message = result.message), 500
 
-    return jsonify(banner_id = result.content), 201
-    
+        return jsonify(banner_id = result.content), 201
+    except UnsupportedMediaType as e:
+        return jsonify(message = str(e)), 415
 
 # Update a banner
 @app.route('/banner/<int:banner_id>', methods = ['PUT'])
 def update_banner(banner_id):
-    banner = request.get_json()
+    try:
+        banner = request.get_json()
 
-    if not banner_is_valid(banner,  {
-        'name': 'name' in banner,
-        'cost': 'cost' in banner,
-        'pic': 'pic' in banner,
-        'pieces_num': 'pieces_num' in banner,
-        'rates': 'rates' in banner
-    }):
-        return jsonify(message = "Attributes invalid"), 400
+        if not banner_is_valid(banner,  {
+            'name': 'name' in banner,
+            'cost': 'cost' in banner,
+            'pic': 'pic' in banner,
+            'pieces_num': 'pieces_num' in banner,
+            'rates': 'rates' in banner
+        }):
+            return jsonify(message = "Attributes invalid"), 400
 
-    rates = Rates.from_dict(banner['rates']) if 'rates' in banner else None
-    
-    banner = Banner(
-        banner_id,
-        banner['name'] if 'name' in banner else None,
-        banner['cost'] if 'cost' in banner else None,
-        banner['pic'] if 'pic' in banner else None,
-        banner['pieces_num'] if 'pieces_num' in banner else None,
-        rates
-    )
+        rates = Rates.from_dict(banner['rates']) if 'rates' in banner else None
+        
+        banner = Banner(
+            banner_id,
+            banner['name'] if 'name' in banner else None,
+            banner['cost'] if 'cost' in banner else None,
+            banner['pic'] if 'pic' in banner else None,
+            banner['pieces_num'] if 'pieces_num' in banner else None,
+            rates
+        )
 
-    if not banner.to_dict():
-        return jsonify(message = "No attribute found"), 400
+        if all(not value or key == 'id' for key, value in banner.to_dict().items()):
+            return jsonify(message = "No attribute found"), 400
 
-    result = banners_dao.update_banner(banner)
-    
-    if result.code == DBResultCode.NOT_FOUND:
-        return jsonify(message = result.message), 404
+        result = banners_dao.update_banner(banner)
+        
+        if result.code == DBResultCode.NOT_FOUND:
+            return jsonify(message = result.message), 404
 
-    if result.code == DBResultCode.ERROR:
-        return jsonify(message = result.message), 500
-    
-    return jsonify(message = result.message), 200
+        if result.code == DBResultCode.ERROR:
+            return jsonify(message = result.message), 500
+        
+        return jsonify(message = result.message), 200
+    except UnsupportedMediaType as e:
+        return jsonify(message = str(e)), 415
 
 # Delete a banner
 @app.route('/banner/<int:banner_id>', methods = ['DELETE'])
