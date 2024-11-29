@@ -37,8 +37,6 @@ services:
 
   auth:
     build: ./auth
-    ports:
-      - "3002:5000"
     networks:
       - admin_network
       - user_network
@@ -51,8 +49,6 @@ services:
 
   user:
     build: ./user
-    ports:
-      - "5002:5000"
     networks:
       - admin_network
       - user_network
@@ -65,8 +61,6 @@ services:
 
   piece:
     build: ./piece
-    ports:
-      - "5003:5000"
     networks:
       - admin_network
       - user_network
@@ -76,8 +70,6 @@ services:
 
   banner:
     build: ./banner
-    ports:
-      - "5004:5000"
     networks:
       - admin_network
       - user_network
@@ -87,8 +79,6 @@ services:
 
   auction:
     build: ./auction
-    ports:
-      - "5005:5000"
     networks:
       - admin_network
       - user_network
