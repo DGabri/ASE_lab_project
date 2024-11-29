@@ -42,7 +42,7 @@ class BannersDAO:
         try:
             with self.connection:
                 self.cursor.execute(
-                    'INSERT INTO banners (name, cost, pic, piece_num, common_rate, rare_rate, super_rare_rate) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
+                    'INSERT INTO banners (name, cost, pic, pieces_num, common_rate, rare_rate, super_rare_rate) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
                     (banner.name, banner.cost, banner.pic, banner.pieces_num, banner.rates.common, banner.rates.rare, banner.rates.super_rare)
                 )
 

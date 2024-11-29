@@ -11,6 +11,8 @@ import json
 import requests
 import random
 
+is_test = False
+
 try:
     with open('config.json') as config_file:
         config = json.load(config_file)

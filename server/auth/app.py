@@ -52,13 +52,13 @@ ROUTE_PERMISSIONS = {
     'POST:/auction/complete': [1],                 # complete auction process
     'POST:/auction': [1,0],                        # create an auction
     'POST:/logout/<player_id>': [1,0],             # logout
-    'POST:/login': [1,0],                          # logout
+    'POST:/login': [1,0],                          # login
     
     # admin routes
     'GET:/admin/logs': [0],                                  # get all logs
     'GET:/player/all': [0],                                  # get all players
     'GET:/player/<player_id>': [0],                          # get a specific user
-    'PUT:/admin/user/modify/<user_id>': [0],                 # modify a user
+    'PUT:/admin/user/modify/<user_id>': [0,1],                 # modify a user
     'GET:/admin/player/transaction/history/<player_id>': [0],# get user transaction history
     'GET:/admin/player/market-history/<player_id>': [0],     # get user market history
     'GET:/admin/logs': [0],                                  # get syslog
@@ -84,7 +84,7 @@ ROUTE_PERMISSIONS = {
     'GET:/piece': [1],                          # list all pieces
     'POST:/piece': [1],                         # add new piece
     'PUT:/piece/<piece_id>': [1],               # update a piece
-    'GET:/piece/all': [1]                      # get all pieces
+    'GET:/piece/all': [1]                       # get all pieces
 }
 
 # as defined in auth_scheme.sql
@@ -106,14 +106,14 @@ def normalize_route(route, method):
         if part.isdigit():
             if 'bid' in full_path:
                 normalized_parts.append('<auction_id>')
+            elif '/admin/user/modify' in full_path:
+                normalized_parts.append('<user_id>')
             elif '/auction/running' in full_path:
                 normalized_parts.append('<piece_id>')
             elif '/auction/auction' in full_path:
                 normalized_parts.append('<auction_id>')
             elif '/modify' in full_path:
                 normalized_parts.append('<auction_id>')
-            elif '/admin/user/modify' in full_path:
-                normalized_parts.append('<user_id>')
             elif any(x in full_path for x in ['player', 'delete_user', 'logout']):
                 normalized_parts.append('<player_id>')
             elif '/banner' in full_path:
@@ -593,18 +593,19 @@ def logout(player_id):
             if error:
                 return jsonify({'err': error}), 401
                 
-            # verify the user is logging out their own account
+            # verify the user is logging out their own account or is an admin
             token_user_id = int(payload.get('sub'))
-            if token_user_id != player_id:
+            user_type = payload.get('user_type')
+            if token_user_id != player_id and user_type != 0:  # Allow admin to logout anyone
                 return jsonify({'err': 'Cannot logout other users'}), 403
                 
-
-            success = db_connector.revoke_user_refresh_token(player_id)
+            logger.info(f"[AUTH-LOGOUT] Logging out user: {player_id}")
+            success, message = db_connector.revoke_user_refresh_token(player_id)
                     
             if success:  
-                return jsonify({'msg': 'Logged out successfully'}), 200
+                return jsonify({'msg': message}), 200
             
-            return jsonify({'err': 'Error revoking token'}), 400
+            return jsonify({'err': message}), 404  # 404 if no tokens found
             
         except Exception as e:
             logger.error(f"[AUTH] Error during logout: {str(e)}")
@@ -649,7 +650,7 @@ def refresh():
         return jsonify({'err': 'Internal server error'}), 500
     
 @app.route('/delete_user/<int:player_id>', methods=['DELETE'])
-@verify_user_access  # This already checks authorization
+@verify_user_access
 def delete_user(player_id):
     try:
         # delete user from user service
@@ -659,9 +660,12 @@ def delete_user(player_id):
                 timeout=10, 
                 verify=False
             ) # nosec
+            
             if not res.status_code == 200:
-                logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code}")
-                return jsonify({'err': 'Failed to delete user from user service'}), res.status_code
+                # get error message from user service
+                error_msg = res.json().get('err', 'Unknown error from user service')
+                logger.error(f"[AUTH] Failed to delete user from user service: {res.status_code} - {error_msg}")
+                return jsonify({'err': error_msg}), res.status_code
                 
         except requests.exceptions.RequestException as e:
             logger.error(f"[AUTH] User service connection error during deletion: {str(e)}")
@@ -675,7 +679,7 @@ def delete_user(player_id):
             return jsonify({'err': 'Error deleting user from auth service'}), 404
 
         return jsonify({'rsp': "User deleted successfully"}), 200
-
+        
     except Exception as e:
         logger.error(f'Delete user error: {str(e)}')
         return jsonify({'err': 'Internal server error'}), 500
@@ -696,23 +700,12 @@ def authorize():
             return jsonify({'err': error}), 401
 
         user_type = payload['user_type']
-        logging.info(f"********************************************")
-        logging.info(f"[REQUEST METHOD] {method}")
-        logging.info(f"********************************************")
-
         normalized_route = normalize_route(route, method)
         
         route_key = f"{method}:{normalized_route}"
-        logger.warning(f"[AUTH] Original route: {route}")
-        logger.warning(f"[AUTH] Normalized route key: {route_key}")
-        logger.warning(f"[AUTH] User type: {user_type}")
-        
-        
-        logger.warning(f"[AUTH] Available routes: {list(ROUTE_PERMISSIONS.keys())}")
+         
         allowed_roles = ROUTE_PERMISSIONS.get(route_key)
         logger.warning(f"[AUTH] Matching route: {route_key} -> allowed roles: {allowed_roles}")
-
-        logger.warning(f"[AUTH] User_type: {user_type} Allowed roles: {allowed_roles}")
 
         if not allowed_roles:
             return jsonify({'err': 'Route not found', 'requested': route_key}), 404
@@ -723,10 +716,9 @@ def authorize():
         return jsonify({'valid': True, 'user': payload}), 200
 
     except Exception as e:
-        logger.error(f'Token verification error: {str(e)}')
-        return jsonify({'err': 'Internal server error'}), 500
+        return jsonify({'err': f'Internal server error: {e}'}), 500
 
-@app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
+@app.route('/user/modify/<int:user_id>', methods=['PUT'])
 @verify_user_access
 def modify_user(user_id):
     try:
@@ -745,26 +737,6 @@ def modify_user(user_id):
         
         if not res:
             return jsonify({'err': msg}), 400
-            
-        # call user service to update username
-        try:
-            response = requests.put(
-                f"https://user:5000/admin/user/modify/{user_id}",
-                json={'username': data['username']},
-                headers={'Authorization': request.headers.get('Authorization')},
-                timeout=10, 
-                verify=False
-            ) # nosec
-            
-            if not response.ok:
-                logger.error(f"[AUTH] Failed to update user service: {response.text}")
-                db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
-                return jsonify({'err': 'Failed to update user service'}), 400
-                
-        except requests.RequestException as e:
-            logger.error(f"[AUTH] Error calling user service: {str(e)}")
-            db_connector.modify_user_account({'user_id': user_id, 'username': msg['old_username']})
-            return jsonify({'err': 'Failed to communicate with user service'}), 500
             
         return jsonify({'rsp': msg}), 200
             

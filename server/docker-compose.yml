@@ -30,7 +30,7 @@ services:
       - user
       - piece
       - banner
-      #- auction
+      - auction
     secrets:
       - admin_gateway_cert_secret
       - admin_gateway_key_secret
