@@ -1,0 +1,676 @@
+{
+	"info": {
+		"_postman_id": "a1362af7-16fc-4254-8a1e-b53dcd5a59d2",
+		"name": "Auction Unit Tests",
+		"description": "Unit tests for auction microservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15599800",
+		"_collection_link": "https://cryptobot2019.postman.co/workspace/ASE~569d8104-92bd-4497-95e8-f5154e17f0a0/collection/15599800-a1362af7-16fc-4254-8a1e-b53dcd5a59d2?action=share&source=collection_link&creator=15599800"
+	},
+	"item": [
+		{
+			"name": "Create Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"",
+							"    if (jsonData.auction_id) {",
+							"        pm.collectionVariables.set(\"auction_id\", jsonData.auction_id);",
+							"    }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"seller_id\": 1,\n\t\"piece_id\": 1,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Auction - Different seller",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Success\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"",
+							"    if (jsonData.auction_id) {",
+							"        pm.collectionVariables.set(\"auction_id_new\", jsonData.auction_id);",
+							"    }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"seller_id\": 10,\n\t\"piece_id\": 1,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Auction - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User Success\", function() {",
+							"    pm.response.to.have.status(422);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contain('does not have')",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"seller_id\": 1,\n\t\"piece_id\": 100,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/create_auction",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"create_auction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auction_id');",
+							"    pm.expect(jsonData).to.have.property('bid_count');",
+							"    pm.expect(jsonData).to.have.property('created_at');",
+							"    pm.expect(jsonData).to.have.property('current_price');",
+							"    pm.expect(jsonData).to.have.property('end_time');",
+							"    pm.expect(jsonData).to.have.property('piece_id');",
+							"    pm.expect(jsonData).to.have.property('seller_id');",
+							"    pm.expect(jsonData).to.have.property('start_price');",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData).to.have.property('winner_id');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/auction/{{auction_id}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"auction",
+						"{{auction_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Auction - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(404);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contain('Auction not found');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/auction/999",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"auction",
+						"999"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Bid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.message).to.contain('Bid placed successfully');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bidder_id\": 4,\n\t\"bid_amount\": 200.0\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/bid/{{auction_id_new}}",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"bid",
+						"{{auction_id_new}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Bid - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contain('Insufficient balance');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bidder_id\": 3,\n\t\"bid_amount\": 200.0\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/bid/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"bid",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Active Auctions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"    pm.expect(jsonData.auctions).to.be.an('array');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/running/all",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"running",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Past Auctions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"    pm.expect(jsonData.auctions).to.be.an('array');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/history",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions by Piece ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"    pm.expect(jsonData.auctions).to.be.an('array');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/running/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"running",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Auctions by Piece ID - Empty Result",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('auctions');",
+							"    pm.expect(jsonData.auctions).to.be.an('array');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:4000/running/999",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"running",
+						"999"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Auction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.message).to.contain('Auction modified successfully');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"seller_id\": 1,\n\t\"end_time\": \"2024-12-31T12:00:00\"\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/modify/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"modify",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Auction - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response has required auction fields\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contain('Missing seller_id');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"end_time\": \"2024-12-31T12:00:00\"\n}"
+				},
+				"url": {
+					"raw": "https://127.0.0.1:4000/modify/1",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4000",
+					"path": [
+						"modify",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "auction_id",
+			"value": ""
+		},
+		{
+			"key": "auction_id_new",
+			"value": ""
+		}
+	]
+}
