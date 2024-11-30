@@ -167,9 +167,10 @@ def update_player(player_id):
                 return jsonify({'err': 'Authorization required'}), 401
             
             if TESTING:
-                # Extract user_id from URL
+                # if player id is negative return error
                 if player_id < 0:
                     return jsonify({'err': 'Username must be positive'}), 400
+                return jsonify({'rsp': 'User updated successfully'}), 200
             else:
                 # update auth service
                 try:
