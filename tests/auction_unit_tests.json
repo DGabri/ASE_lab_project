@@ -47,7 +47,7 @@
 					"raw": "{\n\t\"seller_id\": 1,\n\t\"piece_id\": 1,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/create_auction",
+					"raw": "https://127.0.0.1:3005/create_auction",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -55,7 +55,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"create_auction"
 					]
@@ -102,7 +102,7 @@
 					"raw": "{\n\t\"seller_id\": 10,\n\t\"piece_id\": 1,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/create_auction",
+					"raw": "https://127.0.0.1:3005/create_auction",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -110,7 +110,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"create_auction"
 					]
@@ -154,7 +154,7 @@
 					"raw": "{\n\t\"seller_id\": 1,\n\t\"piece_id\": 100,\n\t\"start_price\": 100.0,\n\t\"duration_hours\": 24.0\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/create_auction",
+					"raw": "https://127.0.0.1:3005/create_auction",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -162,7 +162,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"create_auction"
 					]
@@ -205,7 +205,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/auction/{{auction_id}}",
+					"raw": "https://127.0.0.1:3005/auction/{{auction_id}}",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -213,7 +213,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"auction",
 						"{{auction_id}}"
@@ -250,7 +250,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/auction/999",
+					"raw": "https://127.0.0.1:3005/auction/999",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -258,7 +258,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"auction",
 						"999"
@@ -304,7 +304,7 @@
 					"raw": "{\n\t\"bidder_id\": 4,\n\t\"bid_amount\": 200.0\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/bid/{{auction_id_new}}",
+					"raw": "https://127.0.0.1:3005/bid/{{auction_id_new}}",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -312,7 +312,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"bid",
 						"{{auction_id_new}}"
@@ -358,7 +358,7 @@
 					"raw": "{\n\t\"bidder_id\": 3,\n\t\"bid_amount\": 200.0\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/bid/1",
+					"raw": "https://127.0.0.1:3005/bid/1",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -366,7 +366,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"bid",
 						"1"
@@ -403,7 +403,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/running/all",
+					"raw": "https://127.0.0.1:3005/running/all",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -411,7 +411,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"running",
 						"all"
@@ -448,7 +448,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/history",
+					"raw": "https://127.0.0.1:3005/history",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -456,7 +456,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"history"
 					]
@@ -492,7 +492,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/running/1",
+					"raw": "https://127.0.0.1:3005/running/1",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -500,7 +500,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"running",
 						"1"
@@ -537,7 +537,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://127.0.0.1:4000/running/999",
+					"raw": "https://127.0.0.1:3005/running/999",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -545,7 +545,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"running",
 						"999"
@@ -591,7 +591,7 @@
 					"raw": "{\n\t\"seller_id\": 1,\n\t\"end_time\": \"2024-12-31T12:00:00\"\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/modify/1",
+					"raw": "https://127.0.0.1:3005/modify/1",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -599,7 +599,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"modify",
 						"1"
@@ -645,7 +645,7 @@
 					"raw": "{\n\t\"end_time\": \"2024-12-31T12:00:00\"\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:4000/modify/1",
+					"raw": "https://127.0.0.1:3005/modify/1",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -653,7 +653,7 @@
 						"0",
 						"1"
 					],
-					"port": "4000",
+					"port": "3005",
 					"path": [
 						"modify",
 						"1"
