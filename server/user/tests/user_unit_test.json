@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "d5d9f243-4a27-4b5e-a804-5e2dc44e8a0d",
+		"_postman_id": "59f8b419-34a9-46c6-9ef7-6356759ffe56",
 		"name": "User Unit Test",
 		"description": "Unit tests for user microservice",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "15599800",
-		"_collection_link": "https://cryptobot2019.postman.co/workspace/ASE~569d8104-92bd-4497-95e8-f5154e17f0a0/collection/15599800-d5d9f243-4a27-4b5e-a804-5e2dc44e8a0d?action=share&source=collection_link&creator=15599800"
+		"_collection_link": "https://cryptobot2019.postman.co/workspace/ASE~569d8104-92bd-4497-95e8-f5154e17f0a0/collection/15599800-59f8b419-34a9-46c6-9ef7-6356759ffe56?action=share&source=collection_link&creator=15599800"
 	},
 	"item": [
 		{
@@ -43,6 +43,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "POST",
 				"header": [
@@ -56,8 +59,8 @@
 					"raw": "{\n    \"username\": \"prova\",\n    \"email\": \"prova@prova.com\",\n    \"user_id\": 1\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:4000/create_user",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:4000/create_user",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
@@ -92,6 +95,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "POST",
 				"header": [
@@ -105,8 +111,8 @@
 					"raw": "{\n    \"username\": \"test_user\",\n    \"email\": \"test@example.com\",\n    \"user_id\": 1\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:4000/create_user",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:4000/create_user",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
@@ -142,6 +148,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -159,8 +168,8 @@
 					"raw": "{\n    \"username\": \"new username\"\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:4000/player/{{user_id}}",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:4000/player/{{user_id}}",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
@@ -196,6 +205,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -213,8 +225,8 @@
 					"raw": "{\n    \"username\": \"Test username\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:4000/player/999",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/999",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -247,6 +259,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -260,8 +275,8 @@
 					"raw": "{\n    \"amount\": 10,\n    \"is_refill\": true\n}"
 				},
 				"url": {
-					"raw": "http://localhost:4000/player/gold/{{user_id}}",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/gold/{{user_id}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -294,6 +309,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -307,8 +325,8 @@
 					"raw": "{\n    \"amount\": 1000,\n    \"is_refill\": true\n}"
 				},
 				"url": {
-					"raw": "http://localhost:4000/player/gold/{{user_id}}",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/gold/{{user_id}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -341,12 +359,15 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:4000/player/collection/{{user_id}}",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/collection/{{user_id}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -379,12 +400,15 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:4000/player/collection/999",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/collection/999",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -417,12 +441,15 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:4000/player/{{user_id}}",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/{{user_id}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -454,12 +481,15 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:4000/player/999",
-					"protocol": "http",
+					"raw": "https://localhost:4000/player/999",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
