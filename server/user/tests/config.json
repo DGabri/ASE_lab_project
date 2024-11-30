@@ -1,0 +1,16 @@
+{
+  "db": {
+    "db_name": "users_tests.db",
+    "init_scheme": "users_scheme_tests.sql"
+  },
+  "external_services": {
+    "auth_service": {
+      "url": "https://auth-service:5000",
+      "timeout_seconds": 5
+    }
+  },
+  "rewards": {
+      "tokens": 100,
+      "reset_time_hour": 0
+  }
+}

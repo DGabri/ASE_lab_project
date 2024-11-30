@@ -3,6 +3,7 @@ from users_DAO import UsersDAO
 import requests
 import logging
 import json
+import time
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
@@ -14,11 +15,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TESTING = True
 #################################################################
-## UTILITY FUNCTIONS
+## UTILITY FUNCTIONS ##
 
 # load config
 def load_config():
+            
     config_path = "./config.json"
     
     try:
@@ -54,6 +57,18 @@ config = load_config()
 db_connector = init_db(config)
 
 #################################################################
+## TESTING MOCK ## 
+def mock_auth_modify_user(user_id, username):
+    """Mock authentication service response for user modification"""
+    if username == "invalid_user":
+        return {
+            "status_code": 400,
+            "response": "Invalid username"
+        }
+    return {
+        "status_code": 200,
+        "response": "User updated successfully"
+    }
 
 ## PLAYER ENDPOINTS  ##
 
@@ -103,25 +118,21 @@ def create_player_account():
 # Delete account
 @app.route('/player/<int:player_id>', methods=['DELETE'])
 def delete_player(player_id):
-    logging.info(f"[USER] Received delete request for player_id: {player_id}")
 
     if player_id is None:
         db_connector.log_action(player_id, "ERR_delete_user", "User id to delete not provided")
-        logging.error(f"[USER] Delete failed - no player_id provided")
         return jsonify({'err': 'Please provide a player id to delete'}), 400
         
-    logging.info(f"[USER] Attempting to delete user {player_id}")
     res, msg = db_connector.delete_user_account(player_id)
     
     if res:
-        logging.info(f"[USER] Successfully deleted user {player_id}")
         db_connector.log_action(player_id, "delete_user", f"Deleted user: {player_id}")
         return jsonify({'rsp': msg}), 200
     
-    logging.error(f"[USER] Failed to delete user {player_id}. Error: {msg}")
-    db_connector.log_action(player_id, "ERR_delete_user", f"Error deleting user: {msg}")
+    db_connector.log_action(player_id, "ERR_delete_user", "Error deleting user")
     return jsonify({'err': f'Error deleting player: {msg}'}), 400
 
+# only modify username
 @app.route('/player/<int:player_id>', methods=['PUT'])
 def update_player(player_id):
     try:
@@ -140,15 +151,9 @@ def update_player(player_id):
             'user_id': player_id,
             'username': data.get('username')
         }
-                
+        
         # update db
-        try:
-            res, msg = db_connector.modify_user_account(new_user_info)
-        except Exception as db_err:
-            error_msg = f"Database update failed: {str(db_err)}"
-            logger.error(f"[USER] {error_msg}")
-            db_connector.log_action(player_id, "ERR_modify_user", error_msg)
-            return jsonify({'err': error_msg}), 500
+        res, msg = db_connector.modify_user_account(new_user_info)
         
         if res:
             db_connector.log_action(player_id, "modify_user", msg)
@@ -157,45 +162,45 @@ def update_player(player_id):
             auth_header = request.headers.get('Authorization')
             if not auth_header:
                 error_msg = "Missing Authorization header for auth service"
+
                 db_connector.log_action(player_id, "ERR_modify_user", error_msg)
                 return jsonify({'err': 'Authorization required'}), 401
             
-            # update auth service
-            try:
-                auth_url = f"https://auth:5000/user/modify/{player_id}"
-                auth_payload = {'username': data.get('username')}
-                
-                logger.info(f"[USER] Sending request to auth service: URL={auth_url}")
-                logger.info(f"[USER] Auth payload: {auth_payload}")
-                
-                auth_response = requests.put(
-                    auth_url,
-                    headers={'Authorization': auth_header},
-                    json=auth_payload,
-                    timeout=10, 
-                    verify=False
-                )
-                                    
-                if auth_response.status_code == 200:
-                    return jsonify({'message': msg}), 200
-                else:
-                    error_msg = f"Auth service update failed: {auth_response.text}"
-                    logger.error(f"[USER] {error_msg}")
+            if TESTING:
+                # Extract user_id from URL
+                if player_id < 0:
+                    return jsonify({'err': 'Username must be positive'}), 400
+            else:
+                # update auth service
+                try:
+                    auth_url = f"http://auth:5000/user/modify/{player_id}"
+                    auth_payload = {'username': data.get('username')}
+                                
+                    auth_response = requests.put(
+                        auth_url,
+                        headers={'Authorization': auth_header},
+                        json=auth_payload,
+                        timeout=10, 
+                        verify=False
+                    ) # nosec
+                                
+                    if auth_response.status_code == 200:
+                        return jsonify({'message': msg}), 200
+                    else:
+                        error_msg = f"Auth service update failed: {auth_response.text}"
+                        db_connector.log_action(player_id, "ERR_modify_user", error_msg)
+                        return jsonify({'err': f'Failed to update authentication service. {error_msg}'}), 500
+                        
+                except requests.exceptions.RequestException as e:
+                    error_msg = f"Auth service connection error: {str(e)}"
                     db_connector.log_action(player_id, "ERR_modify_user", error_msg)
-                    return jsonify({'err': f'Failed to update authentication service. {error_msg}'}), 500
-                    
-            except requests.exceptions.RequestException as e:
-                error_msg = f"Auth service connection error: {str(e)}"
-                logger.error(f"[USER] {error_msg}")
-                db_connector.log_action(player_id, "ERR_modify_user", error_msg)
-                return jsonify({'err': 'Failed to connect to authentication service'}), 500
+                    return jsonify({'err': 'Failed to connect to authentication service'}), 500
         
         db_connector.log_action(player_id, "ERR_modify_user", msg)
         return jsonify({'err': msg}), 400
         
     except Exception as e:
-        error_msg = f"[USER] Unexpected error in update_player: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"[USER] Unexpected error in update_player: {str(e)}")
         return jsonify({'err': str(e)}), 500
     
 # get player collection
@@ -233,7 +238,7 @@ def update_player_gold(player_id):
     try:
         increment_amount = float(increment_amount)
         
-        if (increment_amount == 0 and is_refill == False):
+        if (increment_amount <= 0 and is_refill == False):
             db_connector.log_action(player_id, "ERR_refill_gold", "Negative refill value")
             return jsonify({'rsp': 'Error updating balance, balance must be a positive number > 0'}), 400
     except:
@@ -246,7 +251,7 @@ def update_player_gold(player_id):
 
     if err:
         db_connector.log_action(player_id, "ERR_refill_gold", err)
-        return jsonify({'rsp': f"Error: {err}"}), 400
+        return jsonify({'rsp': f"Error: {err}"}), 200
         
     if new_balance is None:
         db_connector.log_action(player_id, "ERR_refill_gold", err)
@@ -365,65 +370,28 @@ def get_player(player_id):
     return jsonify({'err': err}), 400
 
 # modify username
-
 @app.route('/admin/user/modify/<int:user_id>', methods=['PUT'])
 def admin_modify_user(user_id):
     try:
-        # get update 
         update = request.get_json()
-        auth_header = request.headers.get('Authorization')
         
-        # Validate username
+        # get username from request
         new_username = update.get('username')
+        
+        # username must be present
         if not new_username:
             return jsonify({'err': 'Username required'}), 400
-            
-        try:
-            # send update to auth
-            auth_payload = {'username': new_username}
-            
-            auth_response = requests.put(
-                f"https://auth:5000/user/modify/{user_id}",
-                headers={'Authorization': auth_header},
-                json=auth_payload,
-                timeout=10, 
-                verify=False
-            ) # nosec
-            
-            logger.info(f"[USER] Auth service response: {auth_response.status_code}")
-            logger.info(f"[USER] Auth service response body: {auth_response.text}")
-            
-            # update db if auth responds positively
-            if auth_response.status_code == 200:
-                # update db
-                res, msg = db_connector.admin_modify_user(user_id, new_username)
-                
-                if res:
-                    logger.info(f"[USER] Successfully updated user {user_id}")
-                    db_connector.log_action(user_id, "modify_user", f"Username updated to {new_username}")
-                    return jsonify({'message': 'User updated successfully'}), 200
-                else:
-                    error_msg = f"Database update failed: {msg}"
-                    logger.error(f"[USER] {error_msg}")
-                    db_connector.log_action(user_id, "ERR_modify_user", error_msg)
-                    return jsonify({'err': error_msg}), 400
-            else:
-                error_msg = f"Auth service update failed: {auth_response.text}"
-                logger.error(f"[USER] {error_msg}")
-                db_connector.log_action(user_id, "ERR_modify_user", error_msg)
-                return jsonify({'err': f'Failed to update authentication service. {error_msg}'}), 500
-                
-        except requests.exceptions.RequestException as e:
-            error_msg = f"Auth service connection error: {str(e)}"
-            logger.error(f"[USER] {error_msg}")
-            db_connector.log_action(user_id, "ERR_modify_user", error_msg)
-            return jsonify({'err': 'Failed to connect to authentication service'}), 500
+
+        # update db
+        res, msg = db_connector.admin_modify_user(user_id, new_username)
+        
+        if res:
+            return jsonify({'message': 'User updated successfully'}), 200
+        else:
+            return jsonify({'err': msg}), 400
             
     except Exception as e:
-        error_msg = f"Unexpected error: {str(e)}"
-        logger.error(f"[USER] {error_msg}")
-        db_connector.log_action(user_id, "ERR_modify_user", error_msg)
-        return jsonify({'err': error_msg}), 500
+        return jsonify({'err': str(e)}), 500
     
 # get transaction history
 @app.route('/admin/player/transaction/history/<int:player_id>', methods=['GET'])
