@@ -6,7 +6,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-
 COPY cert.pem /run/secrets/user_cert_secret
 COPY key.pem /run/secrets/user_key_secret
 
