@@ -18,4 +18,4 @@ RUN bandit -r .
 
 EXPOSE 5000
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--cert=/run/secrets/banner_cert_secret", "--key=/run/secrets/banner_key_secret"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload", "--cert=/run/secrets/banner_cert_secret", "--key=/run/secrets/banner_key_secret"]

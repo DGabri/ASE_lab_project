@@ -60,7 +60,6 @@ def get_pieces():
     
     return jsonify(pieces = [piece.to_dict() for piece in result.content]), 200
         
-
 # Add a new piece
 @app.route('/piece', methods = ['POST'])
 def add_piece():
@@ -85,6 +84,7 @@ def add_piece():
         return jsonify(piece_id = result.content), 201
     except Exception as e:
         return jsonify(message = str(e)), 500
+        
 # Update a piece
 @app.route('/piece/<int:piece_id>', methods = ['PUT'])
 def update_piece(piece_id):

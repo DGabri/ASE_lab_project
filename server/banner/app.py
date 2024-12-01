@@ -167,17 +167,51 @@ def pull(banner_id):
     5) Update player collection
     6) Return the pieces
     """
+    
+    # Get banner info
+    content, code = get_banner(banner_id)
+
+    if code != 200:
+        return content, code
+
+    banner = Banner.from_dict(content.get_json()['banner'])
+
+    # Retrieve the user id
+    authentication_header = request.headers.get("Authorization")
+        
+    if not authentication_header or not authentication_header.startswith("Bearer "):
+        return jsonify(message = "Login required"), 401
+    
+    token = authentication_header.split(' ')[1]
+    user_id = None
+
+    try:
+        response = requests.post("https://auth:5000/authorize", json={
+            "token": token,
+            "route": 'login',
+            "method": 'POST'
+        }, timeout = 5, verify = False) # nosec
+        print(response.json())
+        #user_id = response.json()['message']['user']['sub']
+    except ConnectionError:
+        return jsonify(message = "Auth service is down"), 500
+    except HTTPError:
+        return jsonify(message = response.content), response.status_code
 
     # Make the request for the gold update
+    try:
+        response = requests.put(f"https://user:5000/gold/{user_id}", json={
+            "amount": banner.cost * (-1),
+            "is_refill": False
+        }, timeout = 5, verify = False) # nosec
+
+        return jsonify(message = response.json()), 200
+    except ConnectionError:
+        return jsonify(message = "User service is down"), 500
+    except HTTPError:
+        return jsonify(message = response.content), response.status_code
 
     if True: # Check if there was problem with the request to the player module
-        content, code = get_banner(banner_id)
-
-        if code != 200:
-            return content, code
-
-        banner = Banner.from_dict(content.get_json()['banner'])
-
         try:
             response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
         except ConnectionError:

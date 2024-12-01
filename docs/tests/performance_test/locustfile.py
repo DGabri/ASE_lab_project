@@ -21,4 +21,4 @@ class QuickstartUser(HttpUser):
 
     @events.test_stop.add_listener
     def on_test_stop(environment, **kwargs):
-        print("\nTotal pieces number: " + str(sum(distribution.values())) + "\n\nDistribution:\n" + json.dumps(distribution, indent=4) + '\n')
+        print("\nTotal pieces number: " + str(sum(distribution.values())) + "\n\nDistribution:\n" + json.dumps(distribution, indent = 4) + '\n')

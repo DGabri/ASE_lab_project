@@ -74,17 +74,18 @@ ROUTE_PERMISSIONS = {
     'GET:/running/all': [1, 0],                 # get all running auctions
 
     # banner
-    'GET:/banner/<banner_id>': [1],             # get banner info
-    'POST:/banner': [1],                        # add new banner
-    'PUT:/banner/<banner_id>': [1],             # update banner
-    'DELETE:/banner/<banner_id>': [1],          # delete a banner
-    'GET:/banner/pull/<banner_id>': [1],        # pull a banner
+    'GET:/banner/<banner_id>': [0, 1],             # get banner info
+    'POST:/banner': [0],                        # add new banner
+    'PUT:/banner/<banner_id>': [0],             # update banner
+    'DELETE:/banner/<banner_id>': [0],          # delete a banner
+    'GET:/banner/pull/<banner_id>': [0, 1],        # pull a banner
     
     # piece
-    'GET:/piece': [1],                          # list all pieces
-    'POST:/piece': [1],                         # add new piece
-    'PUT:/piece/<piece_id>': [1],               # update a piece
-    'GET:/piece/all': [1]                       # get all pieces
+    'GET:/piece': [0, 1],                          # list all pieces
+    'POST:/piece': [0],                         # add new piece
+    'PUT:/piece/<piece_id>': [0],               # update a piece
+    'DELETE:/piece/<piece_id>': [0],            # delete a piece
+    'GET:/piece/all': [0, 1]                       # get all pieces
 }
 
 # as defined in auth_scheme.sql
