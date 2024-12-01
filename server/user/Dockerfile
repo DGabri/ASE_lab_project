@@ -5,11 +5,11 @@ WORKDIR /app
 COPY . .
 
 RUN pip install -r requirements.txt
-#RUN pip-audit --fix
-#RUN bandit -r .
+RUN pip-audit --fix
+RUN bandit -r .
 
-COPY cert.pem /run/secrets/banner_cert_secret
-COPY key.pem /run/secrets/banner_key_secret
+COPY cert.pem /run/secrets/user_cert_secret
+COPY key.pem /run/secrets/user_key_secret
 
 EXPOSE 5000
 

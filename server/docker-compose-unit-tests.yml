@@ -1,0 +1,76 @@
+services:
+  auth:
+    build: ./auth/tests
+    ports:
+      - "3001:5000"
+    networks:
+      - test_net
+    secrets:
+      - auth_cert_secret
+      - auth_key_secret
+
+  user:
+    build: ./user/tests
+    ports:
+      - "3002:5000"
+    networks:
+      - test_net
+    secrets:
+      - user_cert_secret
+      - user_key_secret
+
+  #piece:
+  #  build: ./piece/tests
+  #  ports:
+  #    - "3003:5000"
+  #  networks:
+  #    - test_net
+  #  secrets:
+  #    - piece_cert_secret
+  #    - piece_key_secret
+
+  #banner:
+  #  build: ./banner/tests
+  #  ports:
+  #    - "3004:5000"
+  #  networks:
+  #    - test_net
+  #  secrets:
+  #    - banner_cert_secret
+  #    - banner_key_secret
+
+  auction:
+    build: ./auction/tests
+    ports:
+      - "3005:5000"
+    networks:
+      - test_net
+    secrets:
+      - auction_cert_secret
+      - auction_key_secret
+
+networks:
+  test_net:
+    driver: bridge
+
+secrets:
+  auth_cert_secret:
+    file: ./auth/tests/cert.pem
+  auth_key_secret:
+    file: ./auth/tests/key.pem
+  user_cert_secret:
+    file: ./user/tests/cert.pem
+  user_key_secret:
+    file: ./user/tests/key.pem
+  piece_cert_secret:
+    file: ./piece/tests/cert.pem
+  piece_key_secret:
+    file: ./piece/tests/key.pem
+  banner_cert_secret:
+    file: ./banner/tests/cert.pem
+  banner_key_secret:
+    file: ./banner/tests/key.pem
+  auction_cert_secret:
+    file: ./auction/tests/cert.pem
+  auction_key_secret:
+    file: ./auction/tests/key.pem

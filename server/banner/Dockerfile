@@ -7,7 +7,6 @@ COPY config.json .
 COPY requirements.txt .
 COPY classes ./classes
 COPY DAOs ./DAOs
-COPY db ./db
 COPY schemes ./schemes
 COPY cert.pem /run/secrets/banner_cert_secret
 COPY key.pem /run/secrets/banner_key_secret

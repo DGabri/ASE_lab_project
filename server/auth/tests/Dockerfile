@@ -5,8 +5,6 @@ WORKDIR /app
 COPY . .
 
 RUN pip install -r requirements.txt
-RUN pip-audit --fix
-RUN bandit -r .
 
 COPY cert.pem /run/secrets/auth_cert_secret
 COPY key.pem /run/secrets/auth_key_secret
