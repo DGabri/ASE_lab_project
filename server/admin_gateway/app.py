@@ -27,7 +27,7 @@ MICROSERVICES_URLS = {
 # routes that do not need auth
 PUBLIC_ROUTES = {
     ("POST", "auth/create_user"),
-    ("POST", "auth/login")
+    ("POST", "auth/token")
 }
 
 # routes that are strictly for the admin
@@ -82,6 +82,10 @@ def admin_gateway(microservice, path):
     if microservice not in MICROSERVICES_URLS:
         return jsonify({"error": f"Service: '{microservice}' not found"}), 404
 
+    if microservice == 'auth' and path == 'login':
+        logger.info("[ADMIN GATEWAY] Redirecting /auth/login to /auth/token")
+        path = 'token'
+        
     # Create target URL
     target_microservice = MICROSERVICES_URLS[microservice]
     target_url = f"{target_microservice}/{path}"

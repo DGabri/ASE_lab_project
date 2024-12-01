@@ -54,7 +54,7 @@ ROUTE_PERMISSIONS = {
     'POST:/auction/complete': [1],                 # complete auction process
     'POST:/auction': [1,0],                        # create an auction
     'POST:/logout/<player_id>': [1,0],             # logout
-    'POST:/login': [1,0],                          # login
+    'POST:/token': [1,0],                          # login
     
     # admin routes
     'GET:/admin/logs': [0],                                  # get all logs
@@ -303,23 +303,6 @@ db_connector = init_db(config)
 init_admin(config)
 ##########################################################
 
-def create_id_token(user_data):
-    """Create an OIDC-compliant ID token"""
-    now = datetime.datetime.now(datetime.UTC)
-    payload = {
-        "iss": app.config['ISSUER'],
-        "sub": str(user_data['user_id']),
-        "aud": app.config['AUDIENCE'],
-        "exp": now + datetime.timedelta(minutes=app.config['ID_TOKEN_EXPIRE_MINUTES']),
-        "iat": now,
-        "auth_time": now,
-        "nonce": str(uuid.uuid4()),
-        "preferred_username": user_data['username'],
-        "email": user_data['email'],
-        "role": VALID_USER_TYPES[user_data['user_type']]
-    }
-    return jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
-
 # given user data create jwt
 def generate_access_token(user_data):
     """Create an OAuth2.0-compliant access token"""
@@ -333,7 +316,8 @@ def generate_access_token(user_data):
         "iat": now,
         "jti": str(uuid.uuid4()),
         "user_type": int(user_data['user_type']),
-        "role": VALID_USER_TYPES[int(user_data['user_type'])]
+        "role": VALID_USER_TYPES[int(user_data['user_type'])],
+        "scope": None
     }
     return jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm=app.config['ALGORITHM'])
 
@@ -537,7 +521,7 @@ def register():
         return jsonify({'err': f'Internal server error: {e}'}), 500
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/token', methods=['POST'])
 def login():
     try:
         data = request.get_json()
@@ -759,7 +743,7 @@ def modify_user(user_id):
         return jsonify({'err': 'Internal server error'}), 500
     
 # used to check if the user is the same as the one provided in body
-@app.route('/verify_user', methods=['POST'])
+@app.route('/introspect', methods=['POST'])
 def verify_user():
     try:
         auth_header = request.headers.get('Authorization')
@@ -794,5 +778,65 @@ def verify_user():
     except Exception as e:
         return jsonify({'err': 'Internal server error'}), 500
     
+
+# OIDC userinfo endpoint
+@app.route('/userinfo', methods=['GET', 'POST'])
+def userinfo():
+    try:
+        # get auth header
+        auth_header = request.headers.get('Authorization')
+        
+        if not auth_header:
+            return jsonify({'err': 'Missing Authorization header'}), 401
+
+        # validate token
+        parts = auth_header.split()
+        if parts[0].lower() != 'bearer' or len(parts) != 2:
+            return jsonify({'err': 'Invalid Authorization header format'}), 401
+
+        token = parts[1]
+        
+        # verify token with function
+        payload, error = verify_token(token)
+        if error:
+            return jsonify({'err':  error}), 401
+
+        # get user info from db
+        try:
+            db_connector.cursor.execute("""
+                SELECT id, username, email, user_type 
+                FROM users 
+                WHERE id = ?
+            """, (payload['sub'],))
+            
+            user = db_connector.cursor.fetchone()
+            if not user:
+                return jsonify({
+                    'error': 'invalid_token',
+                    'error_description': 'User not found'
+                }), 401
+
+            
+            oidc_user_info = {
+                'sub': str(user[0]),
+                'name': user[1],
+                'preferred_username': user[1],
+                'email': user[2],
+                'email_verified': False,
+                'roles': [VALID_USER_TYPES[user[3]]],
+                'updated_at': int(datetime.datetime.now(datetime.UTC).timestamp()),
+                'zoneinfo': 'UTC',
+                'locale': 'en-US'
+            }
+
+            return jsonify(oidc_user_info), 200
+
+        except Exception as db_error:
+            return jsonify({'err': 'Error retrieving user information'}), 500
+
+    except Exception as e:
+        return jsonify({'err': 'Internal server error'}), 500
+        
+        
 if __name__ == '__main__':
     app.run()

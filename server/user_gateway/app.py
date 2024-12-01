@@ -27,7 +27,7 @@ MICROSERVICES_URLS = {
 # routes that do not need auth
 PUBLIC_ROUTES = {
     ("POST", "auth/create_user"),
-    ("POST", "auth/login")
+    ("POST", "auth/token")
 }
 
 def verify_authentication_authorization(token, route, method):
@@ -66,6 +66,10 @@ def user_gateway(microservice, path):
     if microservice not in MICROSERVICES_URLS:
         return jsonify({"err": f"Service: '{microservice}' not found"}), 404
 
+    if microservice == 'auth' and path == 'login':
+        logger.info("[ADMIN GATEWAY] Redirecting /auth/login to /auth/token")
+        path = 'token'
+        
     # create target url
     target_microservice = MICROSERVICES_URLS[microservice]
     target_url = f"{target_microservice}/{path}"

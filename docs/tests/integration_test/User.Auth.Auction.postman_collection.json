@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "05e49180-089d-4224-a2c1-9eeae163078d",
-		"name": "Integration test",
+		"name": "Integration test User Auth Auction",
 		"description": "Integration tests for the auction, user and auth services. Requests are handled by user and admin gateway so these modules are also tested",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "15599800",

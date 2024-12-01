@@ -108,7 +108,7 @@ def create_auction():
             # check if requesting user and seller_id are the same
             try:
                 auth_response = requests.post(
-                    "https://auth:5000/verify_user",
+                    "https://auth:5000/introspect",
                     json={'user_id': seller_id},
                     headers={'Authorization': request.headers.get('Authorization')},
                     timeout=10,

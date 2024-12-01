@@ -154,7 +154,7 @@
 					"raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"Test12345\"\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3001/login",
+					"raw": "https://127.0.0.1:3001/token",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -164,7 +164,7 @@
 					],
 					"port": "3001",
 					"path": [
-						"login"
+						"token"
 					]
 				}
 			},
@@ -204,7 +204,7 @@
 					"raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"wrongpassword\"\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3001/login",
+					"raw": "https://127.0.0.1:3001/token",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -214,7 +214,7 @@
 					],
 					"port": "3001",
 					"path": [
-						"login"
+						"token"
 					]
 				}
 			},
@@ -358,7 +358,7 @@
 					"raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"Test12345\"\n}"
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3001/login",
+					"raw": "https://127.0.0.1:3001/token",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -368,7 +368,7 @@
 					],
 					"port": "3001",
 					"path": [
-						"login"
+						"token"
 					]
 				}
 			},
@@ -552,7 +552,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3001/verify_user",
+					"raw": "https://127.0.0.1:3001/introspect",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -562,7 +562,7 @@
 					],
 					"port": "3001",
 					"path": [
-						"verify_user"
+						"introspect"
 					]
 				}
 			},
@@ -612,7 +612,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3001/verify_user",
+					"raw": "https://127.0.0.1:3001/introspect",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -622,7 +622,129 @@
 					],
 					"port": "3001",
 					"path": [
-						"verify_user"
+						"introspect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Invalid token error\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('email');",
+							"    pm.expect(jsonData).to.have.property('email_verified');",
+							"    pm.expect(jsonData).to.have.property('locale');",
+							"    pm.expect(jsonData).to.have.property('name');",
+							"    pm.expect(jsonData).to.have.property('preferred_username');",
+							"    pm.expect(jsonData).to.have.property('roles');",
+							"    pm.expect(jsonData).to.have.property('sub');",
+							"    pm.expect(jsonData).to.have.property('updated_at');",
+							"    pm.expect(jsonData).to.have.property('zoneinfo');",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/userinfo",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"userinfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Info - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Invalid token error\", function () {",
+							"    pm.response.to.have.status(401);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err).to.eql('Missing Authorization header');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3001/userinfo",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"userinfo"
 					]
 				}
 			},
