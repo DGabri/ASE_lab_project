@@ -33,7 +33,7 @@ services:
       - auction
     secrets:
       - admin_gateway_cert_secret
-      - admin_gateway_key_secret
+      - admin_gateway_key_secret     
 
   auth:
     build: ./auth
@@ -62,8 +62,8 @@ services:
     networks:
       - admin_network
       - user_network
-    volumes:
-      - ./piece/data:/app/data
+    # volumes:
+      # - ./piece/db:/app/db
     secrets:
       - piece_cert_secret
       - piece_key_secret
@@ -73,8 +73,8 @@ services:
     networks:
       - admin_network
       - user_network
-    volumes:
-      - ./banner/data:/app/data
+    # volumes:
+      # - ./banner/db:/app/db
     secrets:
       - banner_cert_secret
       - banner_key_secret
