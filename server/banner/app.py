@@ -183,12 +183,12 @@ def pull(banner_id):
         return jsonify(message = "Login required"), 401
     
     token = authentication_header.split(' ')[1]
-    user_id = None
+    user_id = 1
 
     try:
         response = requests.post("https://auth:5000/authorize", json={
             "token": token,
-            "route": 'login',
+            "route": 'token',
             "method": 'POST'
         }, timeout = 5, verify = False) # nosec
 
@@ -200,11 +200,14 @@ def pull(banner_id):
 
     # Make the request for the gold update
     try:
-        response = requests.put(f"https://user:5000/player/gold/{user_id}", json={
-            "amount": banner.cost,
+        response = requests.put(f"https://user:5000/player/gold/{user_id}", json = {
+            "amount": banner.cost * (-1),
             "is_refill": False
         }, timeout = 5, verify = False) # nosec
         
+        if response.status_code != 200:
+            return jsonify(message = response.json()["rsp"]), response.status_code
+
         if not 'new_balance' in response.json():
             return jsonify(message = "Insufficient amount of gold."), 403
     except ConnectionError:
@@ -227,6 +230,16 @@ def pull(banner_id):
 
     for i in range(banner.pieces_num):
         pieces_pulled.append(pull_piece(banner, pieces))
+    
+    try:
+        response = requests.post("https://piece:5000/player/collection/update", json = {
+            "user_id": user_id,
+            "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
+        }, timeout = 5, verify = False) # nosec
+    except ConnectionError:
+        return jsonify(message = "User service is down."), 500
+    except HTTPError:
+        return jsonify(message = response.content), response.status_code
 
     return jsonify(pieces = pieces_pulled), 200
 

@@ -27,31 +27,44 @@ import getRunnningAuctions from '../services/getRunningAuctions'
 import getPieces from '../services/getPieces'
 import Form from 'react-bootstrap/Form';
 import { getCookie } from '../utils/cookie'
-import getGold from '../services/getGold'
+import getUserGold from '../services/getUserGold'
 import { UserContext } from '../App'
-
+import getUserCollection from '../services/getUserCollection'
 
 const Account = ({ setUser }) => {
     const user = useContext(UserContext)
 
     useEffect(() => {
         if (user.logged) {
-            getGold(user.id, user.access_token).then(res => {
+            getUserGold(user.id, user.access_token).then(res => {
                 setUser(prev => ({
                     ...prev,
                     gold: res
                 }))
             }).catch(error => console.error(error))
+            getUserCollection(user.id, user.access_token).then(res => {
+                setUser(prev => ({
+                    ...prev,
+                    collection: res
+                }))
+            }).catch(error => console.error(error))
         }
     }, [user.logged])
 
-    return <>
-        <Card className="m-5 position-absolute w-auto" body>
-            {user.gold}
-            <img width="20" className="ms-2" src={goldIcon} />
+    return <Container className="d-flex justify-content-center">
+        <Card className="d-inline-block w-auto h-auto p-5 d-flex align-items-center gap-5" style={{marginTop: "5rem", marginBottom: "5rem"}}>
+            <h1 className="text-center">{user.username}</h1>
+            <img src={user.pic} width="100" height="100" />
+            <Row>
+                <Col className="col-auto p-0">
+                    <h2>{user.gold}</h2>
+                </Col>
+                <Col className="col-auto p-0">
+                    <img width="40" height="40" className="ms-2" src={goldIcon} />
+                </Col>
+            </Row>
         </Card>
-        {user.username}
-    </>
+    </Container>
 }
 
 export default Account

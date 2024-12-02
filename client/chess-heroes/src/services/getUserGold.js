@@ -20,7 +20,10 @@ const getGold = async (user_id, access_token) => {
         }
     )
 
-    console.log(response.data)
+    if (response.status != 200) {
+        throw new Error(response.data.err)  
+    }
+    
     return response.data.new_balance
 }
 

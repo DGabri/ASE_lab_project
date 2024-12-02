@@ -126,3 +126,7 @@
       bottom: 20em;
     }
   }
+
+.dropdown-toggle::after {
+display: none !important; /* Hides the arrow */
+}

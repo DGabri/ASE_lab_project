@@ -15,14 +15,14 @@ import pawnWhite from '../assets/pawn-white.png'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
-import login from '../services/login'
+import register from '../services/register'
 import userIcon from '../assets/user-icon.svg'
 import { setCookie } from '../utils/cookie'
-import Alert from 'react-bootstrap/Alert';
 
-const Login = ({ setUser, showAlert }) => {
-    const [username, setUsername] = useState("admin")
-    const [password, setPassword] = useState("ChessHeroes2024@")
+const Register = ({ showAlert }) => {
+    const [email, setEmail] = useState("paolo@gmail.com")
+    const [username, setUsername] = useState("Paolo Brosio")
+    const [password, setPassword] = useState("PaoloBrosio02")
     const navigate = useNavigate()
 
     const handleSubmit = (event) => {
@@ -30,45 +30,32 @@ const Login = ({ setUser, showAlert }) => {
         console.log('Username:', username)
         console.log('Password:', password)
         
-        login(username, password).then(res => {
-            const expire_days = (res.expires_in / 60) / 24
-            const access_token = res.access_token
-            const user_id = res.user.id
-            const username = res.user.username
-            setCookie("access_token", access_token, expire_days)
-            setCookie("user_id", user_id, expire_days)
-            setCookie("username", username, expire_days)
-
-            setUser(prev => ({
-                ...prev,
-                logged: true,
-                access_token: access_token,
-                id: user_id,
-                username: username,
-                pic: userIcon
-            }))
-            
-            showAlert("primary", "Login successful")
+        register(email, username, password).then(() => {
+            showAlert("primary", "Registration successful")
             navigate("/")
         }).catch(error => showAlert("danger", error.toString()))
     }
 
     return <Container className="d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle">
         <Card className="d-inline-block w-auto h-auto p-5 mt-5">
-            <h1 className="mb-5">Login</h1>
+            <h1 className="mb-5">Register</h1>
             <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-4" controlId="formUsername">
+                <Form.Group className="mb-4">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type="email" placeholder="Password" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-4">
                     <Form.Label>Username</Form.Label>
                     <Form.Control type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 </Form.Group>
-                <Form.Group className="mb-5" controlId="formPassword">
+                <Form.Group className="mb-5">
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Form.Group>
-                <Button variant="primary" type="submit">Login</Button>
+                <Button variant="primary" type="submit">Register</Button>
             </Form>
         </Card>
     </Container>
 }
 
-export default Login
+export default Register

@@ -9,10 +9,13 @@ import Banners from './components/Banners'
 import Auctions from './components/Auctions'
 import Account from './components/Account'
 import Col from 'react-bootstrap/Col'
-import anonymProfileIcon from './assets/anonym-profile-icon.svg'
+import defaultUserIcon from './assets/default-user-icon.svg'
 import Login from './components/Login'
-import defaultProfileIcon from './assets/default-profile-icon.svg'
-import { getCookie } from './utils/cookie'
+import userIcon from './assets/user-icon.svg'
+import { getCookie, eraseCookie } from './utils/cookie'
+import Dropdown from 'react-bootstrap/Dropdown'
+import Register from './components/Register'
+import Alert from 'react-bootstrap/Alert';
 import './App.css'
 
 export const UserContext = createContext({
@@ -20,9 +23,10 @@ export const UserContext = createContext({
     access_token: "",
     id: 0,
     username: "",
-    gold: 0
+    gold: 0,
+    pic: defaultUserIcon,
+    collection: []
 })
-
 
 const App = () => {
     const [user, setUser] = useState({
@@ -30,7 +34,18 @@ const App = () => {
         access_token: "",
         id: 0,
         username: "",
-        gold: 0
+        gold: 0,
+        pic: defaultUserIcon,
+        collection: []
+    })
+    
+    const [timeoutId, setTimeoutId] = useState(0)
+    const navigate = useNavigate()
+
+    const [alert, setAlert] = useState({
+        display: false,
+        type: "",
+        message: ""
     })
 
     useEffect(() => {
@@ -44,10 +59,48 @@ const App = () => {
                 logged: true,
                 access_token: access_token,
                 id: user_id,
-                username: username
+                username: username,
+                pic: userIcon
             }))
         }
     }, [])
+
+    function logout() {
+        // send logout
+        eraseCookie("access_token")
+        eraseCookie("user_id")
+        eraseCookie("username")
+
+        setUser({
+            logged: false,
+            access_token: "",
+            id: 0,
+            username: "",
+            gold: 0,
+            pic: defaultUserIcon,
+            collection: []
+        })
+    }
+
+    function showAlert(type, message) {
+        clearTimeout(timeoutId)
+
+        setAlert({
+            display: true,
+            type: type,
+            message: message
+        })
+
+        setTimeoutId(
+            setTimeout(() => {
+                setAlert({
+                    display: false,
+                    type: "",
+                    message: ""
+                })
+            }, 10000)
+        )
+    }
 
     return <UserContext.Provider value={user}>
         <div data-bs-theme="dark" className="bg-dark-subtle" style={{minHeight: "100vh"}}>
@@ -88,11 +141,27 @@ const App = () => {
                             </Link>
                         </Navbar.Text>
                         <Navbar.Text>
-                            <img src={user.logged ? defaultProfileIcon : anonymProfileIcon} width="45" height="45" />
+                            <Dropdown>
+                                <Dropdown.Toggle className="border-0" style={{backgroundColor: "transparent"}}>
+                                    <img src={user.pic} width="45" height="45" />
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu align="end">
+                                    {user.logged && <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>}
+                                    {!user.logged && <>
+                                        <Dropdown.Item onClick={() => navigate("/login")}>Login</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => navigate("/register")}>Register</Dropdown.Item>
+                                    </>}                                    
+                                </Dropdown.Menu>
+                                </Dropdown>
                         </Navbar.Text>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
+            {alert.display && <Container className="z-1 my-4 position-absolute start-50" style={{translate: "-50%", width: "40rem"}}>
+                <Alert key={alert.type} variant={alert.type}>
+                    {alert.message}
+                </Alert>
+            </Container>}
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/pieces" element={<Pieces />} />
@@ -103,6 +172,10 @@ const App = () => {
                 />} />
                 <Route path="/login" element={<Login
                     setUser = {setUser}
+                    showAlert = {showAlert}
+                />} />
+                <Route path="/register" element={<Register
+                    showAlert= {showAlert}
                 />} />
             </Routes>
         </div>

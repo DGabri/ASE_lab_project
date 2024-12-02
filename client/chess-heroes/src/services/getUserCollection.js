@@ -1,13 +1,13 @@
 import axios from 'axios'
 
-const getRunningAuctions = async (access_token) => {
+const getUserCollection = async (user_id, access_token) => {
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true
     })
 
     const response = await axiosInstance.get(
-        `http://localhost:3001/auction/auction/running`,
+        `https://localhost:3001/user/player/collection/${user_id}`,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -23,4 +23,4 @@ const getRunningAuctions = async (access_token) => {
     return response.data.collection
 }
 
-export default getRunningAuctions
+export default getUserCollection
