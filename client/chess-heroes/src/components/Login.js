@@ -18,7 +18,7 @@ import Card from 'react-bootstrap/Card'
 import login from '../services/login'
 import { setCookie } from '../utils/cookie'
 
-const Login = ({ setLogged }) => {
+const Login = ({ setUser }) => {
     const [username, setUsername] = useState("admin")
     const [password, setPassword] = useState("ChessHeroes2024@")
     const navigate = useNavigate()
@@ -30,9 +30,21 @@ const Login = ({ setLogged }) => {
         
         login(username, password).then(res => {
             const expire_days = (res.expires_in / 60) / 24
-            setCookie("access_token", res.access_token, expire_days)
-            setCookie("user_id", res.user.id, expire_days)
-            setLogged(true)
+            const access_token = res.access_token
+            const user_id = res.user.id
+            const username = res.user.username
+            setCookie("access_token", access_token, expire_days)
+            setCookie("user_id", user_id, expire_days)
+            setCookie("username", username, expire_days)
+
+            setUser(prev => ({
+                ...prev,
+                logged: true,
+                access_token: access_token,
+                id: user_id,
+                username: username
+            }))
+
             navigate("/")
         }).catch(error => console.error(error))
     }

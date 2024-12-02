@@ -4,7 +4,7 @@ import Col from 'react-bootstrap/Col'
 import chessPiece from '../assets/chess-piece.svg'
 import pack from '../assets/pack.svg'
 import auction from '../assets/auction.svg'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import getBanners from '../services/getBanners'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
@@ -28,32 +28,29 @@ import getPieces from '../services/getPieces'
 import Form from 'react-bootstrap/Form';
 import { getCookie } from '../utils/cookie'
 import getGold from '../services/getGold'
+import { UserContext } from '../App'
 
-const Account = () => {
-    const [user, setUser] = useState({
-        "gold": 0
-    })
+
+const Account = ({ setUser }) => {
+    const user = useContext(UserContext)
 
     useEffect(() => {
-        const access_token = getCookie("access_token")
-        const user_id = getCookie("user_id")
-
-        if (true) { // check user logged
-            getGold(user_id, access_token).then(res => {
+        if (user.logged) {
+            getGold(user.id, user.access_token).then(res => {
                 setUser(prev => ({
                     ...prev,
                     gold: res
                 }))
             }).catch(error => console.error(error))
         }
-    }, [])
+    }, [user.logged])
 
     return <>
         <Card className="m-5 position-absolute w-auto" body>
             {user.gold}
             <img width="20" className="ms-2" src={goldIcon} />
         </Card>
-
+        {user.username}
     </>
 }
 
