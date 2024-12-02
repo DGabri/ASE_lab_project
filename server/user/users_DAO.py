@@ -550,6 +550,43 @@ class UsersDAO:
             self.connection.rollback()
             return False, str(e)
         
+    def update_user_collection(self, update_info):
+        try:
+            user_id = update_info.get("user_id")
+            pieces_id = update_info.get("pieces_id", [])
+            
+            # check input validity
+            if not user_id or not isinstance(pieces_id, list):
+                return False, "Invalid input format"
+                
+            # check user existance
+            self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+            if not self.cursor.fetchone():
+                return False, "User not found"
+                
+            # atomic transaction
+            self.cursor.execute("BEGIN TRANSACTION")
+            
+            try:
+                # Insert new pieces
+                current_time = int(time.time())
+                
+                for piece_id in pieces_id:
+                    self.cursor.execute("""
+                        INSERT INTO collection (user_id, gacha_id, added_at) 
+                        VALUES (?, ?, ?)
+                    """, (user_id, piece_id, current_time))
+                
+                self.connection.commit()
+                return True, "Success"
+                
+            except sqlite3.Error as e:
+                self.connection.rollback()
+                return False, f"Database error: {str(e)}"
+                
+        except Exception as e:
+            return False, "Internal server error"
+        
     def close(self):
         self.connection.close()
         

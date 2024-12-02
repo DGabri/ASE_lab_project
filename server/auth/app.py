@@ -53,6 +53,7 @@ ROUTE_PERMISSIONS = {
     'POST:/auction': [1,0],                        # create an auction
     'POST:/logout/<player_id>': [1,0],             # logout
     'POST:/token': [1,0],                          # login
+    'POST:/player/collection/update': [1,0],       # update user collection
     
     # admin routes
     'GET:/admin/logs': [0],                                  # get all logs

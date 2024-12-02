@@ -307,6 +307,55 @@ def update_collection():
         logger.error(f"Exception in update_collection: {str(e)}")
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
     
+@app.route('/player/collection/update', methods=['POST'])
+def update_player_collection():
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({'err': 'Authorization header missing'}), 401
+        data = request.get_json()
+        
+        if not all(k in data for k in ['user_id', 'pieces_id']):
+            return jsonify({'err': 'Missing required fields: user_id: int and/or pieces_id: array '}), 400
+            
+        # check if user id is int
+        try:
+            data['user_id'] = int(data['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'err': 'user_id must be an int'}), 400
+            
+        # check input validity 
+        if not isinstance(data['pieces_id'], list):
+            return jsonify({'err': 'pieces_id must be an array'}), 400
+        
+        try:
+            auth_response = requests.post(
+                'https://auth:5000/introspect',
+                headers={'Authorization': auth_header},
+                json={'user_id': data['user_id']},
+                timeout=10,
+                verify=False
+            ) # nosec
+            
+            if auth_response.status_code != 200:
+                error_msg = auth_response.json().get('err', 'Authentication failed')
+                return jsonify({'err': error_msg}), auth_response.status_code
+                
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to verify token with auth service: {str(e)}")
+            return jsonify({'err': 'Failed to verify authentication'}), 500
+        
+        # update collection
+        success, message = db_connector.update_user_collection(data)
+        
+        if success:
+            return jsonify({'rsp': message, 'user_id': data['user_id']}), 200
+        else:
+            return jsonify({'err': message}), 400
+            
+    except Exception as e:
+        return jsonify({'err': f'Internal server error: {str(e)}'}), 500
+    
 # tells user token balance
 @app.route('/user/balance/<int:user_id>', methods=['GET'])
 def get_user_balance(user_id):

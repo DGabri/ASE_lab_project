@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS auctions (
     creator_id INTEGER NOT NULL,
     start_price DECIMAL(10, 2) NOT NULL,
     current_price DECIMAL(10, 2),
-    start_date INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),  -- Timestamp UNIX 
-    end_date INTEGER NOT NULL,  -- Usa INTEGER per il timestamp o TEXT per una data leggibile
+    start_date INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    end_date INTEGER NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('running', 'ended', 'cancelled')) DEFAULT 'running',
     winner_id INTEGER,
     FOREIGN KEY (piece_id) REFERENCES pieces(piece_id),
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS bids (
     auction_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     bid_amount DECIMAL(10, 2) NOT NULL,
-    bid_date INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),  -- Timestamp UNIX per la data della bid
+    bid_date INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     FOREIGN KEY (auction_id) REFERENCES auctions(auction_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

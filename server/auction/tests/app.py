@@ -190,23 +190,30 @@ def place_bid(auction_id):
 
         # check bid seller
         auction = db_connector.get_auction(auction_id)
-        if not auction:
+
+        if auction is None:
             return jsonify({'err': 'Auction not found'}), 404
-            
-        # prevent user bidding on own auction
-        # auction[1] is seller_id
+
+        # prevent after end bidding
+        # extract auction end time auction[5]
+        current_time = int(time.time())
+        
+        if current_time >= auction[5]:
+            return jsonify({'err': 'Auction has ended'}), 400
+
+        # prevent bidding on own auction
+        # extract auction bidder_id auction[5]
         bidder_id = data['bidder_id']
         if auction[1] == bidder_id:  
             return jsonify({'err': 'Bidding on own auction forbidden'}), 400
         
-        last_bid = db_connector.get_last_bid(auction_id)
-        
+        # prevent consecutive bids
+        last_bid = db_connector.get_last_bid(auction_id)        
         if last_bid and last_bid['bidder_id'] == bidder_id:
             return jsonify({'err': 'Last bidder id is the same'}), 400
         
-        # generate error if bidder id is 2, simulating user balance missing
+        # generate error if bidder id is 3, user balance not enough
         if TESTING and bidder_id == 3:
-            # Check user balance if he can bid
             return jsonify({'err': 'Insufficient balance'}), 400
         if not TESTING:
             try:

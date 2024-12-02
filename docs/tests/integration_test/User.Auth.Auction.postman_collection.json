@@ -544,6 +544,150 @@
 			"response": []
 		},
 		{
+			"name": "Update Collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Account Success\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('rsp');",
+							"    pm.expect(jsonData.rsp).to.contain('Success');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": {{user_id}},\n    \"pieces_id\": [1,2,3]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/collection/update",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"collection",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Collection - Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Modify Account Success\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('err');",
+							"    pm.expect(jsonData.err).to.contain('pieces_id must be an array');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "csrf_token",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": {{user_id}},\n    \"pieces_id\": \"test\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1:3000/user/player/collection/update",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"collection",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "See collection",
 			"event": [
 				{
@@ -2208,7 +2352,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"piece_id\": 2,\n    \"seller_id\": {{user_id}},\n    \"start_price\": 1,\n    \"duration_hours\": \"0.04\"\n}",
+					"raw": "{\n    \"piece_id\": 2,\n    \"seller_id\": {{user_id}},\n    \"start_price\": 1,\n    \"duration_hours\": \"1\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
