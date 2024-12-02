@@ -1,4 +1,4 @@
-from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired
+from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired, Regexp
 from wtforms import StringField, IntegerField
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
@@ -35,7 +35,13 @@ password_requirements = PasswordPolicy.from_names(
 )
 
 class UserRegistrationForm(FlaskForm):
-    username = StringField(validators=[InputRequired(message="Username required"), InputRequired(message="Username required"), Length(min=1, max=15, message="Username len must be between 1 and 15 chars long")])
+    username = StringField(
+        validators=[InputRequired(message="Username required"),
+            Length(min=1, max=15, message="Username must be between 1 and 15 characters long"),
+            Regexp(
+                r'^[\w\-]+$',
+                message="Username can only contain letters, numbers, underscores, and hyphens"
+            )])
     email = StringField(validators=[Email(message="Email is invalid"), InputRequired(message="Email required")])
     password = StringField('password', [InputRequired(message="Password is required")])
     user_type = StringField('user_type', [DataRequired(message="User type required")])
