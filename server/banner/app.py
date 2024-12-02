@@ -191,8 +191,8 @@ def pull(banner_id):
             "route": 'login',
             "method": 'POST'
         }, timeout = 5, verify = False) # nosec
-        print(response.json())
-        #user_id = response.json()['message']['user']['sub']
+
+        user_id = response.json()['user']['sub']
     except ConnectionError:
         return jsonify(message = "Auth service is down"), 500
     except HTTPError:
@@ -200,33 +200,33 @@ def pull(banner_id):
 
     # Make the request for the gold update
     try:
-        response = requests.put(f"https://user:5000/gold/{user_id}", json={
-            "amount": banner.cost * (-1),
+        response = requests.put(f"https://user:5000/player/gold/{user_id}", json={
+            "amount": banner.cost,
             "is_refill": False
         }, timeout = 5, verify = False) # nosec
-
-        return jsonify(message = response.json()), 200
+        
+        if not 'new_balance' in response.json():
+            return jsonify(message = "Insufficient amount of gold."), 403
     except ConnectionError:
-        return jsonify(message = "User service is down"), 500
+        return jsonify(message = "User service is down."), 500
+    except HTTPError:
+        return jsonify(message = response.content), response.status_code
+    
+    try:
+        response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
+    except ConnectionError:
+        return jsonify(message = "Piece service is down."), 500
     except HTTPError:
         return jsonify(message = response.content), response.status_code
 
-    if True: # Check if there was problem with the request to the player module
-        try:
-            response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
-        except ConnectionError:
-            return jsonify(message = "Piece service is down"), 500
-        except HTTPError:
-            return jsonify(message = response.content), response.status_code
+    if response.status_code != 200:
+        return jsonify(message = respose.json()['message']), response.status_code
+        
+    pieces = response.json()['pieces']
+    pieces_pulled = []
 
-        if response.status_code != 200:
-            return jsonify(message = respose.json()['message']), response.status_code
-            
-        pieces = response.json()['pieces']
-        pieces_pulled = []
-
-        for i in range(banner.pieces_num):
-            pieces_pulled.append(pull_piece(banner, pieces))
+    for i in range(banner.pieces_num):
+        pieces_pulled.append(pull_piece(banner, pieces))
 
     return jsonify(pieces = pieces_pulled), 200
 

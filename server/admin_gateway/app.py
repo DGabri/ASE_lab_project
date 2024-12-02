@@ -2,6 +2,7 @@ from flask import Flask, request, Response, jsonify
 from urllib.parse import urljoin
 import requests
 import logging
+from flask_cors import CORS
 
 # Configure logging
 logging.basicConfig(
@@ -13,6 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 app.config['WTF_CSRF_ENABLED'] = False
 
 # Microservices URLs mapping

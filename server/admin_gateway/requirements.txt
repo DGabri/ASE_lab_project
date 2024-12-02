@@ -3,3 +3,4 @@ requests==2.31.0
 PyJWT==2.8.0
 bandit==1.7.10
 pip-audit==2.7.3
+Flask-Cors==5.0.0

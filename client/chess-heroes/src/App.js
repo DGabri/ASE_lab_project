@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Navbar from 'react-bootstrap/Navbar'
@@ -8,13 +8,23 @@ import Pieces from './components/Pieces'
 import Banners from './components/Banners'
 import Auctions from './components/Auctions'
 import Account from './components/Account'
-import Profile from './components/Profile'
 import Col from 'react-bootstrap/Col'
-import profileIcon from './assets/profile-icon.svg'
+import anonymProfileIcon from './assets/anonym-profile-icon.svg'
+import Login from './components/Login'
+import defaultProfileIcon from './assets/default-profile-icon.svg'
+import { getCookie } from './utils/cookie'
 import './App.css'
 
-const App = () => (
-    <div data-bs-theme="dark" className="bg-dark-subtle" style={{minHeight: "100vh"}}>
+const App = () => {
+    const [logged, setLogged] = useState(false)
+
+    useEffect(() => {
+        if (getCookie("access_token")) {
+            setLogged(true)
+        }
+    }, [])
+
+    return <div data-bs-theme="dark" className="bg-dark-subtle" style={{minHeight: "100vh"}}>
         <Navbar className="bg-body-tertiary z-1">
             <Container>
                 <Navbar.Brand>
@@ -52,9 +62,7 @@ const App = () => (
                         </Link>
                     </Navbar.Text>
                     <Navbar.Text>
-                        <Link to="/profile" className="text-decoration-none">
-                            <img src={profileIcon} width="45" height="45" />
-                        </Link>
+                        <img src={logged ? defaultProfileIcon : anonymProfileIcon} width="45" height="45" />
                     </Navbar.Text>
                 </Navbar.Collapse>
             </Container>
@@ -65,9 +73,11 @@ const App = () => (
             <Route path="/banners" element={<Banners />} />
             <Route path="/auctions" element={<Auctions />} />
             <Route path="/account" element={<Account />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/login" element={<Login
+                setLogged = {setLogged}
+            />} />
         </Routes>
     </div>
-)
+}
 
 export default App

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
@@ -5,9 +7,10 @@ import Col from 'react-bootstrap/Col'
 import chessPiece from '../assets/chess-piece.svg'
 import pack from '../assets/pack.svg'
 import auction from '../assets/auction.svg'
+import { getCookie } from '../utils/cookie'
 
-const Home = () => (
-    <Container fluid className="d-flex gap-5 flex-column p-0">
+const Home = () => {
+    return <Container fluid className="d-flex gap-5 flex-column p-0">
         <Container fluid className="d-flex justify-content-center align-items-center flex-column gap-4 bg-dark" style={{padding: "100px"}}>
             <Row>
                 <h1 className="text-white text-center">Chess Heroes</h1>
@@ -17,10 +20,14 @@ const Home = () => (
             </Row>
             <Row>
                 <Col>
-                    <Button variant="primary">Login</Button>
+                    <Link to="/login" className="text-decoration-none">
+                        <Button variant="primary">Login</Button>
+                    </Link>
                 </Col>
                 <Col>
-                    <Button variant="primary">Register</Button>
+                <Link to="/register" className="text-decoration-none">
+                        <Button variant="primary">Register</Button>
+                    </Link>
                 </Col>
             </Row>
         </Container>
@@ -53,6 +60,6 @@ const Home = () => (
             </Col>
         </Container>
     </Container>
-)
+}
 
 export default Home
