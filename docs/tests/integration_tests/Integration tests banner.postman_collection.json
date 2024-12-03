@@ -1,11 +1,59 @@
 {
 	"info": {
-		"_postman_id": "4186eded-96a0-47e6-b7c3-f9a477233138",
-		"name": "Unit tests banner",
+		"_postman_id": "03ea5278-bfb3-4bc3-93b7-1511024367ea",
+		"name": "Integration tests banner",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22214390"
 	},
 	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    const jsonData = pm.response.json()",
+							"    ",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token)",
+							"    }",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"ChessHeroes2024@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:3001/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Add banner Base - 201",
 			"event": [
@@ -28,6 +76,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -40,13 +98,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner",
+					"raw": "https://localhost:3001/banner/banner",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner"
 					]
 				}
@@ -75,6 +134,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -87,13 +156,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner",
+					"raw": "https://localhost:3001/banner/banner",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner"
 					]
 				}
@@ -122,6 +192,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -134,13 +214,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner",
+					"raw": "https://localhost:3001/banner/banner",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner"
 					]
 				}
@@ -180,16 +261,27 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/1",
+					"raw": "https://localhost:3001/banner/banner/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1"
 					]
@@ -220,7 +312,14 @@
 			],
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "PUT",
 				"header": [],
@@ -234,13 +333,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner/1",
+					"raw": "https://localhost:3001/banner/banner/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1"
 					]
@@ -270,16 +370,27 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/1",
+					"raw": "https://localhost:3001/banner/banner/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1"
 					]
@@ -315,17 +426,40 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "https://localhost:3004/banner/pull/3",
+					"raw": "https://localhost:3001/banner/banner/pull/3",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"pull",
 						"3"
@@ -356,6 +490,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -368,13 +512,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner",
+					"raw": "https://localhost:3001/banner/banner",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner"
 					]
 				}
@@ -406,6 +551,16 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -418,13 +573,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner/1000",
+					"raw": "https://localhost:3001/banner/banner/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1000"
 					]
@@ -454,6 +610,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PUT",
 				"header": [],
 				"body": {
@@ -466,13 +632,14 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner/1",
+					"raw": "https://localhost:3001/banner/banner/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1"
 					]
@@ -502,16 +669,27 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/1000",
+					"raw": "https://localhost:3001/banner/banner/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"1000"
 					]
@@ -541,16 +719,27 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/pull/1000",
+					"raw": "https://localhost:3001/banner/banner/pull/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3004",
+					"port": "3001",
 					"path": [
+						"banner",
 						"banner",
 						"pull",
 						"1000"
@@ -558,6 +747,16 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "user_id",
+			"value": ""
 		}
 	]
 }
