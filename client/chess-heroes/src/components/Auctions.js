@@ -56,8 +56,8 @@ const Auctions = () => {
 
             getPieces(pieces_id).then(res => {
                 const pieces = res.reduce((pieces, piece) => {
-                    pieces[piece.id] = piece;
-                    return pieces;
+                    pieces[piece.id] = piece
+                    return pieces
                 }, {})
                 console.log(pieces)
                 setAuctionPieces(pieces)

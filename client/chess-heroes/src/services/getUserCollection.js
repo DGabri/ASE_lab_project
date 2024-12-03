@@ -19,8 +19,19 @@ const getUserCollection = async (user_id, access_token) => {
     if (response.status != 200) {
         throw new Error(response.data.err)  
     }
+
+    const collection = {}
     
-    return response.data.collection
+    for (const piece of response.data.collection) {
+        if (piece.gacha_id in collection) {
+            collection[piece.gacha_id] += 1
+        }
+        else {
+            collection[piece.gacha_id] = 1
+        }
+    }
+
+    return collection
 }
 
 export default getUserCollection

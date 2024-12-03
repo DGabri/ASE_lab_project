@@ -124,7 +124,7 @@ def admin_gateway(microservice, path):
             url=target_url,
             data=request.get_data(),
             headers={key: value for key, value in request.headers if key != 'Host'},
-            params=request.args,
+            params=request.args.to_dict(flat=False),
             allow_redirects=False,
             timeout=10, 
             verify=False

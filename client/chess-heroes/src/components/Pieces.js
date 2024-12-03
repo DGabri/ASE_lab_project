@@ -1,5 +1,5 @@
 import Container from 'react-bootstrap/Container'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import getAllPieces from '../services/getAllPieces'
 import Accordion from 'react-bootstrap/Accordion'
 import chessValueIcon from '../assets/chess-value-icon.svg'
@@ -11,9 +11,11 @@ import knightWhite from '../assets/knight-white.png'
 import rookWhite from '../assets/rook-white.png'
 import bishopWhite from '../assets/bishop-white.png'
 import pawnWhite from '../assets/pawn-white.png'
+import { UserContext } from '../App'
 
 const Pieces = () => {
     const [pieces, setPieces] = useState([])
+    const user = useContext(UserContext)
 
     const gradesColor = {
         "C": "#ffffff",
@@ -31,10 +33,12 @@ const Pieces = () => {
     }
 
     useEffect(() => {
-        getAllPieces().then(res => {
-            setPieces(res)
-        }).catch(error => console.error(error))
-    }, [])
+        if (user.logged) {
+            getAllPieces(user.access_token).then(res => {
+                setPieces(res)
+            }).catch(error => console.error(error))
+        }
+    }, [user.logged])
 
     const getChessValueIcons = (value) => {
         const icons = []

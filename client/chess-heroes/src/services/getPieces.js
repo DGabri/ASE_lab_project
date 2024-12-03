@@ -1,11 +1,31 @@
-const getPieces = async (pieces_id) => {
+import axios from 'axios'
+
+const getPieces = async (access_token, pieces_id) => {
+    console.log(access_token)
+    const axiosInstance = axios.create({
+        httpsAgent: false,
+        validateStatus: () => true
+    })
+
     const params = pieces_id.map(piece_id => (
         "id=" + piece_id
     )).join('&')
 
-    const response = await fetch("http://127.0.0.1:5003/piece?" + params).then(res => res.json())
-    
-    return response["pieces"]
+    const response = await axiosInstance.get(
+        "http://localhost:3000/piece/piece?" + params,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access_token}`
+            }
+        }
+    )
+
+    if (response.status != 200) {
+        throw new Error(response.data.err)  
+    }
+
+    return response.data.pieces
 }
 
 export default getPieces

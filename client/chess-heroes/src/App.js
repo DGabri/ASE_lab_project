@@ -25,7 +25,7 @@ export const UserContext = createContext({
     username: "",
     gold: 0,
     pic: defaultUserIcon,
-    collection: []
+    collection: {}
 })
 
 const App = () => {
@@ -36,7 +36,7 @@ const App = () => {
         username: "",
         gold: 0,
         pic: defaultUserIcon,
-        collection: []
+        collection: {}
     })
     
     const [timeoutId, setTimeoutId] = useState(0)
@@ -78,7 +78,7 @@ const App = () => {
             username: "",
             gold: 0,
             pic: defaultUserIcon,
-            collection: []
+            collection: {}
         })
     }
 

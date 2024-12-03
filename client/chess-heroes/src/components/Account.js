@@ -64,6 +64,14 @@ const Account = ({ setUser }) => {
                     <img width="40" height="40" className="ms-2" src={goldIcon} />
                 </Col>
             </Row>
+            <Row>
+                {Object.keys(user.collection).map(key => (
+                    <Row>
+                        {key}
+                        {user.collection[key]}
+                    </Row>
+                ))}
+            </Row>
         </Card>
     </Container>
 }
