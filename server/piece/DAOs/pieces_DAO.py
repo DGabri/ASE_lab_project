@@ -49,9 +49,9 @@ class PiecesDAO:
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(True, DBResultCode.NOT_FOUND, "No piece found")
+                return DBResult(True, DBResultCode.NOT_FOUND, "No piece found.")
             
-            return DBResult(True, DBResultCode.OK, "Piece updated")
+            return DBResult(True, DBResultCode.OK, "Piece updated.")
         except sqlite3.Error as e:
             return DBResult(False, DBResultCode.ERROR, str(e))
 

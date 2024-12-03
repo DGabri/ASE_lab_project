@@ -83,7 +83,7 @@ def add_banner():
             'pieces_num': True,
             'rates': True
         }):
-            return jsonify(message = "Attributes not found or invalid"), 400
+            return jsonify(message = "Attributes not found or invalid."), 400
 
         new_rates = Rates(banner['rates']['common'], banner['rates']['rare'], banner['rates']['super_rare'])
         new_banner = Banner(None, banner['name'], banner['cost'], banner['pic'], banner['pieces_num'], new_rates)
@@ -112,7 +112,7 @@ def update_banner(banner_id):
             'pieces_num': 'pieces_num' in banner,
             'rates': 'rates' in banner
         }):
-            return jsonify(message = "Attributes invalid"), 400
+            return jsonify(message = "Attributes invalid."), 400
 
         rates = Rates.from_dict(banner['rates']) if 'rates' in banner else None
         
@@ -126,7 +126,7 @@ def update_banner(banner_id):
         )
 
         if all(not value or key == 'id' for key, value in banner.to_dict().items()):
-            return jsonify(message = "No attribute found"), 400
+            return jsonify(message = "No attribute found."), 400
 
         result = banners_dao.update_banner(banner)
         
@@ -151,7 +151,7 @@ def delete_banner(banner_id):
     if result.code == DBResultCode.ERROR:
         return jsonify(message = result.message), 500
 
-    return jsonify(message = "Banner deleted"), 200
+    return jsonify(message = "Banner deleted."), 200
 
 # Make a pull for a banner
 @app.route('/banner/pull/<int:banner_id>', methods = ['GET'])
@@ -169,7 +169,7 @@ def pull(banner_id):
         authentication_header = request.headers.get("Authorization")
             
         if not authentication_header or not authentication_header.startswith("Bearer "):
-            return jsonify(message = "Login required"), 401
+            return jsonify(message = "Login required."), 401
         
         token = authentication_header.split(' ')[1]
 
@@ -180,7 +180,7 @@ def pull(banner_id):
                 "method": 'POST'
             }, timeout = 5, verify = False) # nosec
         except ConnectionError:
-            return jsonify(message = "Auth service is down"), 500
+            return jsonify(message = "Auth service is down."), 500
         except HTTPError:
             return jsonify(message = response.content), response.status_code
 
@@ -239,7 +239,7 @@ def pull(banner_id):
             response = requests.post("https://user:5000/player/collection/update", json = {
                 "user_id": user_id,
                 "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
-            }, headers={
+            }, headers = {
                 'Authorization': authentication_header
             }, timeout = 5, verify = False) # nosec
         except ConnectionError:

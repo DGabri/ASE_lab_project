@@ -8,6 +8,25 @@
 	"item": [
 		{
 			"name": "Add banner Base - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add banner Base - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"banner_id\": 4",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -36,6 +55,25 @@
 		},
 		{
 			"name": "Add banner Mega -201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add banner Mega - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"banner_id\": 5",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -64,6 +102,25 @@
 		},
 		{
 			"name": "Add banner Super - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add banner Super - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"banner_id\": 6",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -92,6 +149,36 @@
 		},
 		{
 			"name": "Get banner Base - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get banner Base - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"banner\": {",
+							"            \"cost\": 10,",
+							"            \"id\": 1,",
+							"            \"name\": \"Base\",",
+							"            \"pic\": \"base\",",
+							"            \"pieces_num\": 1,",
+							"            \"rates\": {",
+							"                \"common\": 0.5,",
+							"                \"rare\": 0.375,",
+							"                \"super_rare\": 0.125",
+							"            }",
+							"        }",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -112,6 +199,25 @@
 		},
 		{
 			"name": "Update banner Base - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Update banner Base - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Banner updated.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -151,6 +257,25 @@
 		},
 		{
 			"name": "Delete banner Base - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete banner Base - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Banner deleted.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -171,11 +296,37 @@
 		},
 		{
 			"name": "Make a pull - 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Make a pull - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"    pm.expect(jsonData).to.have.property('pieces')",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/pull/2",
+					"raw": "https://localhost:3004/banner/pull/3",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -184,7 +335,7 @@
 					"path": [
 						"banner",
 						"pull",
-						"2"
+						"3"
 					]
 				}
 			},
@@ -192,6 +343,25 @@
 		},
 		{
 			"name": "Add banner Base - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add banner Base - 400\", function() {",
+							"    pm.response.to.have.status(400)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Attributes not found or invalid.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -220,6 +390,25 @@
 		},
 		{
 			"name": "Get a banner - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get a Banner - 404\", function() {",
+							"    pm.response.to.have.status(404)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"No banner found.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -236,7 +425,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3004/banner/0",
+					"raw": "https://localhost:3004/banner/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -244,7 +433,7 @@
 					"port": "3004",
 					"path": [
 						"banner",
-						"0"
+						"1000"
 					]
 				}
 			},
@@ -252,6 +441,25 @@
 		},
 		{
 			"name": "Update banner Base - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Update banner Base - 400\", function() {",
+							"    pm.response.to.have.status(400)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Attributes invalid.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -281,11 +489,30 @@
 		},
 		{
 			"name": "Delete a banner - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete a banner - 404\", function() {",
+							"    pm.response.to.have.status(404)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"No banner found.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3004/banner/0",
+					"raw": "https://localhost:3004/banner/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -293,14 +520,33 @@
 					"port": "3004",
 					"path": [
 						"banner",
-						"0"
+						"1000"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Make a pull -404",
+			"name": "Make a pull - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Make a pull - 404\", function() {",
+							"    pm.response.to.have.status(404)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"No banner found.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],

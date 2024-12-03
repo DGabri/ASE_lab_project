@@ -46,7 +46,7 @@ def get_pieces():
     pieces_id = request.args.getlist('id')
 
     if len(pieces_id) == 0 or any(int(piece_id) <= 0 for piece_id in pieces_id):
-        return jsonify(message = "Attribute 'piece_id' not found or invalid"), 400
+        return jsonify(message = "Attribute 'piece_id' not found or invalid."), 400
 
     result = pieces_dao.get_pieces(pieces_id)
 
@@ -71,7 +71,7 @@ def add_piece():
             'value': True,
             'description': True
         }):
-            return jsonify(message = "Attributes not found or invalid"), 400
+            return jsonify(message = "Attributes not found or invalid."), 400
 
         new_piece = Piece(None, piece['name'], piece['grade'], piece['pic'], piece['value'], piece['description'])
         result = pieces_dao.insert_piece(new_piece)
@@ -96,7 +96,7 @@ def update_piece(piece_id):
             'value': 'value' in piece,
             'description': 'description' in piece
         }):
-            return jsonify(message = "Attributes invalid"), 400
+            return jsonify(message = "Attributes invalid."), 400
 
         piece = Piece(
             piece_id,
@@ -108,7 +108,7 @@ def update_piece(piece_id):
         )
 
         if all(not value or key == 'id' for key, value in piece.to_dict().items()):
-            return jsonify(message = "No attribute found"), 400
+            return jsonify(message = "No attribute found."), 400
 
         result = pieces_dao.update_piece(piece)
 
@@ -126,7 +126,7 @@ def update_piece(piece_id):
 @app.route('/piece/<int:piece_id>', methods = ['DELETE'])
 def delete_piece(piece_id):
     if int(piece_id) <= 0:
-        return jsonify(message = "Attribute 'piece_id' not found or invalid"), 400
+        return jsonify(message = "Attribute 'piece_id' not found or invalid."), 400
 
     result = pieces_dao.delete_piece(piece_id)
 
@@ -136,7 +136,7 @@ def delete_piece(piece_id):
     if result.code == DBResultCode.ERROR:
         return jsonify(message = result.message), 500
 
-    return jsonify(message = "Piece deleted"), 200
+    return jsonify(message = "Piece deleted."), 200
 
 # Get all the pieces in the database
 @app.route('/piece/all', methods = ['GET'])

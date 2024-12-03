@@ -1,0 +1,113 @@
+services:
+  user_gateway:
+    build: ./user_gateway
+    ports:
+      - "3000:80"
+    networks:
+      - user_network
+    depends_on:
+      - auth
+      - user
+      - piece
+      - banner
+      - auction
+    secrets:
+      - user_gateway_cert_secret
+      - user_gateway_key_secret
+
+  admin_gateway:
+    build: ./admin_gateway
+    ports:
+      - "3001:80"
+    networks:
+      - admin_network
+    depends_on:
+      - auth
+      - user
+      - piece
+      - banner
+      - auction
+    secrets:
+      - admin_gateway_cert_secret
+      - admin_gateway_key_secret     
+
+  auth:
+    build: ./auth
+    networks:
+      - admin_network
+      - user_network
+    secrets:
+      - auth_cert_secret
+      - auth_key_secret
+
+  user:
+    build: ./user
+    networks:
+      - admin_network
+      - user_network
+    secrets:
+      - user_cert_secret
+      - user_key_secret
+
+  piece:
+    build: ./piece
+    networks:
+      - admin_network
+      - user_network
+    secrets:
+      - piece_cert_secret
+      - piece_key_secret
+
+  banner:
+    build: ./banner
+    networks:
+      - admin_network
+      - user_network
+    secrets:
+      - banner_cert_secret
+      - banner_key_secret
+
+  auction:
+    build: ./auction
+    networks:
+      - admin_network
+      - user_network
+    secrets:
+      - auction_cert_secret
+      - auction_key_secret
+
+networks:
+  admin_network:
+    driver: bridge
+  user_network:
+    driver: bridge
+
+secrets:
+  user_gateway_cert_secret:
+    file: ./user_gateway/cert.pem
+  user_gateway_key_secret:
+    file: ./user_gateway/key.pem
+  admin_gateway_cert_secret:
+    file: ./admin_gateway/cert.pem
+  admin_gateway_key_secret:
+    file: ./admin_gateway/key.pem
+  auth_cert_secret:
+    file: ./auth/cert.pem
+  auth_key_secret:
+    file: ./auth/key.pem
+  user_cert_secret:
+    file: ./user/cert.pem
+  user_key_secret:
+    file: ./user/key.pem
+  piece_cert_secret:
+    file: ./piece/cert.pem
+  piece_key_secret:
+    file: ./piece/key.pem
+  banner_cert_secret:
+    file: ./banner/cert.pem
+  banner_key_secret:
+    file: ./banner/key.pem
+  auction_cert_secret:
+    file: ./auction/cert.pem
+  auction_key_secret:
+    file: ./auction/key.pem

@@ -19,7 +19,7 @@ class BannersDAO:
             with self.connection:
                 self.cursor.executescript(sql_script)
         except sqlite3.Error as e:
-            print(f"Cannot initialize banners DAO: {e}")
+            print(f"Cannot initialize banners DAO: {e}.")
     
     def get_banner(self, banner_id):
         try:
@@ -32,7 +32,7 @@ class BannersDAO:
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(None, DBResultCode.NOT_FOUND, "No banner found")
+                return DBResult(None, DBResultCode.NOT_FOUND, "No banner found.")
 
             return DBResult(Banner.from_array(list(row[:5]) + [list(row[5:])]), DBResultCode.OK, "")
         except sqlite3.Error as e:
@@ -74,9 +74,9 @@ class BannersDAO:
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(True, DBResultCode.NOT_FOUND, "No banner founded")
+                return DBResult(True, DBResultCode.NOT_FOUND, "No banner found.")
             
-            return DBResult(True, DBResultCode.OK, "Banner updated")
+            return DBResult(True, DBResultCode.OK, "Banner updated.")
         except sqlite3.Error as e:
             return DBResult(False, DBResultCode.ERROR, str(e))
     
@@ -91,9 +91,9 @@ class BannersDAO:
                 row = self.cursor.fetchone()
 
             if not row:
-                return DBResult(True, DBResultCode.NOT_FOUND, "No banner found")
+                return DBResult(True, DBResultCode.NOT_FOUND, "No banner found.")
             
-            return DBResult(True, DBResultCode.OK, "Banner updated")
+            return DBResult(True, DBResultCode.OK, "Banner updated.")
         except sqlite3.Error as e:
             return DBResult(False, DBResultCode.ERROR, str(e))
 

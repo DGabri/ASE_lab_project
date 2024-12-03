@@ -8,6 +8,25 @@
 	"item": [
 		{
 			"name": "Add King - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add King - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 7",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -36,6 +55,25 @@
 		},
 		{
 			"name": "Add Queen - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add Queen - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 8",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -64,6 +102,25 @@
 		},
 		{
 			"name": "Add Rook - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add Rook - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 9",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -92,6 +149,25 @@
 		},
 		{
 			"name": "Add Knight - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add Knight - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 10",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -120,6 +196,25 @@
 		},
 		{
 			"name": "Add Bishop - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add Bishop - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 11",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -148,6 +243,25 @@
 		},
 		{
 			"name": "Add Pawn - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add Pawn - 201\", function() {",
+							"    pm.response.to.have.status(201)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"piece_id\": 12",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -176,6 +290,34 @@
 		},
 		{
 			"name": "Get King - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get King - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"pieces\": [",
+							"            {",
+							"                \"description\": \"The king (♔, ♚) is the most important piece in the game of chess. It may move to any adjoining square; it may also perform, in tandem with the rook, a special move called castling. If a player's king is threatened with capture, it is said to be in check, and the player must remove the threat of capture immediately. If this cannot be done, the king is said to be in checkmate, resulting in a loss for that player. A player cannot make any move that places their own king in check. Despite this, the king can become a strong offensive piece in the endgame or, rarely, the middlegame.\",",
+							"                \"grade\": \"SR\",",
+							"                \"id\": 1,",
+							"                \"name\": \"King\",",
+							"                \"pic\": \"king\",",
+							"                \"value\": 0",
+							"            }",
+							"        ]",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {
@@ -223,7 +365,14 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"pm.test(\"Update King - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Piece updated.\"",
+							"    })",
+							"})"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -275,6 +424,25 @@
 		},
 		{
 			"name": "Delete King - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete King - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Piece deleted.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -304,6 +472,22 @@
 		},
 		{
 			"name": "Get all pieces - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get all pieces - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"    pm.expect(jsonData).to.have.property('pieces')",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -324,6 +508,25 @@
 		},
 		{
 			"name": "Add King - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Add King - 400\", function() {",
+							"    pm.response.to.have.status(400)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Attributes not found or invalid.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -352,6 +555,35 @@
 		},
 		{
 			"name": "Get piece - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get King - 404\", function() {",
+							"    pm.response.to.have.status(404)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"No pieces found.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -368,7 +600,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:3003/piece?id=100",
+					"raw": "https://localhost:3003/piece?id=1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -380,7 +612,7 @@
 					"query": [
 						{
 							"key": "id",
-							"value": "100"
+							"value": "1000"
 						}
 					]
 				}
@@ -388,13 +620,20 @@
 			"response": []
 		},
 		{
-			"name": "Update a piece - 400",
+			"name": "Update King - 400",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"pm.test(\"Update King - 400\", function() {",
+							"    pm.response.to.have.status(400)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"Attributes invalid.\"",
+							"    })",
+							"})"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -440,11 +679,30 @@
 		},
 		{
 			"name": "Delete a piece - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete a piece - 404\", function() {",
+							"    pm.response.to.have.status(404)",
+							"    var jsonData = pm.response.json()",
+							"",
+							"    pm.expect(jsonData).to.eql({",
+							"        \"message\": \"No piece found.\"",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3003/piece/100",
+					"raw": "https://localhost:3003/piece/1000",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -452,7 +710,7 @@
 					"port": "3003",
 					"path": [
 						"piece",
-						"100"
+						"1000"
 					]
 				}
 			},
