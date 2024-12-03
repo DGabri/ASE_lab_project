@@ -29,24 +29,8 @@ jobs:
         # build and run
         docker compose -f docker-compose-unit-tests.yml up --build
         
-        echo "Waiting for services..."
-        timeout=300
-        elapsed=0
-        while [ $elapsed -lt $timeout ]; do
-          if docker compose -f docker-compose-unit-tests.yml ps | grep -q "health: starting"; then
-            echo "Services starting... waiting"
-            sleep 5
-            elapsed=$((elapsed + 5))
-          else
-            echo "services started"
-            break
-          fi
-        done
         
-        if [ $elapsed -ge $timeout ]; then
-          echo "Timeout waiting for services to be ready"
-          exit 1
-        fi
+        sleep 120
         
     - name: Run Auction Unit Tests
       run: |
