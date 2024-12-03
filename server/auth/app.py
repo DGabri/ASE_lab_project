@@ -1,5 +1,5 @@
-from wtforms.validators import Email, InputRequired, Length, NumberRange, DataRequired, Regexp
-from wtforms import StringField, IntegerField
+from wtforms.validators import Email, InputRequired, Length, DataRequired, Regexp
+from wtforms import StringField
 from password_strength import PasswordPolicy
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
