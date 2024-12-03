@@ -1,0 +1,82 @@
+name: Postman Unit Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        
+    - name: Install Newman
+      run: |
+        npm install -g newman
+
+    - name: Build and start Docker containers
+      working-directory: ./server
+      run: |
+        # build and run
+        docker compose -f docker-compose-unit-tests.yml up --build
+        
+        echo "Waiting for services..."
+        timeout=300
+        elapsed=0
+        while [ $elapsed -lt $timeout ]; do
+          if docker compose -f docker-compose-unit-tests.yml ps | grep -q "health: starting"; then
+            echo "Services starting... waiting"
+            sleep 5
+            elapsed=$((elapsed + 5))
+          else
+            echo "services started"
+            break
+          fi
+        done
+        
+        if [ $elapsed -ge $timeout ]; then
+          echo "Timeout waiting for services to be ready"
+          exit 1
+        fi
+        
+    - name: Run Auction Unit Tests
+      run: |
+        newman run ./docs/tests/unit_tests/Auction.Unit.Tests.postman_collection.json
+        
+    - name: Run Auth Unit Tests
+      run: |
+        newman run ./docs/tests/unit_tests/Auth.Unit.Tests.postman_collection.json
+        
+    - name: Run Banner Unit Tests
+      run: |
+        newman run ./docs/tests/unit_tests/Unit\ tests\ banner.postman_collection.json
+        
+    - name: Run Piece Unit Tests
+      run: |
+        newman run ./docs/tests/unit_tests/Unit\ tests\ piece.postman_collection.json
+        
+    - name: Run User Unit Tests
+      run: |
+        newman run ./docs/tests/unit_tests/User.Unit.Test.postman_collection.json
+        
+    - name: Stop Docker containers
+      if: always()
+      working-directory: ./server
+      run: |
+        docker compose -f docker-compose-unit-tests.yml down
+        
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: newman-results
+        path: newman/
