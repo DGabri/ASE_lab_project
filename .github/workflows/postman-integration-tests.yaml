@@ -1,4 +1,4 @@
-name: Postman Unit Tests
+name: Postman Integration Tests
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  unit-tests:
+  integration-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -31,7 +31,7 @@ jobs:
         
         sleep 60
         
-    - name: Run Auction Unit Tests
+    - name: Run User Auth Auction Integration Test
       run: |
         newman run ./docs/tests/integration_test/User.Auth.Auction.postman_collection.json --insecure
         
