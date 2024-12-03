@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  integration-test:
+  integration-tests:
     runs-on: ubuntu-latest
     
     steps:
@@ -27,21 +27,29 @@ jobs:
       working-directory: ./server
       run: |
         # build and run
-        docker compose -f docker-compose.yml up --build -d
+        docker compose -f docker-compose-tests.yml up --build -d
         
         sleep 60
         
-    - name: Run User Auth Auction Integration Test
+    - name: Run User Auth Auction Integration Tests
       run: |
-        newman run ./docs/tests/integration_test/User.Auth.Auction.postman_collection.json --insecure
+        newman run ./docs/tests/integration_tests/User.Auth.Auction.postman_collection.json --insecure
+
+    - name: Run Piece Integration Tests
+      run: |
+        newman run ./docs/tests/integration_tests/Integration tests piece.postman_collection.json --insecure
+
+    - name: Run Banner Integration Tests
+      run: |
+        newman run ./docs/tests/integration_tests/Integration tests banner.postman_collection.json --insecure
         
     - name: Stop Docker containers
       if: always()
       working-directory: ./server
       run: |
-        docker compose -f docker-compose.yml down -v
+        docker compose -f docker-compose-tests.yml down -v
         
-    - name: Upload test results
+    - name: Upload tests results
       if: always()
       uses: actions/upload-artifact@v3
       with:

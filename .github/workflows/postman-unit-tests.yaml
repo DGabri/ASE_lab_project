@@ -57,7 +57,7 @@ jobs:
       run: |
         docker compose -f docker-compose-unit-tests.yml down
         
-    - name: Upload test results
+    - name: Upload tests results
       if: always()
       uses: actions/upload-artifact@v3
       with:
