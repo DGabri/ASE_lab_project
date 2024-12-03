@@ -48,3 +48,11 @@ INSERT INTO collection (user_id, gacha_id, added_at)
 VALUES (3, 2, strftime('%s','now'));
 INSERT INTO collection (user_id, gacha_id, added_at) 
 VALUES (4, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (4, 1, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (4, 2, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (4, 2, strftime('%s','now'));
+INSERT INTO collection (user_id, gacha_id, added_at) 
+VALUES (4, 2, strftime('%s','now'));

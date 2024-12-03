@@ -3590,7 +3590,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://127.0.0.1:3000/auth/delete_user/3",
+					"raw": "https://127.0.0.1:3000/auth/delete_user/{{user_id}}",
 					"protocol": "https",
 					"host": [
 						"127",
@@ -3602,7 +3602,7 @@
 					"path": [
 						"auth",
 						"delete_user",
-						"3"
+						"{{user_id}}"
 					]
 				}
 			},
