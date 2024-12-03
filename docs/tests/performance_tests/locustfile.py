@@ -1,4 +1,4 @@
-from locust import HttpUser, task, constant, SequentialTaskSet
+from locust import HttpUser, task, constant
 import json
 
 class QuickstartUser(HttpUser):
@@ -42,6 +42,7 @@ class QuickstartUser(HttpUser):
         }, verify = False)
 
     # Auction endpoints
+    """
     @task
     def add_auction(self):
         response = self.client.post('/auction/create_auction', json = {
@@ -52,6 +53,8 @@ class QuickstartUser(HttpUser):
         }, headers = {
             'Authorization': 'Bearer ' + self.access_token
         }, verify = False)
+        print(response.json())
+    """
 
     # Banner endpoints
     @task

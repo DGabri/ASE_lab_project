@@ -60,6 +60,7 @@ ROUTE_PERMISSIONS = {
     'POST:/logout/<player_id>': [1,0],             # logout
     'POST:/token': [1,0],                          # login
     'POST:/player/collection/update': [1,0],       # update user collection
+    'GET:/user/balance/<user_id>': [0, 1],
     
     # admin routes
     'GET:/admin/logs': [0],                                  # get all logs
@@ -115,6 +116,8 @@ def normalize_route(route, method):
             if 'bid' in full_path:
                 normalized_parts.append('<auction_id>')
             elif '/admin/user/modify' in full_path:
+                normalized_parts.append('<user_id>')
+            elif '/user/balance' in full_path:
                 normalized_parts.append('<user_id>')
             elif '/auction/running' in full_path:
                 normalized_parts.append('<piece_id>')

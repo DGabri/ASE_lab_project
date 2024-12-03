@@ -213,20 +213,14 @@ def pull(banner_id):
     # Update the player gold
     if not mock_fun:
         try:
-            response = requests.put(f"https://user:5000/user/balance/{user_id}", json = {
-                "amount": banner.cost * (-1),
-                "is_refill": False
-            }, timeout = 5, verify = False) # nosec
+            response = requests.get(f"https://user:5000/user/balance/{user_id}", timeout = 5, verify = False) # nosec
         except ConnectionError:
             return jsonify(message = "User service is down."), 500
         except HTTPError:
             return jsonify(message = response.content), response.status_code
 
         if response.status_code != 200:
-            return jsonify(message = response.json()["rsp"]), response.status_code
-
-        if not 'new_balance' in response.json():
-            return jsonify(message = "Insufficient amount of gold."), 403
+            return jsonify(message = response.json()["error"]), response.status_code
 
     pieces_pulled = []
 

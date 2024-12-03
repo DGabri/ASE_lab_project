@@ -1,4 +1,4 @@
-from locust import HttpUser, task, between, events
+from locust import HttpUser, task, constant, events
 import json
 
 distribution = {
@@ -8,10 +8,35 @@ distribution = {
 }
 
 class QuickstartUser(HttpUser):
+    wait_time = constant(1)
+
+    def on_start(self):
+        self.login()
+
+    def login(self):
+        response = self.client.post('/auth/login', json = {
+            "username": "player",
+            "password": "ChessHeroes2024@",
+        }, verify = False)
+
+        if response.status_code == 200:
+            self.access_token = response.json()['access_token']
+            self.user_id = response.json()['user']['id']
+
+    @task
+    def update_gold(self):
+        response = self.client.put(f'/user/player/gold/{self.user_id}', json = {
+            "amount": 10,
+            "is_refill": True
+        }, headers = {
+            'Authorization': 'Bearer ' + self.access_token
+        }, verify = False)
     
     @task
     def pull(self):
-        response = self.client.get('/banner/banner/pull/1', verify = False)
+        response = self.client.get('/banner/banner/pull/1', headers = {
+            'Authorization': 'Bearer ' + self.access_token
+        }, verify = False)
 
         if response.status_code == 200:
             pieces = response.json()['pieces']
