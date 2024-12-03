@@ -27,10 +27,9 @@ jobs:
       working-directory: ./server
       run: |
         # build and run
-        docker compose -f docker-compose-unit-tests.yml up --build
+        docker compose -f docker-compose-unit-tests.yml up --build -d
         
-        
-        sleep 120
+        sleep 80
         
     - name: Run Auction Unit Tests
       run: |
