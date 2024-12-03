@@ -36,12 +36,13 @@ const Account = ({ setUser }) => {
 
     useEffect(() => {
         if (user.logged) {
-            getUserGold(user.id, user.access_token).then(res => {
+            setTimeout(() => getUserGold(user.id, user.access_token).then(res => {
+                console.log(res)
                 setUser(prev => ({
                     ...prev,
                     gold: res
                 }))
-            }).catch(error => console.error(error))
+            }).catch(error => console.error(error)), 100)
             getUserCollection(user.id, user.access_token).then(res => {
                 setUser(prev => ({
                     ...prev,

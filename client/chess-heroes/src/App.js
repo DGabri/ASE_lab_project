@@ -98,7 +98,7 @@ const App = () => {
                     type: "",
                     message: ""
                 })
-            }, 10000)
+            }, 5000)
         )
     }
 
@@ -157,8 +157,8 @@ const App = () => {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            {alert.display && <Container className="z-1 my-4 position-absolute start-50" style={{translate: "-50%", width: "40rem"}}>
-                <Alert key={alert.type} variant={alert.type}>
+            {alert.display && <Container className="z-1 position-absolute start-50 my-4" style={{translate: "-50%", width: "40rem"}}>
+                <Alert className="sticky-top" key={alert.type} variant={alert.type}>
                     {alert.message}
                 </Alert>
             </Container>}

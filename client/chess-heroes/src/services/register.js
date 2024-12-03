@@ -9,7 +9,7 @@ const register = async (email, username, password) => {
     })
 
     const response = await axiosInstance.post(
-        'https://localhost:3001/auth/create_user',
+        'https://localhost:3000/auth/create_user',
         {
             "email": email,
             "username": username,

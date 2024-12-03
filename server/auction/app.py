@@ -1,4 +1,5 @@
 from flask import Flask, json, request, jsonify
+from flask_cors import CORS
 from auctions_DAO import AuctionsDAO
 import requests
 import logging
@@ -6,7 +7,7 @@ import signal
 import time
 
 app = Flask(__name__)
-
+CORS(app)
 app.config['WTF_CSRF_ENABLED'] = False
 
 with open('config.json') as config_file:

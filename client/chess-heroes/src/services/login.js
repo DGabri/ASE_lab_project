@@ -7,7 +7,7 @@ const login = async (username, password) => {
     })
 
     const response = await axiosInstance.post(
-        'https://localhost:3001/auth/login',
+        'https://localhost:3000/auth/login',
         {
             "username": username,
             "password": password

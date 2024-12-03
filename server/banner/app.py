@@ -1,5 +1,4 @@
 from flask import Flask, request, make_response, jsonify
-from flask_cors import CORS
 from DAOs.banners_DAO import BannersDAO
 from classes.db_result import DBResultCode
 from classes.banner import Banner
@@ -22,7 +21,6 @@ except ValueError:
     print("Decoding JSON 'config' file has failed.")
 
 app = Flask(__name__)
-CORS(app)
 banners_dao = BannersDAO(config['db']['name'], config['db']['scheme'])
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -232,9 +230,11 @@ def pull(banner_id):
         pieces_pulled.append(pull_piece(banner, pieces))
     
     try:
-        response = requests.post("https://piece:5000/player/collection/update", json = {
+        response = requests.post("https://user:5000/player/collection/update", json = {
             "user_id": user_id,
             "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
+        }, headers={
+            'Authorization': authentication_header
         }, timeout = 5, verify = False) # nosec
     except ConnectionError:
         return jsonify(message = "User service is down."), 500

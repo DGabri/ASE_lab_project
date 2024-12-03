@@ -1,9 +1,33 @@
-const getBanners = async () => {
+import axios from 'axios'
+
+const getBanners = async (access_token) => {
+    console.log(access_token)
+    const axiosInstance = axios.create({
+        httpsAgent: false,
+        validateStatus: () => true
+    })
+
     const responses = []
-    responses.push(await fetch("http://127.0.0.1:5004/banner/1").then(res => res.json()))
-    responses.push(await fetch("http://127.0.0.1:5004/banner/2").then(res => res.json()))
-    responses.push(await fetch("http://127.0.0.1:5004/banner/3").then(res => res.json()))
-    return responses.map(response => response["banner"])
+
+    for (let i = 1; i <= 1; i++) {
+        let response = await axiosInstance.get(
+            `https://localhost:3000/banner/banner/${i}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${access_token}`
+                }
+            }
+        )
+    
+        if (response.status != 200) {
+            throw new Error(response.data.err)  
+        }
+
+        responses.push(response)
+    }
+    
+    return responses.map(response => response.data.banner)
 }
 
 export default getBanners

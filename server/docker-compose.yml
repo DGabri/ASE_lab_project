@@ -51,8 +51,8 @@ services:
     networks:
       - admin_network
       - user_network
-    volumes:
-      - ./user/data:/app/data
+    # volumes:
+      # - ./user/data:/app/data
     secrets:
       - user_cert_secret
       - user_key_secret
@@ -62,8 +62,8 @@ services:
     networks:
       - admin_network
       - user_network
-    # volumes:
-      # - ./piece/db:/app/db
+    volumes:
+      - ./piece/db:/app/db
     secrets:
       - piece_cert_secret
       - piece_key_secret
@@ -84,8 +84,8 @@ services:
     networks:
       - admin_network
       - user_network
-    volumes:
-      - ./auction/data:/app/data
+    # volumes:
+      # - ./auction/data:/app/data
     secrets:
       - auction_cert_secret
       - auction_key_secret

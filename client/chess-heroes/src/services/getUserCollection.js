@@ -7,7 +7,7 @@ const getUserCollection = async (user_id, access_token) => {
     })
 
     const response = await axiosInstance.get(
-        `https://localhost:3001/user/player/collection/${user_id}`,
+        `https://localhost:3000/user/player/collection/${user_id}`,
         {
             headers: {
                 'Content-Type': 'application/json',

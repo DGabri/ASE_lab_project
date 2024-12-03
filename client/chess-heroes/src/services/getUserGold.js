@@ -1,13 +1,14 @@
 import axios from 'axios'
 
-const getGold = async (user_id, access_token) => {
+const getUserGold = async (user_id, access_token) => {
+    console.log(user_id, access_token)
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true
     })
 
     const response = await axiosInstance.put(
-        `https://localhost:3001/user/player/gold/${user_id}`,
+        `https://localhost:3000/user/player/gold/${user_id}`,
         {
             "amount": 0,
             "is_refill": true
@@ -27,4 +28,4 @@ const getGold = async (user_id, access_token) => {
     return response.data.new_balance
 }
 
-export default getGold
+export default getUserGold

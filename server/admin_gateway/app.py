@@ -1,8 +1,8 @@
 from flask import Flask, request, Response, jsonify
+from flask_cors import CORS
 from urllib.parse import urljoin
 import requests
 import logging
-from flask_cors import CORS
 
 # Configure logging
 logging.basicConfig(

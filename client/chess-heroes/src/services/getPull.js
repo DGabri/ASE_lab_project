@@ -1,6 +1,26 @@
-const getPull = async (banner) => {
-    const response = await fetch(`http://127.0.0.1:5004/banner/pull/${banner.id}`).then(res => res.json())
-    return response["pieces"]
+import axios from 'axios'
+
+const getPull = async (access_token, banner_id) => {
+    const axiosInstance = axios.create({
+        httpsAgent: false,
+        validateStatus: () => true
+    })
+
+    const response = await axiosInstance.get(
+        `https://localhost:3000/banner/banner/pull/${banner_id}`,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access_token}`
+            }
+        }
+    )
+
+    if (response.status != 200) {
+        throw new Error(response.data.err)  
+    }
+    
+    return response.data.pieces
 }
 
 export default getPull

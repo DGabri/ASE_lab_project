@@ -4,7 +4,7 @@ import Col from 'react-bootstrap/Col'
 import chessPiece from '../assets/chess-piece.svg'
 import pack from '../assets/pack.svg'
 import auction from '../assets/auction.svg'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import getBanners from '../services/getBanners'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
@@ -23,12 +23,14 @@ import pawnWhite from '../assets/pawn-white.png'
 import goldIcon from '../assets/gold-icon.svg'
 import GiftBoxAnimation from "./GiftBoxAnimation"
 import getPull from '../services/getPull'
+import { UserContext } from '../App'
 
 const Banners = () => {
     const [banners, setBanners] = useState([])
     const [pieces, setPieces] = useState([])
     const [displayPull, setDisplayPull] = useState(false)
     const [piecesPulled, setPiecesPulled] = useState({})
+    const user = useContext(UserContext)
 
     const [displayInfo, setDisplayInfo] = useState([
         false,
@@ -60,16 +62,17 @@ const Banners = () => {
     useEffect(() => () => document.body.classList.remove("overflow-hidden"), [])
 
     useEffect(() => {
-        getBanners().then(res => {
-            setBanners(res)
-        }).catch(error => console.error(error))
-    }, [])
+        if (user.logged) {
+            getBanners(user.access_token).then(res => {
+                setBanners(res)
+            }).catch(error => console.error(error))
 
-    useEffect(() => {
-        getAllPieces().then(res => {
-            setPieces(res)
-        }).catch(error => console.error(error))
-    }, [])
+            getAllPieces().then(res => {
+                setPieces(res)
+            }).catch(error => console.error(error))
+        }
+        
+    }, [user.logged])
 
     function changeDisplayInfo(value, index) {
         setDisplayInfo(displayInfo.map((displayInfo, i) => i == index ? value : displayInfo))
@@ -86,7 +89,7 @@ const Banners = () => {
     }
 
     async function pullPiece(banner) {
-        const pieces = await getPull(banner)
+        const pieces = await getPull(user.access_token, banner.id)
         setPiecesPulled(pieces)
         startPullAnimation()
     }

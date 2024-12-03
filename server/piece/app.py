@@ -1,5 +1,4 @@
 from flask import Flask, request, make_response, jsonify
-from flask_cors import CORS
 from DAOs.pieces_DAO import PiecesDAO
 from classes.db_result import DBResultCode
 from classes.piece import Piece
@@ -20,7 +19,6 @@ except ValueError:
 
 logging.basicConfig(filename='piece.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 app = Flask(__name__)
-CORS(app)
 pieces_dao = PiecesDAO(config['db']['name'], config['db']['scheme'])
 app.config['WTF_CSRF_ENABLED'] = False
 
