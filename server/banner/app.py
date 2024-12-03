@@ -10,7 +10,7 @@ import json
 import requests
 import random
 
-is_test = False
+mock_fun = None
 
 try:
     with open('config.json') as config_file:
@@ -38,7 +38,6 @@ def rates_are_valid(rates):
         return False
 
     return True
-
 
 def banner_is_valid(banner, to_check):
     if to_check['name'] and (not 'name' in banner or not isinstance(banner['name'], str) or not banner['name']):
@@ -158,15 +157,37 @@ def delete_banner(banner_id):
 @app.route('/banner/pull/<int:banner_id>', methods = ['GET'])
 def pull(banner_id):
     """
-    1) Update player gold
-    2) Get banner info
+    1) Get the user_id
+    2) Get the banner info
     3) Get pieces info
-    4) Select at random the pieces
+    4) Update the player gold
     5) Update player collection
-    6) Return the pieces
     """
-    
-    # Get banner info
+
+    # Get the user id
+    if not mock_fun:
+        authentication_header = request.headers.get("Authorization")
+            
+        if not authentication_header or not authentication_header.startswith("Bearer "):
+            return jsonify(message = "Login required"), 401
+        
+        token = authentication_header.split(' ')[1]
+
+        try:
+            response = requests.post("https://auth:5000/authorize", json={
+                "token": token,
+                "route": 'token',
+                "method": 'POST'
+            }, timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "Auth service is down"), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
+
+    content = mock_fun('POST:/auth/authorize') if mock_fun else response.json()
+    user_id = content['user']['sub']
+
+    # Get the banner info
     content, code = get_banner(banner_id)
 
     if code != 200:
@@ -174,72 +195,57 @@ def pull(banner_id):
 
     banner = Banner.from_dict(content.get_json()['banner'])
 
-    # Retrieve the user id
-    authentication_header = request.headers.get("Authorization")
-        
-    if not authentication_header or not authentication_header.startswith("Bearer "):
-        return jsonify(message = "Login required"), 401
-    
-    token = authentication_header.split(' ')[1]
-    user_id = 1
+    # Get pieces info
+    if not mock_fun:
+        try:
+            response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "Piece service is down."), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
 
-    try:
-        response = requests.post("https://auth:5000/authorize", json={
-            "token": token,
-            "route": 'token',
-            "method": 'POST'
-        }, timeout = 5, verify = False) # nosec
+        if response.status_code != 200:
+            return jsonify(message = respose.json()['message']), response.status_code
 
-        user_id = response.json()['user']['sub']
-    except ConnectionError:
-        return jsonify(message = "Auth service is down"), 500
-    except HTTPError:
-        return jsonify(message = response.content), response.status_code
+    content = mock_fun('GET:/piece/all') if mock_fun else response.json()
+    pieces = content['pieces']
 
-    # Make the request for the gold update
-    try:
-        response = requests.put(f"https://user:5000/player/gold/{user_id}", json = {
-            "amount": banner.cost * (-1),
-            "is_refill": False
-        }, timeout = 5, verify = False) # nosec
-        
+    # Update the player gold
+    if not mock_fun:
+        try:
+            response = requests.put(f"https://user:5000/user/balance/{user_id}", json = {
+                "amount": banner.cost * (-1),
+                "is_refill": False
+            }, timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "User service is down."), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
+
         if response.status_code != 200:
             return jsonify(message = response.json()["rsp"]), response.status_code
 
         if not 'new_balance' in response.json():
             return jsonify(message = "Insufficient amount of gold."), 403
-    except ConnectionError:
-        return jsonify(message = "User service is down."), 500
-    except HTTPError:
-        return jsonify(message = response.content), response.status_code
-    
-    try:
-        response = requests.get("https://piece:5000/piece/all", timeout = 5, verify = False) # nosec
-    except ConnectionError:
-        return jsonify(message = "Piece service is down."), 500
-    except HTTPError:
-        return jsonify(message = response.content), response.status_code
 
-    if response.status_code != 200:
-        return jsonify(message = respose.json()['message']), response.status_code
-        
-    pieces = response.json()['pieces']
     pieces_pulled = []
 
     for i in range(banner.pieces_num):
         pieces_pulled.append(pull_piece(banner, pieces))
     
-    try:
-        response = requests.post("https://user:5000/player/collection/update", json = {
-            "user_id": user_id,
-            "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
-        }, headers={
-            'Authorization': authentication_header
-        }, timeout = 5, verify = False) # nosec
-    except ConnectionError:
-        return jsonify(message = "User service is down."), 500
-    except HTTPError:
-        return jsonify(message = response.content), response.status_code
+    # Update the player collection
+    if not mock_fun:
+        try:
+            response = requests.post("https://user:5000/player/collection/update", json = {
+                "user_id": user_id,
+                "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
+            }, headers={
+                'Authorization': authentication_header
+            }, timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "User service is down."), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
 
     return jsonify(pieces = pieces_pulled), 200
 

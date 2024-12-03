@@ -20,9 +20,9 @@ import userIcon from '../assets/user-icon.svg'
 import { setCookie } from '../utils/cookie'
 
 const Register = ({ showAlert }) => {
-    const [email, setEmail] = useState("paolo@gmail.com")
-    const [username, setUsername] = useState("Paolo Brosio")
-    const [password, setPassword] = useState("PaoloBrosio02")
+    const [email, setEmail] = useState("")
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
     const navigate = useNavigate()
 
     const handleSubmit = (event) => {

@@ -9,6 +9,12 @@
     "email": "admin1@chess_heroes.com",
     "user_type": 0
   },
+  "player_credentials": {
+    "username": "player",
+    "password": "ChessHeroes2024@",
+    "email": "player1@chess_heroes.com",
+    "user_type": 1
+  },
   "SECRET_KEY": "Secret-key-chess-heroes",
   "JWT_SECRET_KEY": "Secret-key-chess-heroes-2024",
   "ISSUER": "chess-heroes",

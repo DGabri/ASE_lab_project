@@ -288,6 +288,109 @@ def init_admin(config):
         if 'db_connector' in locals() and db_connector.connection:
             db_connector.connection.rollback()
 
+def init_default_player(config):  
+    try:
+        # atomic transaction
+        with db_connector.connection:
+            
+            # check if player already present
+            db_connector.cursor.execute(
+                "SELECT COUNT(*) FROM users WHERE user_type = 1"
+            )
+            player_count = db_connector.cursor.fetchone()[0]
+            
+            logging.info(f"[AUTH] Player count: {player_count}")
+            
+            if player_count > 0:
+                logger.info("Player user already exists, skipping initialization")
+
+                db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
+                users = db_connector.cursor.fetchall()
+                logger.info("[AUTH] Current users in DB:")
+                for user in users:
+                    logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
+                return
+            
+            # read player credentials from config
+            player_info = config["player_credentials"]
+            
+            # player registration form
+            player_data = {
+                'username': player_info['username'],
+                'email': player_info['email'],
+                'password': player_info['password'],
+                'user_type': player_info['user_type']
+            }
+            
+            # hash password
+            password_bytes = player_info['password'].encode('utf-8')
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password_bytes, salt)
+            player_data['password'] = hashed_password
+            
+            logging.info(f"[AUTH] Player data signup: {player_data}")
+            
+            # create user in auth database within same transaction
+            user_id, err_msg = db_connector.create_user(player_data)
+            
+            if err_msg:
+                logger.error(f"[AUTH] Failed to create player user: {err_msg}")
+                return
+                
+            # print db after insertion
+            db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
+            users = db_connector.cursor.fetchall()
+            logger.info("[AUTH] Users in DB after player creation:")
+            for user in users:
+                logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
+                
+            # call user service to add player
+            user_data = {
+                'username': player_data['username'],
+                'email': player_data['email'],
+                'user_id': user_id
+            }
+            
+            try:
+                res = requests.post(
+                    "https://user:5000/create_user",
+                    json=user_data,
+                    timeout=10, 
+                    verify=False
+                ) # nosec
+                
+                if res.status_code == 200:
+                    logger.info("[AUTH] Player user already exists in user service")
+                    # print db after 
+                    db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
+                    users = db_connector.cursor.fetchall()
+                    logger.info("[AUTH] Final users in DB:")
+                    for user in users:
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
+                    return
+                elif res.status_code == 201:
+                    logger.info("[AUTH] Default player user created successfully")
+                    db_connector.connection.commit()
+                    # print db after 
+                    db_connector.cursor.execute("SELECT id, username, email, user_type FROM users")
+                    users = db_connector.cursor.fetchall()
+                    logger.info("[AUTH] Final users in DB after successful creation:")
+                    for user in users:
+                        logger.info(f"ID: {user[0]}, Username: {user[1]}, Email: {user[2]}, Type: {user[3]}")
+                    return
+                else: 
+                    logger.error("[AUTH] Failed to sync player with user service")
+                    raise Exception("Failed to sync with user service")
+                    
+            except requests.exceptions.RequestException as e:
+                logger.error(f"[AUTH] User service connection failed: {str(e)}")
+                raise
+                            
+    except Exception as e:
+        logger.error(f"[AUTH] Error creating player user: {str(e)}")
+        if 'db_connector' in locals() and db_connector.connection:
+            db_connector.connection.rollback()
+
 # read config
 config = load_config()
 
@@ -306,6 +409,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 # get db connection DAO
 db_connector = init_db(config)
 init_admin(config)
+init_default_player(config)
 ##########################################################
 
 # given user data create jwt

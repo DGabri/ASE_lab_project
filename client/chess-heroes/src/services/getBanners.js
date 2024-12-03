@@ -9,7 +9,7 @@ const getBanners = async (access_token) => {
 
     const responses = []
 
-    for (let i = 1; i <= 1; i++) {
+    for (let i = 1; i <= 3; i++) {
         let response = await axiosInstance.get(
             `https://localhost:3000/banner/banner/${i}`,
             {

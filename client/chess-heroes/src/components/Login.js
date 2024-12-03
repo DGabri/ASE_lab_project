@@ -21,7 +21,7 @@ import { setCookie } from '../utils/cookie'
 import Alert from 'react-bootstrap/Alert';
 
 const Login = ({ setUser, showAlert }) => {
-    const [username, setUsername] = useState("admin")
+    const [username, setUsername] = useState("player")
     const [password, setPassword] = useState("ChessHeroes2024@")
     const navigate = useNavigate()
 

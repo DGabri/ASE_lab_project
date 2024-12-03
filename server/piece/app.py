@@ -45,7 +45,7 @@ def piece_is_valid(piece, to_check):
 def get_pieces():
     pieces_id = request.args.getlist('id')
 
-    if len(pieces_id) == 0 or not all(int(piece_id) > 0 for piece_id in pieces_id):
+    if len(pieces_id) == 0 or any(int(piece_id) <= 0 for piece_id in pieces_id):
         return jsonify(message = "Attribute 'piece_id' not found or invalid"), 400
 
     result = pieces_dao.get_pieces(pieces_id)
@@ -125,6 +125,9 @@ def update_piece(piece_id):
 # Delete a piece
 @app.route('/piece/<int:piece_id>', methods = ['DELETE'])
 def delete_piece(piece_id):
+    if int(piece_id) <= 0:
+        return jsonify(message = "Attribute 'piece_id' not found or invalid"), 400
+
     result = pieces_dao.delete_piece(piece_id)
 
     if result.code == DBResultCode.NOT_FOUND:

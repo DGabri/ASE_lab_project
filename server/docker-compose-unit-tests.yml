@@ -19,25 +19,29 @@ services:
       - user_cert_secret
       - user_key_secret
 
-  #piece:
-  #  build: ./piece/tests
-  #  ports:
-  #    - "3003:5000"
-  #  networks:
-  #    - test_net
-  #  secrets:
-  #    - piece_cert_secret
-  #    - piece_key_secret
+  piece:
+    build:
+      context: ./piece
+      dockerfile: ./tests/Dockerfile_test
+    ports:
+      - "3003:5000"
+    networks:
+      - test_net
+    secrets:
+      - piece_cert_secret
+      - piece_key_secret
 
-  #banner:
-  #  build: ./banner/tests
-  #  ports:
-  #    - "3004:5000"
-  #  networks:
-  #    - test_net
-  #  secrets:
-  #    - banner_cert_secret
-  #    - banner_key_secret
+  banner:
+    build:
+      context: ./banner
+      dockerfile: ./tests/Dockerfile_test
+    ports:
+      - "3004:5000"
+    networks:
+      - test_net
+    secrets:
+      - banner_cert_secret
+      - banner_key_secret
 
   auction:
     build: ./auction/tests
@@ -63,13 +67,13 @@ secrets:
   user_key_secret:
     file: ./user/tests/key.pem
   piece_cert_secret:
-    file: ./piece/tests/cert.pem
+    file: ./piece/cert.pem
   piece_key_secret:
-    file: ./piece/tests/key.pem
+    file: ./piece/key.pem
   banner_cert_secret:
-    file: ./banner/tests/cert.pem
+    file: ./banner/cert.pem
   banner_key_secret:
-    file: ./banner/tests/key.pem
+    file: ./banner/key.pem
   auction_cert_secret:
     file: ./auction/tests/cert.pem
   auction_key_secret:

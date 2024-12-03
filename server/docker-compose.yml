@@ -5,8 +5,8 @@ services:
       - "3000:80"
     networks:
       - user_network
-    # volumes:
-      # - ./user_gateway:/app
+    volumes:
+      - ./user_gateway:/app
     depends_on:
       - auth
       - user
@@ -23,8 +23,8 @@ services:
       - "3001:80"
     networks:
       - admin_network
-    # volumes:
-      # - ./admin_gateway:/app
+    volumes:
+      - ./admin_gateway:/app
     depends_on:
       - auth
       - user
@@ -40,8 +40,8 @@ services:
     networks:
       - admin_network
       - user_network
-    # volumes:
-      # - ./auth/data:/app/data
+    volumes:
+      - ./auth/data:/app/data
     secrets:
       - auth_cert_secret
       - auth_key_secret
@@ -51,8 +51,8 @@ services:
     networks:
       - admin_network
       - user_network
-    # volumes:
-      # - ./user/data:/app/data
+    volumes:
+      - ./user/data:/app/data
     secrets:
       - user_cert_secret
       - user_key_secret
@@ -84,8 +84,8 @@ services:
     networks:
       - admin_network
       - user_network
-    # volumes:
-      # - ./auction/data:/app/data
+    volumes:
+      - ./auction/data:/app/data
     secrets:
       - auction_cert_secret
       - auction_key_secret
