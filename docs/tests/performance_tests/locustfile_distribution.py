@@ -26,7 +26,7 @@ class QuickstartUser(HttpUser):
     @task
     def update_gold(self):
         response = self.client.put(f'/user/player/gold/{self.user_id}', json = {
-            "amount": 10,
+            "amount": 50,
             "is_refill": True
         }, headers = {
             'Authorization': 'Bearer ' + self.access_token

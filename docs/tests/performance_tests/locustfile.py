@@ -42,19 +42,17 @@ class QuickstartUser(HttpUser):
         }, verify = False)
 
     # Auction endpoints
-    """
     @task
-    def add_auction(self):
-        response = self.client.post('/auction/create_auction', json = {
-            "piece_id": 1,
-            "seller_id": self.user_id,
-            "start_price": 100,
-            "duration_hours": 0.000001
-        }, headers = {
+    def get_running_auction(self):
+        response = self.client.get('/auction/running/all', headers = {
             'Authorization': 'Bearer ' + self.access_token
         }, verify = False)
-        print(response.json())
-    """
+
+    @task
+    def get_closed_auction(self):
+        response = self.client.get('/auction/history', headers = {
+            'Authorization': 'Bearer ' + self.access_token
+        }, verify = False)
 
     # Banner endpoints
     @task
