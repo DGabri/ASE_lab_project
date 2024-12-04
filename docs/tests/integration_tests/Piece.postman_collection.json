@@ -7,13 +7,13 @@
 	},
 	"item": [
 		{
-			"name": "Login",
+			"name": "Login admin",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Login\", function() {",
+							"pm.test(\"Login admin\", function() {",
 							"    pm.response.to.have.status(200)",
 							"    const jsonData = pm.response.json()",
 							"    ",

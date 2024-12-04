@@ -7,13 +7,13 @@
 	},
 	"item": [
 		{
-			"name": "Login",
+			"name": "Login admin",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Login\", function() {",
+							"pm.test(\"Login admin\", function() {",
 							"    pm.response.to.have.status(200)",
 							"    const jsonData = pm.response.json()",
 							"    ",
@@ -399,76 +399,6 @@
 			"response": []
 		},
 		{
-			"name": "Make a pull - 200",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Make a pull - 200\", function() {",
-							"    pm.response.to.have.status(200)",
-							"    var jsonData = pm.response.json()",
-							"    pm.expect(jsonData).to.have.property('pieces')",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{access_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://localhost:3001/banner/banner/pull/3",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"banner",
-						"banner",
-						"pull",
-						"3"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Add banner Base - 400",
 			"event": [
 				{
@@ -698,6 +628,193 @@
 			"response": []
 		},
 		{
+			"name": "Login player",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login player\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    const jsonData = pm.response.json()",
+							"    ",
+							"    if (jsonData.access_token) {",
+							"        pm.collectionVariables.set(\"access_token\", jsonData.access_token)",
+							"    }",
+							"",
+							"    if (jsonData.user) {",
+							"        pm.collectionVariables.set(\"user_id\", jsonData.user.id)",
+							"    }",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"player\",\n    \"password\": \"ChessHeroes2024@\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:3000/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update player gold",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Refill player gold\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    const jsonData = pm.response.json()",
+							"    pm.expect(jsonData).to.have.property('message')",
+							"    pm.expect(jsonData).to.have.property('player_id')",
+							"    pm.expect(jsonData).to.have.property('new_balance')",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 50,\n    \"is_refill\": \"True\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:3000/user/player/gold/{{user_id}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"player",
+						"gold",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make a pull - 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Make a pull - 200\", function() {",
+							"    pm.response.to.have.status(200)",
+							"    var jsonData = pm.response.json()",
+							"    pm.expect(jsonData).to.have.property('pieces')",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:3000/banner/banner/pull/3",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"banner",
+						"banner",
+						"pull",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Make a pull - 404",
 			"event": [
 				{
@@ -732,17 +849,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:3001/banner/banner/pull/1000",
+					"raw": "https://localhost:3000/banner/banner/pull/100",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3000",
 					"path": [
 						"banner",
 						"banner",
 						"pull",
-						"1000"
+						"100"
 					]
 				}
 			},

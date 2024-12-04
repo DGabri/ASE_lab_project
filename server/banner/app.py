@@ -241,7 +241,7 @@ def pull(banner_id):
             return jsonify(message = response.content), response.status_code
 
         if response.status_code != 200:
-            return jsonify(message = "Internal error in piece service."), response.status_code
+            return jsonify(message = "Internal error in user service."), response.status_code
 
     pieces_pulled = []
 
