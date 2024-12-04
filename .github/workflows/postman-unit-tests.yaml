@@ -33,23 +33,23 @@ jobs:
         
     - name: Run Auction Unit Tests
       run: |
-        newman run ./docs/tests/unit_tests/Auction.Unit.Tests.postman_collection.json --insecure
+        newman run ./docs/tests/unit_tests/Auction.Unit.Tests.postman_collection.json --insecure --verbose
         
     - name: Run Auth Unit Tests
       run: |
-        newman run ./docs/tests/unit_tests/Auth.Unit.Tests.postman_collection.json --insecure
+        newman run ./docs/tests/unit_tests/Auth.Unit.Tests.postman_collection.json --insecure --verbose
         
     - name: Run Banner Unit Tests
       run: |
-        newman run ./docs/tests/unit_tests/Unit\ tests\ banner.postman_collection.json --insecure
+        newman run ./docs/tests/unit_tests/Unit\ tests\ banner.postman_collection.json --insecure --verbose
         
     - name: Run Piece Unit Tests
       run: |
-        newman run ./docs/tests/unit_tests/Unit\ tests\ piece.postman_collection.json --insecure
+        newman run ./docs/tests/unit_tests/Unit\ tests\ piece.postman_collection.json --insecure --verbose
         
     - name: Run User Unit Tests
       run: |
-        newman run ./docs/tests/unit_tests/User.Unit.Test.postman_collection.json --insecure
+        newman run ./docs/tests/unit_tests/User.Unit.Test.postman_collection.json --insecure --verbose
         
     - name: Stop Docker containers
       if: always()

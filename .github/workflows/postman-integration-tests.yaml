@@ -33,15 +33,15 @@ jobs:
         
     - name: Run User Auth Auction Integration Tests
       run: |
-        newman run ./docs/tests/integration_tests/User.Auth.Auction.postman_collection.json --insecure
+        newman run ./docs/tests/integration_tests/User.Auth.Auction.postman_collection.json --insecure --verbose
 
     - name: Run Piece Integration Tests
       run: |
-        newman run ./docs/tests/integration_tests/Piece.postman_collection.json --insecure
+        newman run ./docs/tests/integration_tests/Piece.postman_collection.json --insecure --verbose
 
     - name: Run Banner Integration Tests
       run: |
-        newman run ./docs/tests/integration_tests/Banner.postman_collection.json --insecure
+        newman run ./docs/tests/integration_tests/Banner.postman_collection.json --insecure --verbose
         
     - name: Stop Docker containers
       if: always()
