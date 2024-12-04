@@ -195,6 +195,24 @@ def pull(banner_id):
 
     banner = Banner.from_dict(content.get_json()['banner'])
 
+    # Get player gold
+    if not mock_fun:
+        try:
+            response = requests.get(f"https://user:5000/user/balance/{user_id}", timeout = 5, verify = False) # nosec
+        except ConnectionError:
+            return jsonify(message = "User service is down."), 500
+        except HTTPError:
+            return jsonify(message = response.content), response.status_code
+
+        if response.status_code != 200:
+            return jsonify(message = response.json()['error']), response.status_code
+
+    content = mock_fun('GET:/user/user/balance') if mock_fun else response.json()
+    player_gold = content['balance']
+
+    if player_gold < banner.cost:
+        return jsonify(message = "Insufficient amount of gold."), 403
+
     # Get pieces info
     if not mock_fun:
         try:
@@ -207,20 +225,23 @@ def pull(banner_id):
         if response.status_code != 200:
             return jsonify(message = respose.json()['message']), response.status_code
 
-    content = mock_fun('GET:/piece/all') if mock_fun else response.json()
+    content = mock_fun('GET:/piece/piece/all') if mock_fun else response.json()
     pieces = content['pieces']
 
     # Update the player gold
     if not mock_fun:
         try:
-            response = requests.get(f"https://user:5000/user/balance/{user_id}", timeout = 5, verify = False) # nosec
+            response = requests.put(f"https://user:5000/player/gold/{user_id}", json = {
+                "amount": banner.cost * (-1),
+                "is_refill": False
+            }, timeout = 5, verify = False) # nosec
         except ConnectionError:
             return jsonify(message = "User service is down."), 500
         except HTTPError:
             return jsonify(message = response.content), response.status_code
 
         if response.status_code != 200:
-            return jsonify(message = response.json()["error"]), response.status_code
+            return jsonify(message = "Internal error in piece service."), response.status_code
 
     pieces_pulled = []
 
@@ -234,7 +255,9 @@ def pull(banner_id):
                 "user_id": user_id,
                 "pieces_id": list(map(lambda piece: piece["id"], pieces_pulled))
             }, headers = {
-                'Authorization': authentication_header
+                'Authorization': authentication_header,
+                'X-API-Key': 'Chess_heroes_2024',
+                'Content-Type': 'application/json'
             }, timeout = 5, verify = False) # nosec
         except ConnectionError:
             return jsonify(message = "User service is down."), 500

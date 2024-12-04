@@ -10,7 +10,12 @@ def mock_fun(op):
             }
         }
 
-    if op == 'GET:/piece/all':
+    if op == 'GET:/user/user/balance':
+        return {
+            "balance": 100
+        }
+
+    if op == 'GET:/piece/piece/all':
         return {
             "pieces": [
                 {
