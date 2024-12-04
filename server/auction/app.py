@@ -35,9 +35,41 @@ def check_auctions(signum, frame):
             for auction in ended_auctions:
                 try:
                     auction_id = auction['auction_id']
-                    logging.info(f"[AUCTION CHECK] Processing auction: {auction_id}")
+                    logging.info(f"[AUCTION CHECK] Processing auction: {auction_id}, {auction}")
+                
                     
+                    if auction["bid_count"] == 0:
+                        try:
+                            # refund creator if no one bids on auction
+                            headers = {
+                                'X-API-Key': 'Chess_heroes_2024',
+                                'Content-Type': 'application/json'
+                            }
+                            
+                            piece_id = auction["piece_id"]
+                            
+                            collection_refund = {
+                                'user_id': auction["seller_id"],
+                                'pieces_id': [piece_id]
+                            }
+                            
+                            res = requests.post(
+                                "https://user:5000/player/collection/update/secret",
+                                json=collection_refund,
+                                headers=headers,
+                                timeout=10, 
+                                verify=False
+                            ) # nosec
+                            
+                            if not res.ok:
+                                logging.error(f"[AUCTION CHECK] Failed to update collection: Status {res.status_code}, Response: {res.text}")
+                                
+                        except requests.exceptions.RequestException as e:
+                            logging.error(f"[AUCTION CHECK] User service connection failed: {str(e)}")
+                            continue
+                        return
                     auction_complete_data, error = db_connector.complete_auction(auction_id)
+
                     if error:
                         logging.error(f"[AUCTION CHECK] Failed to complete auction {auction_id}: {error}")
                         continue

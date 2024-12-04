@@ -355,7 +355,42 @@ def update_player_collection():
             
     except Exception as e:
         return jsonify({'err': f'Internal server error: {str(e)}'}), 500
-    
+
+# to refund piece if no one bids, private route
+@app.route('/player/collection/update/secret', methods=['POST'])
+def update_player_collection_secret():
+    try:
+        # check if key is present
+        api_key = request.headers.get('X-API-Key')
+        if not api_key or api_key != 'Chess_heroes_2024':
+            return jsonify({'err': 'Invalid or missing API key'}), 403
+            
+        data = request.get_json()
+        
+        if not all(k in data for k in ['user_id', 'pieces_id']):
+            return jsonify({'err': 'Missing required fields: user_id: int and/or pieces_id: array '}), 400
+            
+        # check if user id is int
+        try:
+            data['user_id'] = int(data['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'err': 'user_id must be an int'}), 400
+            
+        # check input validity 
+        if not isinstance(data['pieces_id'], list):
+            return jsonify({'err': 'pieces_id must be an array'}), 400
+        
+        # update collection
+        success, message = db_connector.update_user_collection(data)
+        
+        if success:
+            return jsonify({'rsp': message, 'user_id': data['user_id']}), 200
+        else:
+            return jsonify({'err': message}), 400
+            
+    except Exception as e:
+        return jsonify({'err': f'Internal server error: {str(e)}'}), 500
+
 # tells user token balance
 @app.route('/user/balance/<int:user_id>', methods=['GET'])
 def get_user_balance(user_id):
