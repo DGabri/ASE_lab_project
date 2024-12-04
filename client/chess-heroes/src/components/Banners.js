@@ -89,9 +89,10 @@ const Banners = () => {
     }
 
     async function pullPiece(banner) {
-        const pieces = await getPull(user.access_token, banner.id)
-        setPiecesPulled(pieces)
-        startPullAnimation()
+        getPull(user.access_token, banner.id).then(res => {
+            setPiecesPulled(pieces)
+            startPullAnimation()
+        }).catch(error => console.error(error))
     }
 
     function closePull() {
