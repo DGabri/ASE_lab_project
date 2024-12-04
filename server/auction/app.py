@@ -67,7 +67,7 @@ def check_auctions(signum, frame):
                         except requests.exceptions.RequestException as e:
                             logging.error(f"[AUCTION CHECK] User service connection failed: {str(e)}")
                             continue
-                        return
+
                     auction_complete_data, error = db_connector.complete_auction(auction_id)
 
                     if error:
