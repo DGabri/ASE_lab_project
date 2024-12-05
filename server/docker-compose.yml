@@ -1,5 +1,6 @@
 services:
   user_gateway:
+    restart: unless-stopped
     build: ./user_gateway
     ports:
       - "3000:80"
@@ -18,6 +19,7 @@ services:
       - user_gateway_key_secret
 
   admin_gateway:
+    restart: unless-stopped
     build: ./admin_gateway
     ports:
       - "3001:80"
@@ -36,6 +38,7 @@ services:
       - admin_gateway_key_secret     
 
   auth:
+    restart: unless-stopped
     build: ./auth
     networks:
       - admin_network
@@ -47,6 +50,7 @@ services:
       - auth_key_secret
 
   user:
+    restart: unless-stopped
     build: ./user
     networks:
       - admin_network
@@ -58,6 +62,7 @@ services:
       - user_key_secret
 
   piece:
+    restart: unless-stopped
     build: ./piece
     networks:
       - admin_network
@@ -69,6 +74,7 @@ services:
       - piece_key_secret
 
   banner:
+    restart: unless-stopped
     build: ./banner
     networks:
       - admin_network
@@ -80,6 +86,7 @@ services:
       - banner_key_secret
 
   auction:
+    restart: unless-stopped
     build: ./auction
     networks:
       - admin_network
