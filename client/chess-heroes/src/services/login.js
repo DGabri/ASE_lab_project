@@ -14,7 +14,7 @@ const login = async (username, password) => {
         },
         {
             headers: {
-            'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             }
         }
     )
@@ -22,7 +22,7 @@ const login = async (username, password) => {
     if (response.status != 200) {
         throw new Error(response.data.err)  
     }
-    
+
     return response.data
 }
 

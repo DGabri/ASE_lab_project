@@ -1,8 +1,6 @@
 import axios from 'axios'
 
 const register = async (email, username, password) => {
-    console.log(username + password)
-
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true

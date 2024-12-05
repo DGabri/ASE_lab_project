@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import chessPiece from '../assets/chess-piece.svg'
+import homeChessPiece from '../assets/home-chess-piece.svg'
 import pack from '../assets/pack.svg'
 import auction from '../assets/auction.svg'
-import { getCookie } from '../utils/cookie'
 
 const Home = () => {
     return <Container fluid className="d-flex gap-5 flex-column p-0">
@@ -41,7 +39,7 @@ const Home = () => {
                 </Row>
             </Col>
             <Col className="d-flex justify-content-center align-items-center flex-column" style={{maxWidth: "450px"}}>
-                <img width="120" className="bounce2" src={chessPiece} />
+                <img width="120" className="bounce2" src={homeChessPiece} />
                 <img width="300" src={pack} />
             </Col>
         </Container>

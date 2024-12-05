@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 const getPieces = async (access_token, pieces_id) => {
-    console.log(access_token)
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true
@@ -12,7 +11,7 @@ const getPieces = async (access_token, pieces_id) => {
     )).join('&')
 
     const response = await axiosInstance.get(
-        "http://localhost:3000/piece/piece?" + params,
+        "https://localhost:3000/piece/piece?" + params,
         {
             headers: {
                 'Content-Type': 'application/json',

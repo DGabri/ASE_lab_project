@@ -1,23 +1,10 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
-import { useState, useEffect } from 'react'
-import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom'
-import getAllPieces from '../services/getAllPieces'
-import Accordion from 'react-bootstrap/Accordion'
-import chessValueIcon from '../assets/chess-value-icon.svg'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import kingWhite from '../assets/king-white.png'
-import queenWhite from '../assets/queen-white.png'
-import knightWhite from '../assets/knight-white.png'
-import rookWhite from '../assets/rook-white.png'
-import bishopWhite from '../assets/bishop-white.png'
-import pawnWhite from '../assets/pawn-white.png'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import register from '../services/register'
-import userIcon from '../assets/user-icon.svg'
-import { setCookie } from '../utils/cookie'
 
 const Register = ({ showAlert }) => {
     const [email, setEmail] = useState("")
@@ -27,8 +14,6 @@ const Register = ({ showAlert }) => {
 
     const handleSubmit = (event) => {
         event.preventDefault()
-        console.log('Username:', username)
-        console.log('Password:', password)
         
         register(email, username, password).then(() => {
             showAlert("primary", "Registration successful")

@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 const getBanners = async (access_token) => {
-    console.log(access_token)
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true

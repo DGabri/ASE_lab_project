@@ -1,13 +1,13 @@
 import axios from 'axios'
 
-const getUserGold = async (access_token, user_id) => {
+const logout = async (access_token, user_id) => {
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true
     })
 
-    const response = await axiosInstance.get(
-        `https://localhost:3000/user/user/balance/${user_id}`,
+    const response = await axiosInstance.post(
+        `https://localhost:3000/auth/logout/${user_id}`,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -15,12 +15,12 @@ const getUserGold = async (access_token, user_id) => {
             }
         }
     )
-
+    
     if (response.status != 200) {
         throw new Error(response.data.err)  
     }
     
-    return response.data.balance
+    return response.data.msg
 }
 
-export default getUserGold
+export default logout

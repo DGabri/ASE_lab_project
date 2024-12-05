@@ -1,5 +1,5 @@
-import React, { useState, useEffect, createContext } from 'react';
-import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom'
+import React, { useState, useEffect, createContext } from 'react'
+import { Route, Routes, useNavigate, Link } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Navbar from 'react-bootstrap/Navbar'
 import chessHeroesIcon from './assets/chess-heroes-icon.png'
@@ -15,7 +15,11 @@ import userIcon from './assets/user-icon.svg'
 import { getCookie, eraseCookie } from './utils/cookie'
 import Dropdown from 'react-bootstrap/Dropdown'
 import Register from './components/Register'
-import Alert from 'react-bootstrap/Alert';
+import Alert from 'react-bootstrap/Alert'
+import logout from './services/logout'
+import updateUserGold from './services/updateUserGold'
+import getUserGold from './services/getUserGold'
+import AuctionsCreate from './components/AuctionsCreate'
 import './App.css'
 
 export const UserContext = createContext({
@@ -54,6 +58,13 @@ const App = () => {
         const username = getCookie("username")
 
         if (access_token && user_id && username) {
+            getUserGold(access_token, user_id).then(res => {
+                setUser(prev => ({
+                    ...prev,
+                    gold: res
+                }))
+            }).catch(error => showAlert("danger", error.toString()))
+
             setUser(prev => ({
                 ...prev,
                 logged: true,
@@ -65,8 +76,8 @@ const App = () => {
         }
     }, [])
 
-    function logout() {
-        // send logout
+    const makeLogout = () => {
+        // logout(user.access_token, user.id).catch(error => showAlert("danger", error.toString())) 
         eraseCookie("access_token")
         eraseCookie("user_id")
         eraseCookie("username")
@@ -79,10 +90,13 @@ const App = () => {
             gold: 0,
             pic: defaultUserIcon,
             collection: {}
-        })
+        }) 
+        
+        showAlert("primary", "Logout successful")
+        navigate("/")
     }
 
-    function showAlert(type, message) {
+    const showAlert = (type, message) => {
         clearTimeout(timeoutId)
 
         setAlert({
@@ -100,6 +114,15 @@ const App = () => {
                 })
             }, 5000)
         )
+    }
+
+    const refillUserGold = () => {
+        updateUserGold(user.id, user.access_token, 10).then(res => {
+            setUser(prev => ({
+                ...prev,
+                gold: res
+            }))
+        }).catch(error => showAlert("danger", error.toString()))
     }
 
     return <UserContext.Provider value={user}>
@@ -142,11 +165,11 @@ const App = () => {
                         </Navbar.Text>
                         <Navbar.Text>
                             <Dropdown>
-                                <Dropdown.Toggle className="border-0" style={{backgroundColor: "transparent"}}>
+                                <Dropdown.Toggle  id="account-icon" className="border-0" style={{backgroundColor: "transparent"}}>
                                     <img src={user.pic} width="45" height="45" />
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu align="end">
-                                    {user.logged && <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>}
+                                    {user.logged && <Dropdown.Item onClick={makeLogout}>Logout</Dropdown.Item>}
                                     {!user.logged && <>
                                         <Dropdown.Item onClick={() => navigate("/login")}>Login</Dropdown.Item>
                                         <Dropdown.Item onClick={() => navigate("/register")}>Register</Dropdown.Item>
@@ -157,18 +180,33 @@ const App = () => {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            {alert.display && <Container className="z-1 position-absolute start-50 my-4" style={{translate: "-50%", width: "40rem"}}>
-                <Alert className="sticky-top" key={alert.type} variant={alert.type}>
+            {alert.display && <div className="start-50 position-fixed my-4 z-1 translate-middle-x">
+                <Alert key={alert.type} variant={alert.type}>
                     {alert.message}
                 </Alert>
-            </Container>}
+            </div>}
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/pieces" element={<Pieces />} />
-                <Route path="/banners" element={<Banners />} />
-                <Route path="/auctions" element={<Auctions />} />
+                <Route path="/pieces" element={<Pieces
+                    showAlert = {showAlert}
+                />} />
+                <Route path="/banners" element={<Banners
+                    showAlert = {showAlert}
+                    setUser = {setUser}
+                    refillUserGold = {refillUserGold}
+                />} />
+                <Route path="/auctions" element={<Auctions
+                    showAlert = {showAlert}
+                    refillUserGold = {refillUserGold}
+                />} />
+                <Route path="/auctions/create" element={<AuctionsCreate
+                    setUser = {setUser}
+                    showAlert = {showAlert}
+                    refillUserGold = {refillUserGold}
+                />} />
                 <Route path="/account" element={<Account
                     setUser = {setUser}
+                    showAlert = {showAlert}
                 />} />
                 <Route path="/login" element={<Login
                     setUser = {setUser}

@@ -17,7 +17,7 @@ const getPull = async (access_token, banner_id) => {
     )
 
     if (response.status != 200) {
-        throw new Error(response.data.err)  
+        throw new Error(response.data.message)  
     }
     
     return response.data.pieces

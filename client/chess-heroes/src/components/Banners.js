@@ -1,10 +1,7 @@
+import { useState, useEffect, useContext } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import chessPiece from '../assets/chess-piece.svg'
-import pack from '../assets/pack.svg'
-import auction from '../assets/auction.svg'
-import { useState, useEffect, useContext } from 'react'
 import getBanners from '../services/getBanners'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
@@ -23,9 +20,10 @@ import pawnWhite from '../assets/pawn-white.png'
 import goldIcon from '../assets/gold-icon.svg'
 import GiftBoxAnimation from "./GiftBoxAnimation"
 import getPull from '../services/getPull'
+import getUserGold from '../services/getUserGold'
 import { UserContext } from '../App'
 
-const Banners = () => {
+const Banners = ({ setUser, showAlert, refillUserGold }) => {
     const [banners, setBanners] = useState([])
     const [pieces, setPieces] = useState([])
     const [displayPull, setDisplayPull] = useState(false)
@@ -65,37 +63,49 @@ const Banners = () => {
         if (user.logged) {
             getBanners(user.access_token).then(res => {
                 setBanners(res)
-            }).catch(error => console.error(error))
+            }).catch(error => showAlert("danger", error.toString()))
 
-            getAllPieces().then(res => {
+            getAllPieces(user.access_token).then(res => {
                 setPieces(res)
-            }).catch(error => console.error(error))
+            }).catch(error => showAlert("danger", error.toString()))
         }
         
     }, [user.logged])
 
-    function changeDisplayInfo(value, index) {
+    const changeDisplayInfo = (value, index) => {
         setDisplayInfo(displayInfo.map((displayInfo, i) => i == index ? value : displayInfo))
     }
 
-    function getRate(rates, pieces, grade) {
+    const getRate = (rates, pieces, grade) => {
         const rate = rates[gradesName[grade]] / pieces.filter(piece => piece.grade == grade).length
         return rate
     }
 
-    function startPullAnimation() {
+    const startPullAnimation = () => {
         document.body.classList.add("overflow-hidden")
         setDisplayPull(true)
     }
 
-    async function pullPiece(banner) {
+    const pullPiece = (banner) => {
+        if (user.gold < banner.cost) {
+            showAlert("warning", "Insufficient amount of gold.")
+            return
+        }
+
         getPull(user.access_token, banner.id).then(res => {
-            setPiecesPulled(pieces)
+            setPiecesPulled(res)
             startPullAnimation()
-        }).catch(error => console.error(error))
+
+            getUserGold(user.access_token, user.id).then(res => {
+                setUser(prev => ({
+                    ...prev,
+                    gold: res
+                }))
+            }).catch(error => showAlert("danger", error.toString()))
+        }).catch(error => showAlert("danger", error.toString()))
     }
 
-    function closePull() {
+    const closePull = () => {
         document.body.classList.remove("overflow-hidden")
         setDisplayPull(false)
     }
@@ -106,11 +116,14 @@ const Banners = () => {
             closePull = {closePull}
         />}
         {!displayPull && <>
-            <Card className="m-5 d-inline-block w-auto" body>
-                100
-                <img width="20" className="ms-2" src={goldIcon} />
-            </Card>
-            <Container className="px-5">
+            <div className="position-absolute m-5 z-1 p-2">
+                <Card className="d-inline-block w-auto" body>
+                    {user.gold}
+                    <img width="20" className="ms-2" src={goldIcon} />
+                </Card>
+                <Button className="ms-3" variant="secondary" onClick={refillUserGold}>+</Button>
+            </div>
+            <Container className="d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle mt-5">
                 <Row>
                     {banners.map((banner, index) => (
                         <>

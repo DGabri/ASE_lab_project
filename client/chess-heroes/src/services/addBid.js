@@ -1,13 +1,17 @@
 import axios from 'axios'
 
-const getUserGold = async (access_token, user_id) => {
+const addBid = async (access_token, user_id, auction_id, amount) => {
     const axiosInstance = axios.create({
         httpsAgent: false,
         validateStatus: () => true
     })
 
-    const response = await axiosInstance.get(
-        `https://localhost:3000/user/user/balance/${user_id}`,
+    const response = await axiosInstance.post(
+        `https://localhost:3000/auction/bid/${auction_id}`,
+        {
+            "bidder_id": user_id,
+            "bid_amount": amount
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -15,12 +19,10 @@ const getUserGold = async (access_token, user_id) => {
             }
         }
     )
-
+    
     if (response.status != 200) {
         throw new Error(response.data.err)  
     }
-    
-    return response.data.balance
 }
 
-export default getUserGold
+export default addBid

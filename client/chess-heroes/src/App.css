@@ -127,6 +127,6 @@
     }
   }
 
-.dropdown-toggle::after {
+#account-icon::after {
 display: none !important; /* Hides the arrow */
 }

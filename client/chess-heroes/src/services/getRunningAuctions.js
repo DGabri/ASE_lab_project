@@ -7,7 +7,7 @@ const getRunningAuctions = async (access_token) => {
     })
 
     const response = await axiosInstance.get(
-        `https://localhost:3000/auction/auction/running`,
+        `https://localhost:3000/auction/running/all`,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ const getRunningAuctions = async (access_token) => {
         throw new Error(response.data.err)  
     }
     
-    return response.data.collection
+    return response.data.auctions
 }
 
 export default getRunningAuctions
