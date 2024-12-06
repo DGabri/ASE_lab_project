@@ -1,3 +1,4 @@
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
@@ -6,8 +7,12 @@ import Col from 'react-bootstrap/Col'
 import homeChessPiece from '../assets/home-chess-piece.svg'
 import pack from '../assets/pack.svg'
 import auction from '../assets/auction.svg'
+import { UserContext } from '../App'
 
-const Home = () => {
+
+const Home = ({ makeLogout }) => {
+    const user = useContext(UserContext)
+
     return <Container fluid className="d-flex gap-5 flex-column p-0">
         <Container fluid className="d-flex justify-content-center align-items-center flex-column gap-4 bg-dark" style={{padding: "100px"}}>
             <Row>
@@ -17,16 +22,21 @@ const Home = () => {
                 <h4 className="text-body text-center">A simple gacha game where you can collect chess pieces, buy packs of pieces, and participate in auctions to have the possibility of winning pieces.</h4>
             </Row>
             <Row>
-                <Col>
-                    <Link to="/login" className="text-decoration-none">
-                        <Button variant="primary">Login</Button>
-                    </Link>
-                </Col>
-                <Col>
-                <Link to="/register" className="text-decoration-none">
-                        <Button variant="primary">Register</Button>
-                    </Link>
-                </Col>
+                {user.logged && <Col>
+                    <Button variant="primary" onClick={makeLogout}>Logout</Button>
+                </Col>}
+                {!user.logged && <>
+                    <Col>
+                        <Link to="/login" className="text-decoration-none">
+                            <Button variant="primary">Login</Button>
+                        </Link>
+                    </Col>
+                    <Col>
+                        <Link to="/register" className="text-decoration-none">
+                            <Button variant="primary">Register</Button>
+                        </Link>
+                    </Col>
+                </>}
             </Row>
         </Container>
         <Container fluid className="d-flex justify-content-center align-items-center bg-dark" style={{padding: "100px", gap: "100px"}}>

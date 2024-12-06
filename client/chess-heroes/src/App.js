@@ -186,7 +186,9 @@ const App = () => {
                 </Alert>
             </div>}
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Home
+                    makeLogout = {makeLogout}
+                />} />
                 <Route path="/pieces" element={<Pieces
                     showAlert = {showAlert}
                 />} />
