@@ -1,0 +1,737 @@
+openapi: 3.0.3
+info:
+  title: Chess Heroes API
+  description: API for managing player and admin interactions in the game.
+  version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+paths:
+  /user/delete_user/{player_id}:
+    delete:
+      summary: Delete player account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player to delete
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+      
+  /user/player/{player_id}:
+    get:
+        summary: Get specific player details
+        security:
+          - bearerAuth: []
+        parameters:
+          - name: player_id
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Player details
+          '401':
+            $ref: '#/components/schemas/ErrorResponse'
+        x-access: [admin]
+
+    put:
+      summary: Modify account username
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the player to modify
+      requestBody:
+        description: New username details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '200':
+          description: Account modified
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /user/player/collection/{player_id}:
+    get:
+      summary: View player collection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player collection
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /user/player/gold/{player_id}:
+    put:
+      summary: Refill player gold
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Gold refill details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gold:
+                  type: integer
+      responses:
+        '200':
+          description: Gold refilled
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /user/player/collection/update:
+    post:
+      summary: Update the user collection
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Piece to add
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                piece_id:
+                  type: integer
+
+      responses:
+        '200':
+          description: Collection updated
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+      
+  /user/admin/user/modify/{user_id}:
+    put:
+      summary: Modify a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: User info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+
+      responses:
+        '200':
+          description: Collection updated
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+      
+  /user/auction/complete:
+    post:
+      summary: Complete auction process
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Auction details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auction_id:
+                  type: string
+      responses:
+        '200':
+          description: Auction completed
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [player]
+
+  /user/admin/logs:
+    get:
+      summary: Fetch admin logs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: System logs
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /user/player/all:
+    get:
+      summary: Get all players
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of players
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /user/admin/player/transaction/history/{player_id}:
+    get:
+      summary: Get player transaction history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction history
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /user/admin/player/market-history/{player_id}:
+    get:
+      summary: Get player market history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Market history
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /user/balance/{user_id}:
+    get:
+      summary: Get user balance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User balance
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+      
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        description: User details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+
+      responses:
+        '200':
+          description: Logged in
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+    
+  /auth/logout/{user_id}:
+    post:
+      summary: Logout
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Logged out
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+      
+  /auction/create_auction:
+    post:
+      summary: Create a new auction
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Auction details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_id:
+                  type: string
+                starting_bid:
+                  type: number
+                duration:
+                  type: integer
+      responses:
+        '201':
+          description: Auction created
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [player]
+
+  /auction/auction/{id}:
+    get:
+      summary: Get auction by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Auction details
+        '404':
+          description: Auction not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /auction/bid/{auction_id}:
+    post:
+      summary: Place a bid on an auction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Bid details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bid_amount:
+                  type: number
+      responses:
+        '200':
+          description: Bid placed successfully
+        '400':
+          description: Invalid bid amount
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [player]
+      
+  /auction/history:
+    get:
+      summary: Get historical auctions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of historical auctions
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /auction/running/{piece_id}:
+    get:
+      summary: Get running auctions by piece ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of running auctions for the piece
+        '404':
+          description: No auctions found for the piece
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /auction/modify/{auction_id}:
+    put:
+      summary: Modify auction end time
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Auction modification details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_end_time:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Auction modified
+        '400':
+          description: Invalid modification request
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+  /auction/running/all:
+    get:
+      summary: Get all running auctions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all running auctions
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+      
+  /banner/banner/{banner_id}:
+    get:
+      summary: Get banner information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Banner details
+        '404':
+          description: Banner not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+    put:
+      summary: Update a banner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Banner update details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                cost:
+                  type: integer
+                pieces_num:
+                  type: integer
+                pic:
+                  type: string
+                rates:
+                  type: object
+                  properties:
+                    common:
+                      type: number
+                    rare:
+                      type: number
+                    super_rare:
+                      type: number
+                      
+      responses:
+        '200':
+          description: Banner updated successfully
+        '404':
+          description: Banner not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+    delete:
+      summary: Delete a banner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Banner deleted successfully
+        '404':
+          description: Banner not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /banner/banner:
+    post:
+      summary: Add a new banner
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: New banner details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                cost:
+                  type: integer
+                pieces_num:
+                  type: integer
+                pic:
+                  type: string
+                rates:
+                  type: object
+                  properties:
+                    common:
+                      type: number
+                    rare:
+                      type: number
+                    super_rare:
+                      type: number
+      responses:
+        '201':
+          description: Banner created successfully
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /banner/banner/pull/{banner_id}:
+    get:
+      summary: Pull a banner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: banner_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Banner pulled successfully
+        '404':
+          description: Banner not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+      
+  /piece/piece:
+    get:
+      summary: List all pieces
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+          allowReserved: true
+      responses:
+        '200':
+          description: List of all pieces
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
+
+    post:
+      summary: Add a new piece
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: New piece details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                grade:
+                  type: string
+                value:
+                  type: integer
+                pic:
+                  type: string
+
+      responses:
+        '201':
+          description: Piece created successfully
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /piece/piece/{piece_id}:
+    put:
+      summary: Update a piece
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Piece update details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                grade:
+                  type: string
+                value:
+                  type: integer
+                pic:
+                  type: string
+      responses:
+        '200':
+          description: Piece updated successfully
+        '404':
+          description: Piece not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+    delete:
+      summary: Delete a piece
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Piece deleted successfully
+        '404':
+          description: Piece not found
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin]
+
+  /piece/piece/all:
+    get:
+      summary: Get all pieces
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all pieces
+        '401':
+          $ref: '#/components/schemas/ErrorResponse'
+      x-access: [admin, player]
