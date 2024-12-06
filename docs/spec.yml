@@ -1,316 +1,47 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Chess Heroes
+  description: Dcumentation for the chess heroes platform. Port 3000 is for user gateway, 3001 for admin gateway.
   version: 1.0.0
-  description: API for managing game elements including players, pieces, auctions, and admin actions.
-
-paths:
-  /piece:
-    get:
-      summary: Get info of a pieces list
-      description: Retrieve information about a list of pieces.
-      tags:
-        - Piece
-      parameters:
-        - name: piece_id
-          in: query
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-          explode: true
-          description: Comma-separated list of piece IDs.
-      security:
-        - playerAuth: []
-        - adminAuth: []
-        - systemAuth: []
-      responses:
-        '200':
-          description: List of pieces returned successfully
-    post:
-      summary: Add a new piece
-      description: Adds a new piece to the system.
-      tags:
-        - Piece
-      security:
-        - adminAuth: []
-      responses:
-        '201':
-          description: Piece created successfully
-
-  /piece/{piece_id}:
-    put:
-      summary: Modify a piece info
-      description: Modify the information of a specific piece.
-      tags:
-        - Piece
-      parameters:
-        - name: piece_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the piece.
-      security:
-        - adminAuth: []
-      responses:
-        '200':
-          description: Piece modified successfully
-
-  /piece/all:
-    get:
-      summary: Get info about all pieces in the game
-      description: Retrieve information about all the pieces.
-      tags:
-        - Piece
-      security:
-        - playerAuth: []
-        - adminAuth: []
-      responses:
-        '200':
-          description: All pieces returned successfully
-            
-  /banner:
-    post:
-      summary: Add a new banner
-      description: Adds a new banner to the system.
-      tags:
-        - Banner
-      security:
-        - adminAuth: []
-      responses:
-        '201':
-          description: Banner created successfully
-          
-  /banner/{banner_id}:
-    get:
-      summary: Get pieces for a specific banner
-      description: Retrieve the pieces for a specific type of banner.
-      tags:
-        - Banner
-      parameters:
-        - name: banner_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the banner.
-      security:
-        - playerAuth: []
-        - adminAuth: []
-      responses:
-        '200':
-          description: Pieces for the banner returned successfully
-      
-    put:
-      summary: Modify pieces for a specific banner
-      description: Modify the pieces for a specific type of banner.
-      tags:
-        - Banner
-      parameters:
-        - name: banner_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the banner.
-      security:
-        - adminAuth: []
-      responses:
-        '200':
-          description: Banner updated successfully
-          
-    delete:
-      summary: Delete a banner
-      description: Remove a banner from the system.
-      tags:
-        - Banner
-      parameters:
-        - name: banner_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the banner.
-      security:
-        - adminAuth: []
-      responses:
-        '200':
-          description: Player deleted successfully
-        
-  /banner/pull/{banner_id}:
-    get:
-      summary: Pull pieces for a specific banner
-      description: Pull the pieces for a specific type of banner.
-      tags:
-        - Banner
-      parameters:
-        - name: banner_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the banner.
-      security:
-        - playerAuth: []
-      responses:
-        '200':
-          description: Pieces for the banner returned successfully
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-
-  schemas:
-    Error:
-      type: object
-      properties:
-        err:
-          type: string
-          description: Error message
+servers:
+  - url: https://localhost:3000
+    description: Users Gateway
+  - url: https://localhost:3001
+    description: Admin Gateway
     
-    Success:
-      type: object
-      properties:
-        msg:
-          type: string
-          description: Success message
-
-    UserRegistration:
-      type: object
-      required:
-        - username
-        - email
-        - password
-        - user_type
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 8
-        user_type:
-          type: integer
-          description: User type identifier
-
-    LoginRequest:
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-        password:
-          type: string
-
-    LoginResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-        refresh_token:
-          type: string
-        token_type:
-          type: string
-          example: bearer
-        expires_in:
-          type: integer
-          description: Token expiration time in minutes
-        user:
-          type: object
-          properties:
-            id:
-              type: integer
-            username:
-              type: string
-            user_type:
-              type: integer
-            role:
-              type: string
-
-    RefreshRequest:
-      type: object
-      required:
-        - refresh_token
-      properties:
-        refresh_token:
-          type: string
-
-    AuthorizationRequest:
-      type: object
-      required:
-        - token
-        - route
-        - method
-      properties:
-        token:
-          type: string
-        route:
-          type: string
-        method:
-          type: string
-
-    UserModification:
-      type: object
-      required:
-        - username
-      properties:
-        username:
-          type: string
-
-    UserIntrospection:
-      type: object
-      required:
-        - user_id
-      properties:
-        user_id:
-          type: integer
-
-    UserInfo:
-      type: object
-      properties:
-        sub:
-          type: string
-        name:
-          type: string
-        preferred_username:
-          type: string
-        email:
-          type: string
-        email_verified:
-          type: boolean
-        roles:
-          type: array
-          items:
-            type: string
-        updated_at:
-          type: integer
-        zoneinfo:
-          type: string
-        locale:
-          type: string
-
 paths:
   /create_user:
     post:
+      tags: ['Auth']
       summary: Register a new user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistration'
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the new user.
+                email:
+                  type: string
+                  format: email
+                  description: The email of the new user.
+                password:
+                  type: string
+                  description: The password of the new user.
+                user_type:
+                  type: integer
+                  description: The type of user being created.
+              required:
+                - username
+                - email
+                - password
+                - user_type
       responses:
         '201':
-          description: User created successfully
+          description: User created successfully.
           content:
             application/json:
               schema:
@@ -321,969 +52,1446 @@ paths:
                   id:
                     type: integer
         '400':
-          description: Invalid input
+          description: Invalid input data.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: object
+                properties:
+                  err:
+                    type: string
         '500':
-          description: Internal server error
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
 
   /token:
     post:
-      summary: Authenticate user and get tokens
+      tags: ['Auth']
+      summary: Login and get access tokens
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+              required:
+                - username
+                - password
       responses:
         '200':
-          description: Authentication successful
+          description: Login successful.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      user_type:
+                        type: integer
+                      role:
+                        type: string
+        '400':
+          description: Missing credentials.
         '401':
-          description: Authentication failed
+          description: Authentication failed.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /logout/{player_id}:
     post:
-      summary: Logout user
-      security:
-        - bearerAuth: []
+      tags: ['Auth']
+      summary: Logout a user
       parameters:
         - name: player_id
           in: path
           required: true
           schema:
             type: integer
+          description: The ID of the user to logout.
       responses:
         '200':
-          description: Logout successful
+          description: User logged out successfully.
         '401':
-          description: Unauthorized
+          description: Unauthorized.
         '403':
-          description: Forbidden
+          description: Forbidden.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /refresh:
     post:
+      tags: ['Auth']
       summary: Refresh access token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshRequest'
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: The refresh token.
+              required:
+                - refresh_token
       responses:
         '200':
-          description: Token refreshed successfully
+          description: Token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
         '400':
-          description: Invalid input
-        '401':
-          description: Invalid refresh token
+          description: Missing or invalid refresh token.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /delete_user/{player_id}:
     delete:
-      summary: Delete user account
-      security:
-        - bearerAuth: []
+      tags: ['Auth']
+      summary: Delete a user
       parameters:
         - name: player_id
           in: path
           required: true
           schema:
             type: integer
+          description: The ID of the user to delete.
       responses:
         '200':
-          description: User deleted successfully
+          description: User deleted successfully.
         '404':
-          description: User not found
+          description: User not found or error from user service.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /authorize:
     post:
-      summary: Authorize user access to route
+      tags: ['Auth']
+      summary: Authorize user access to a route
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorizationRequest'
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The JWT access token.
+                route:
+                  type: string
+                  description: The route being accessed.
+                method:
+                  type: string
+                  description: The HTTP method being used.
+              required:
+                - token
+                - route
+                - method
       responses:
         '200':
-          description: Authorization successful
+          description: User authorized successfully.
+        '400':
+          description: Missing or invalid data.
         '401':
-          description: Unauthorized
+          description: Unauthorized.
         '403':
-          description: Insufficient permissions
+          description: Forbidden.
         '404':
-          description: Route not found
+          description: Route not found.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /user/modify/{user_id}:
     put:
-      summary: Modify user account
-      security:
-        - bearerAuth: []
+      tags: ['Auth']
+      summary: Modify user username
       parameters:
         - name: user_id
           in: path
           required: true
           schema:
             type: integer
+          description: The ID of the user being modified.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserModification'
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The new username.
+              required:
+                - username
       responses:
         '200':
-          description: User modified successfully
+          description: Username modified successfully.
         '400':
-          description: Invalid input
+          description: Missing or invalid data.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /introspect:
     post:
-      summary: Verify user token matches user ID
-      security:
-        - bearerAuth: []
+      tags: ['Auth']
+      summary: Verify token and user identity
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserIntrospection'
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: The ID of the user being verified.
+              required:
+                - user_id
       responses:
         '200':
-          description: Token valid and matches user
+          description: User token valid.
+        '400':
+          description: Missing or invalid data.
         '401':
-          description: Invalid token
+          description: Unauthorized.
         '403':
-          description: Token user ID mismatch
+          description: Forbidden.
         '500':
-          description: Internal server error
+          description: Internal server error.
 
   /userinfo:
     get:
-      summary: Get OIDC user information
-      security:
-        - bearerAuth: []
+      tags: ['Auth']
+      summary: Get user information
       responses:
         '200':
-          description: User information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfo'
+          description: User information retrieved successfully.
         '401':
-          description: Invalid token
+          description: Unauthorized or invalid token.
         '500':
-          description: Internal server error
-    post:
-      summary: Get OIDC user information
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: User information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfo'
-        '401':
-          description: Invalid token
-        '500':
-          description: Internal server error
-
-components:
-  securitySchemes:
-    adminAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-    playerAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-    playerSelfAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-    systemAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-
-  components:
-    securitySchemes:
-      bearerAuth:
-        type: https
-        scheme: bearer
-        bearerFormat: JWT
-
-    schemas:
-      Error:
-        type: object
-        properties:
-          err:
-            type: string
-            description: Error message
-
-      CreateAuctionRequest:
-        type: object
-        required:
-          - seller_id
-          - piece_id
-          - start_price
-          - duration_hours
-        properties:
-          seller_id:
-            type: integer
-            description: ID of the seller
-          piece_id:
-            type: integer
-            description: ID of the piece being auctioned
-          start_price:
-            type: number
-            format: float
-            minimum: 0
-            exclusiveMinimum: true
-            description: Starting price for the auction
-          duration_hours:
-            type: number
-            format: float
-            minimum: 0
-            exclusiveMinimum: true
-            description: Duration of the auction in hours
-
-      AuctionDetail:
-        type: object
-        properties:
-          auction_id:
-            type: integer
-          seller_id:
-            type: integer
-          piece_id:
-            type: integer
-          start_price:
-            type: number
-            format: float
-          current_price:
-            type: number
-            format: float
-          end_time:
-            type: integer
-            format: int64
-          status:
-            type: string
-          winner_id:
-            type: integer
-            nullable: true
-          created_at:
-            type: string
-            format: date-time
-          bid_count:
-            type: integer
-
-      BidRequest:
-        type: object
-        required:
-          - bidder_id
-          - bid_amount
-        properties:
-          bidder_id:
-            type: integer
-          bid_amount:
-            type: number
-            format: float
-            minimum: 0
-            exclusiveMinimum: true
-
-      ActiveAuction:
-        type: object
-        properties:
-          auction_id:
-            type: integer
-          seller_id:
-            type: integer
-          piece_id:
-            type: integer
-          current_price:
-            type: number
-            format: float
-          end_time:
-            type: integer
-            format: int64
-          bid_count:
-            type: integer
-          best_bidder_id:
-            type: integer
-            nullable: true
-
-      ModifyAuctionRequest:
-        type: object
-        required:
-          - seller_id
-        properties:
-          seller_id:
-            type: integer
-
-  paths:
-    /create_auction:
-      post:
-        summary: Create a new auction
-        security:
-          - bearerAuth: []
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateAuctionRequest'
-        responses:
-          '201':
-            description: Auction created successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    auction_id:
-                      type: integer
-          '400':
-            description: Invalid input
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '500':
-            description: Internal server error
-
-    /auction/{auction_id}:
-      get:
-        summary: Get auction details
-        parameters:
-          - name: auction_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Auction details retrieved successfully
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/AuctionDetail'
-          '404':
-            description: Auction not found
-          '500':
-            description: Internal server error
-
-    /bid/{auction_id}:
-      post:
-        summary: Place a bid on an auction
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: auction_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BidRequest'
-        responses:
-          '200':
-            description: Bid placed successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-          '400':
-            description: Invalid bid
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '500':
-            description: Internal server error
-
-    /running/all:
-      get:
-        summary: Get all active auctions
-        responses:
-          '200':
-            description: Active auctions retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    auctions:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/ActiveAuction'
-          '500':
-            description: Internal server error
-
-    /history:
-      get:
-        summary: Get historical auctions
-        responses:
-          '200':
-            description: Historical auctions retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    auctions:
-                      type: array
-                      items:
-                        type: object
-          '500':
-            description: Internal server error
-
-    /running/{piece_id}:
-      get:
-        summary: Get active auctions for a specific piece
-        parameters:
-          - name: piece_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Active auctions for piece retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    auctions:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/ActiveAuction'
-          '500':
-            description: Internal server error
-
-    /modify/{auction_id}:
-      put:
-        summary: Modify auction end time
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: auction_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ModifyAuctionRequest'
-        responses:
-          '200':
-            description: Auction modified successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-          '400':
-            description: Invalid input
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '500':
-            description: Internal server error
-
-  components:
-  securitySchemes:
-    bearerAuth:
-      type: https
-      scheme: bearer
-      bearerFormat: JWT
-
-  schemas:
-    Error:
-      type: object
-      properties:
-        err:
-          type: string
-          description: Error message
-
-    CreateUserRequest:
-      type: object
-      required:
-        - username
-        - email
-        - user_id
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        user_id:
-          type: integer
-
-    UserCollection:
-      type: object
-      properties:
-        rsp:
-          type: string
-        collection:
-          type: array
-          items:
-            type: object
-
-    GoldUpdateRequest:
-      type: object
-      required:
-        - amount
-        - is_refill
-      properties:
-        amount:
-          type: number
-          format: float
-        is_refill:
-          type: boolean
-
-    AuctionCompleteRequest:
-      type: object
-      required:
-        - winner_id
-        - gacha_id
-        - winning_bid
-        - losing_bids
-      properties:
-        winner_id:
-          type: integer
-        gacha_id:
-          type: integer
-        winning_bid:
-          type: number
-          format: float
-        losing_bids:
-          type: array
-          items:
-            type: object
-
-    UpdateCollectionRequest:
-      type: object
-      required:
-        - winner_id
-        - piece_id
-        - final_price
-        - seller_id
-      properties:
-        winner_id:
-          type: integer
-        piece_id:
-          type: integer
-        final_price:
-          type: number
-          format: float
-        seller_id:
-          type: integer
-
-    CollectionUpdateRequest:
-      type: object
-      required:
-        - user_id
-        - pieces_id
-      properties:
-        user_id:
-          type: integer
-        pieces_id:
-          type: array
-          items:
-            type: integer
-
-    UserBalance:
-      type: object
-      properties:
-        success:
-          type: boolean
-        balance:
-          type: number
-          format: float
-
-    HasPieceResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        has_piece:
-          type: boolean
+          description: Internal server error.
           
-  paths:
-    /create_user:
-      post:
-        summary: Create a new user account
-        requestBody:
-          required: true
+  /create_user (user service):
+    post:
+      tags: ['User']
+      summary: Create a new player account in the user microservice.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the player.
+                email:
+                  type: string
+                  format: email
+                  description: The email of the player.
+                user_id:
+                  type: integer
+                  description: The unique identifier for the user.
+              required:
+                - username
+                - email
+                - user_id
+      responses:
+        201:
+          description: User created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateUserRequest'
-        responses:
-          '201':
-            description: User created successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    rsp:
-                      type: string
-                    id:
-                      type: integer
-          '409':
-            description: Username or ID already taken
-          '500':
-            description: Internal server error
+                type: object
+                properties:
+                  rsp:
+                    type: string
+                  id:
+                    type: integer
+        400:
+          description: Missing or invalid fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        409:
+          description: Conflict - user already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
 
-    /player/{player_id}:
-      get:
-        summary: Get player information
-        parameters:
-          - name: player_id
-            in: path
-            required: true
+  /player/{player_id}:
+    get:
+      tags: ['User']
+      summary: Get specific player information
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the player
+      responses:
+        '200':
+          description: Successfully retrieved player information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_info:
+                    type: object
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+    delete:
+      summary: Delete a player account.
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the player to delete.
+      responses:
+        200:
+          description: Player deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: string
+        400:
+          description: Missing player ID or other errors.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+    put:
+      summary: Update a player's username.
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the player to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: integer
-        responses:
-          '200':
-            description: Player information retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    user_info:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The new username for the player.
+              required:
+                - username
+      responses:
+        200:
+          description: Player updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Missing or invalid fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        401:
+          description: Missing authorization header.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /player/collection/{player_id}:
+    get:
+      tags: ['User']
+      summary: Retrieve a player's collection.
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the player whose collection is retrieved.
+      responses:
+        200:
+          description: Collection retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: string
+                  collection:
+                    type: array
+                    items:
                       type: object
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-      put:
-        summary: Update player information
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: player_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        requestBody:
-          required: true
+        400:
+          description: Error retrieving collection.
           content:
             application/json:
               schema:
                 type: object
-                required:
-                  - username
                 properties:
-                  username:
+                  err:
                     type: string
-        responses:
-          '200':
-            description: Player updated successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-      delete:
-        summary: Delete player account
-        parameters:
-          - name: player_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Player deleted successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-    /player/collection/{player_id}:
-      get:
-        summary: Get player's collection
-        parameters:
-          - name: player_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Collection retrieved successfully
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/UserCollection'
-          '400':
-            description: Invalid request
-
-    /player/gold/{player_id}:
-      put:
-        summary: Update player's gold balance
-        parameters:
-          - name: player_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        requestBody:
+                    
+  /player/gold/{player_id}:
+    put:
+      tags: ['User']
+      summary: Update player's gold balance
+      parameters:
+        - name: player_id
+          in: path
           required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoldUpdateRequest'
-        responses:
-          '200':
-            description: Gold balance updated successfully
-          '400':
-            description: Invalid request
-
-    /auction/complete:
-      post:
-        summary: Complete an auction
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuctionCompleteRequest'
-        responses:
-          '200':
-            description: Auction completed successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-    /update_collection:
-      post:
-        summary: Update collection after auction
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdateCollectionRequest'
-        responses:
-          '200':
-            description: Collection updated successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-    /player/collection/update:
-      post:
-        security:
-          - bearerAuth: []
-        summary: Update player's collection
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CollectionUpdateRequest'
-        responses:
-          '200':
-            description: Collection updated successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
-
-    /user/balance/{user_id}:
-      get:
-        summary: Get user's balance
-        parameters:
-          - name: user_id
-            in: path
-            required: true
+          schema:
+            type: integer
+          description: Unique identifier of the player
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: integer
-        responses:
-          '200':
-            description: Balance retrieved successfully
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/UserBalance'
-          '500':
-            description: Internal server error
-
-    /user/has_piece/{user_id}/{piece_id}:
-      get:
-        summary: Check if user has specific piece
-        parameters:
-          - name: user_id
-            in: path
-            required: true
-            schema:
-              type: integer
-          - name: piece_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Check completed successfully
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/HasPieceResponse'
-          '400':
-            description: Invalid request
-
-    /admin/logs:
-      get:
-        summary: Get system logs
-        security:
-          - bearerAuth: []
-        responses:
-          '200':
-            description: Logs retrieved successfully
-          '500':
-            description: Internal server error
-
-    /player/all:
-      get:
-        summary: Get all players
-        security:
-          - bearerAuth: []
-        responses:
-          '200':
-            description: Players retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    players:
-                      type: array
-                      items:
-                        type: object
-          '400':
-            description: Invalid request
-
-    /admin/user/modify/{user_id}:
-      put:
-        summary: Admin modify user
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: user_id
-            in: path
-            required: true
-            schema:
-              type: integer
-        requestBody:
-          required: true
+              type: object
+              required:
+                - amount
+                - is_refill
+              properties:
+                amount:
+                  type: number
+                  description: Amount to increment/decrement the gold balance
+                is_refill:
+                  type: boolean
+                  description: Indicates if this is a refill transaction
+      responses:
+        '200':
+          description: Successfully updated gold balance
           content:
             application/json:
               schema:
                 type: object
-                required:
-                  - username
                 properties:
-                  username:
+                  message:
                     type: string
-        responses:
-          '200':
-            description: User modified successfully
-          '400':
-            description: Invalid request
-          '500':
-            description: Internal server error
+                    example: Successfully updated player gold
+                  player_id:
+                    type: integer
+                  new_balance:
+                    type: number
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: string
+                    example: Error updating balance, balance required
 
-    /admin/player/transaction/history/{player_id}:
-      get:
-        summary: Get player's transaction history
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: player_id
-            in: path
-            required: true
+  /auction/complete:
+    post:
+      tags: ['User']
+      summary: Complete an auction and process the outcome
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: integer
-        responses:
-          '200':
-            description: Transaction history retrieved successfully
-          '400':
-            description: Invalid request
+              type: object
+              required:
+                - winner_id
+                - gacha_id
+                - winning_bid
+                - losing_bids
+              properties:
+                winner_id:
+                  type: integer
+                  description: ID of the winning player
+                gacha_id:
+                  type: integer
+                  description: ID of the gacha item being auctioned
+                winning_bid:
+                  type: number
+                  description: The winning bid amount
+                losing_bids:
+                  type: array
+                  items:
+                    type: object
+                  description: Array of losing bid information
+      responses:
+        '200':
+          description: Auction completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Auction completed successfully
+                  winner_id:
+                    type: integer
+                  gacha_id:
+                    type: integer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Internal server error
 
-    /admin/player/market-history/{user_id}:
-      get:
-        summary: Get user's market history
-        security:
-          - bearerAuth: []
-        parameters:
-          - name: user_id
-            in: path
-            required: true
+  /update_collection:
+    post:
+      tags: ['User']
+      summary: Update collection after auction completion
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: integer
-        responses:
-          '200':
-            description: Market history retrieved successfully
-          '400':
-            description: Invalid request
+              type: object
+              required:
+                - winner_id
+                - piece_id
+                - final_price
+                - seller_id
+              properties:
+                winner_id:
+                  type: integer
+                  description: ID of the winning player
+                piece_id:
+                  type: integer
+                  description: ID of the piece being collected
+                final_price:
+                  type: number
+                  description: Final auction price
+                seller_id:
+                  type: integer
+                  description: ID of the seller
+      responses:
+        '200':
+          description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
 
-    /max_user_id:
-      get:
-        summary: Get maximum user ID
-        responses:
-          '200':
-            description: Maximum user ID retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    max_id:
-                      type: integer
-          '500':
-            description: Internal server error
+  /player/collection/update:
+    post:
+      tags: ['User']
+      summary: Update player's collection
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - pieces_id
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the player
+                pieces_id:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of piece IDs to add to collection
+      responses:
+        '200':
+          description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: string
+                  user_id:
+                    type: integer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Authorization header missing
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+  /player/collection/update/secret:
+    post:
+      tags: ['User']
+      summary: Update player collection with API key authentication
+      parameters:
+        - name: X-API-Key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - pieces_id
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the player
+                pieces_id:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of piece IDs to add to collection
+      responses:
+        '200':
+          description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: string
+                  user_id:
+                    type: integer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '403':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Invalid or missing API key
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /user/balance/{user_id}:
+    get:
+      tags: ['User']
+      summary: Get user's token balance
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user
+      responses:
+        '200':
+          description: Successfully retrieved balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  balance:
+                    type: number
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+
+  /user/has_piece/{user_id}/{piece_id}:
+    get:
+      tags: ['User']
+      summary: Check if user owns a specific piece
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the piece to check
+      responses:
+        '200':
+          description: Successfully checked piece ownership
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  has_piece:
+                    type: boolean
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+
+  /admin/logs:
+    get:
+      tags: ['User']
+      summary: Get latest system logs
+      responses:
+        '200':
+          description: Successfully retrieved logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rsp:
+                    type: array
+                    items:
+                      type: object
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /player/all:
+    get:
+      tags: ['User']
+      summary: Get all players information
+      responses:
+        '200':
+          description: Successfully retrieved all players
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /admin/user/modify/{user_id}:
+    put:
+      tags: ['User']
+      summary: Modify user information
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to modify
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                  description: New username for the user
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User updated successfully
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Username required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Failed to connect to authentication service
+
+  /admin/player/transaction/history/{player_id}:
+    get:
+      tags: ['User']
+      summary: Get player's transaction history
+      parameters:
+        - name: player_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the player
+      responses:
+        '200':
+          description: Successfully retrieved transaction history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions_history:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /admin/player/market-history/{user_id}:
+    get:
+      tags: ['User']
+      summary: Get player's market history
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user
+      responses:
+        '200':
+          description: Successfully retrieved market history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  market_history:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /max_user_id:
+    get:
+      tags: ['User']
+      summary: Get the current maximum user ID
+      responses:
+        '200':
+          description: Successfully retrieved maximum user ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  max_id:
+                    type: integer
+                    description: Current maximum user ID in the system
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+  /create_auction:
+    post:
+      tags: ['Auction']
+      summary: Create a new auction
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - seller_id
+                - piece_id
+                - start_price
+                - duration_hours
+              properties:
+                seller_id:
+                  type: integer
+                  description: ID of the seller
+                piece_id:
+                  type: integer
+                  description: ID of the piece being auctioned
+                start_price:
+                  type: number
+                  format: float
+                  description: Starting price of the auction
+                duration_hours:
+                  type: number
+                  format: float
+                  description: Duration of the auction in hours
+      responses:
+        '201':
+          description: Auction created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auction_id:
+                    type: integer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /auction/{auction_id}:
+    get:
+      tags: ['Auction']
+      summary: Get specific auction information
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the auction
+      responses:
+        '200':
+          description: Successfully retrieved auction information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auction_id:
+                    type: integer
+                  seller_id:
+                    type: integer
+                  piece_id:
+                    type: integer
+                  start_price:
+                    type: number
+                  current_price:
+                    type: number
+                  end_time:
+                    type: integer
+                  status:
+                    type: string
+                  winner_id:
+                    type: integer
+                  created_at:
+                    type: string
+                  bid_count:
+                    type: integer
+        '404':
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /bid/{auction_id}:
+    post:
+      tags: ['Auction']
+      summary: Place a bid on an auction
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the auction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bidder_id
+                - bid_amount
+              properties:
+                bidder_id:
+                  type: integer
+                  description: ID of the bidder
+                bid_amount:
+                  type: number
+                  format: float
+                  description: Amount of the bid
+      responses:
+        '200':
+          description: Bid placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '404':
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /running/all:
+    get:
+      tags: ['Auction']
+      summary: Get all active auctions
+      responses:
+        '200':
+          description: Successfully retrieved active auctions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auctions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        auction_id:
+                          type: integer
+                        seller_id:
+                          type: integer
+                        piece_id:
+                          type: integer
+                        current_price:
+                          type: number
+                        end_time:
+                          type: integer
+                        bid_count:
+                          type: integer
+                        best_bidder_id:
+                          type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /history:
+    get:
+      tags: ['Auction']
+      summary: Get historical auctions
+      responses:
+        '200':
+          description: Successfully retrieved past auctions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auctions:
+                    type: array
+                    items:
+                      type: object
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /running/{piece_id}:
+    get:
+      tags: ['Auction']
+      summary: Get active auctions for a specific piece
+      parameters:
+        - name: piece_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the piece
+      responses:
+        '200':
+          description: Successfully retrieved active auctions for piece
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auctions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        auction_id:
+                          type: integer
+                        seller_id:
+                          type: integer
+                        piece_id:
+                          type: integer
+                        current_price:
+                          type: number
+                        end_time:
+                          type: integer
+                        bid_count:
+                          type: integer
+                        best_bidder_id:
+                          type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+
+  /modify/{auction_id}:
+    put:
+      tags: ['Auction']
+      summary: Modify auction end time
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the auction to modify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - seller_id
+              properties:
+                seller_id:
+                  type: integer
+                  description: ID of the seller
+      responses:
+        '200':
+          description: Auction modified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
